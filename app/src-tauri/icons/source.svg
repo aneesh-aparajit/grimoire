@@ -1,11 +1,47 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
-  <rect x="96" y="96" width="832" height="832" rx="184" fill="#22304a"/>
-  <rect x="96" y="96" width="120" height="832" fill="#1a2539"/>
-  <rect x="96" y="96" width="832" height="832" rx="184" fill="none" stroke="#2c3c5a" stroke-width="8"/>
-  <rect x="300" y="300" width="500" height="300" rx="14" fill="#f3f5f1"/>
-  <rect x="340" y="368" width="300" height="22" rx="4" fill="#24396e"/>
-  <rect x="340" y="432" width="380" height="14" rx="3" fill="#9fb3a1"/>
-  <rect x="340" y="480" width="250" height="14" rx="3" fill="#9fb3a1"/>
-  <rect x="328" y="481" width="290" height="12" rx="3" fill="#b8382a"/>
-  <rect x="340" y="528" width="330" height="14" rx="3" fill="#9fb3a1"/>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#25202f"/>
+      <stop offset="1" stop-color="#16131c"/>
+    </linearGradient>
+    <linearGradient id="vane" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#e9e3d6"/>
+      <stop offset="1" stop-color="#fbf8f1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- tile -->
+  <rect x="100" y="100" width="824" height="824" rx="196" fill="url(#bg)"/>
+
+  <!-- feather: drawn along a vertical axis, then rotated to the diagonal -->
+  <g transform="rotate(38 512 512)">
+    <!-- vane, with a few notches cut into the edges -->
+    <path fill="url(#vane)" d="
+      M516 150
+      C 576 214, 600 320, 596 420
+      L 572 436
+      L 594 452
+      C 588 552, 562 640, 528 712
+      L 512 722
+      L 496 712
+      C 464 652, 440 590, 432 530
+      L 456 512
+      L 428 500
+      C 424 420, 436 330, 458 262
+      L 482 252
+      L 468 232
+      C 482 196, 498 168, 516 150 Z"/>
+    <!-- rachis / shaft -->
+    <path d="M514 190 C 516 380, 514 560, 512 722" fill="none" stroke="#b9b0a0" stroke-width="9" stroke-linecap="round"/>
+    <!-- quill tip -->
+    <path d="M512 722 L 512 850" fill="none" stroke="#efe9dd" stroke-width="15" stroke-linecap="round"/>
+  </g>
+
+  <!-- sparkle -->
+  <path fill="#8b6cf2" d="
+    M700 600
+    C 708 660, 724 676, 784 684
+    C 724 692, 708 708, 700 768
+    C 692 708, 676 692, 616 684
+    C 676 676, 692 660, 700 600 Z"/>
 </svg>
