@@ -23,6 +23,7 @@ const ASYNC_NOTES = `# Async Rust, chapter 3
   implements \`Future\`, and nothing happens until something polls it.
 - \`.await\` is where the current future yields if the inner one is \`Pending\`.
 - Mental model: a state machine with one state per \`.await\` point.
+- ~~Futures start running as soon as they're created.~~ They don't; see above.
 
 ## Lifetimes and async
 

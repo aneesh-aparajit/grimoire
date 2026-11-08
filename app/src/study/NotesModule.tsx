@@ -1,4 +1,4 @@
-import { markdown } from "@codemirror/lang-markdown";
+import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { languages } from "@codemirror/language-data";
 import { EditorView } from "@codemirror/view";
 import ReactMarkdown from "react-markdown";
@@ -10,7 +10,7 @@ import { notesTheme, syntax } from "./editor/theme";
 import { useApp } from "../app/store";
 import { useStudy } from "./store";
 
-const BASE = [markdown({ codeLanguages: languages }), entries, syntax, notesTheme];
+const BASE = [markdown({ base: markdownLanguage, codeLanguages: languages }), entries, syntax, notesTheme];
 const WRAP_LINT = [...BASE, EditorView.lineWrapping, notesLint];
 const WRAP = [...BASE, EditorView.lineWrapping];
 const LINT = [...BASE, notesLint];

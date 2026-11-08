@@ -50,7 +50,7 @@ export function ContentPane({ item, hidden }: { item: Item; hidden: boolean }) {
           {rest}
         </div>
         {backend.mock && !mockFails && (
-          <span className="demo-tag hide-narrow" title="The desktop app shows the live site in a native webview">
+          <span className="demo-tag" title="The desktop app shows the live site in a native webview">
             Demo page
           </span>
         )}

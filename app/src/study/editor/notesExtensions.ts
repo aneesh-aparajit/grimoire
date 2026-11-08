@@ -14,15 +14,17 @@ import {
 /* ---------- entries: each `##` heading is a numbered notebook entry ---------- */
 
 type Structure = { entries: Map<number, number>; fences: { from: number; to: number }[] };
-const cache = new WeakMap<EditorState["doc"], Structure>();
+// Keyed by syntax tree, not document: an incomplete parse must not be cached as final.
+const cache = new WeakMap<object, Structure>();
 
 function structure(state: EditorState): Structure {
-  const hit = cache.get(state.doc);
+  const tree = syntaxTree(state);
+  const hit = cache.get(tree);
   if (hit) return hit;
   const entries = new Map<number, number>();
   const fences: { from: number; to: number }[] = [];
   let n = 0;
-  syntaxTree(state).iterate({
+  tree.iterate({
     enter(node) {
       if (node.name === "ATXHeading2") {
         n += 1;
@@ -35,7 +37,7 @@ function structure(state: EditorState): Structure {
     },
   });
   const s = { entries, fences };
-  cache.set(state.doc, s);
+  cache.set(tree, s);
   return s;
 }
 
