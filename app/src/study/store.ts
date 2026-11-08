@@ -19,6 +19,8 @@ type StudyState = {
   split: number;
   sandboxOpen: boolean;
   sandboxSplit: number;
+  /** Fraction of the notebook height given to notes when the sandbox is open. */
+  notebookSplit: number;
   language: Language;
   snippets: Partial<Record<Language, string>>;
   savedSnippets: string[];
@@ -38,6 +40,7 @@ type StudyState = {
   toggleNotebook: () => void;
   setSplit: (r: number) => void;
   setSandboxSplit: (r: number) => void;
+  setNotebookSplit: (r: number) => void;
   setSandboxOpen: (open: boolean) => void;
   setLanguage: (l: Language) => Promise<void>;
   setSnippet: (code: string) => void;
@@ -96,6 +99,7 @@ export const useStudy = create<StudyState>((set, get) => {
     split: 0.54,
     sandboxOpen: false,
     sandboxSplit: 0.5,
+    notebookSplit: 0.54,
     language: "python",
     snippets: {},
     savedSnippets: [],
@@ -226,6 +230,7 @@ export const useStudy = create<StudyState>((set, get) => {
     toggleNotebook: () => set((s) => ({ notebookCollapsed: !s.notebookCollapsed, contentCollapsed: false })),
     setSplit: (r) => set({ split: Math.min(0.78, Math.max(0.24, r)) }),
     setSandboxSplit: (r) => set({ sandboxSplit: Math.min(0.8, Math.max(0.2, r)) }),
+    setNotebookSplit: (r) => set({ notebookSplit: Math.min(0.85, Math.max(0.15, r)) }),
     setSandboxOpen: (open) => set({ sandboxOpen: open }),
 
     setLanguage: async (language) => {

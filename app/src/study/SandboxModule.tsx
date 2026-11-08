@@ -108,7 +108,6 @@ export function SandboxModule({ style }: { style?: React.CSSProperties }) {
         ) : (
           last && (
             <span className="last-run">
-              <span className="mono">R-{String(last.n).padStart(2, "0")}</span>
               <span className="mono">
                 {last.status === "ok" ? "exit 0" : last.status === "error" ? `exit ${last.exitCode ?? "?"}` : last.status}
               </span>
@@ -211,7 +210,7 @@ export function SandboxModule({ style }: { style?: React.CSSProperties }) {
             orientation="horizontal"
             value={split}
             onChange={setSplit}
-            label="Resize editor and run log"
+            label="Resize editor and output"
             controls="run-log"
           />
           <RunLog style={{ flex: `${1 - split} 1 0` }} />
