@@ -26,6 +26,7 @@ colors:
   cloth-rule: "#3b4b69"
   site-ground: "#ffffff"
   focus: "#3a62c4"
+  spark: "#7b5ce8"
 typography:
   headline:
     fontFamily: "Archivo Variable, Archivo, system-ui, sans-serif"
@@ -71,6 +72,32 @@ typography:
     fontSize: "13px"
     fontWeight: 400
     lineHeight: 1.6
+  display:
+    fontFamily: "Archivo Variable, Archivo, system-ui, sans-serif"
+    fontSize: "clamp(3.4rem, 12.5vw, 9rem)"
+    fontWeight: 820
+    lineHeight: 0.9
+    letterSpacing: "-0.04em"
+    fontVariation: "'wdth' 112"
+  display-close:
+    fontFamily: "Archivo Variable, Archivo, system-ui, sans-serif"
+    fontSize: "clamp(2.5rem, 6vw, 4.5rem)"
+    fontWeight: 800
+    lineHeight: 1
+    letterSpacing: "-0.035em"
+    fontVariation: "'wdth' 108"
+  entry-heading:
+    fontFamily: "Archivo Variable, Archivo, system-ui, sans-serif"
+    fontSize: "1.75rem"
+    fontWeight: 680
+    lineHeight: 1.2
+    letterSpacing: "-0.015em"
+  margin-note:
+    fontFamily: "Archivo Variable, Archivo, system-ui, sans-serif"
+    fontSize: "0.9375rem"
+    fontWeight: 400
+    lineHeight: 1.45
+    fontVariation: "'wdth' 92"
 rounded:
   mark: "2px"
   control: "3px"
@@ -84,6 +111,8 @@ spacing:
   xl: "20px"
   head: "36px"
   band: "52px"
+  page-gutter: "40px"
+  page-margin: "6.5rem"
 components:
   button-primary:
     backgroundColor: "{colors.pen}"
@@ -163,6 +192,21 @@ components:
     backgroundColor: "{colors.paper-raise}"
     textColor: "{colors.ink}"
     rounded: "{rounded.dialog}"
+  button-page:
+    backgroundColor: "{colors.pen}"
+    textColor: "{colors.pen-on}"
+    rounded: "{rounded.control}"
+    padding: "0 16px"
+    height: "40px"
+  file-bar:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink-muted}"
+    typography: "{typography.mono}"
+    height: "{spacing.head}"
+  margin-note:
+    textColor: "{colors.pen}"
+    typography: "{typography.margin-note}"
+    width: "24ch"
 ---
 
 # Design System: grimoire
@@ -218,9 +262,15 @@ A cool, low-chroma paper and ink palette where every saturated hue is a signal.
 
 **The Cool Paper Rule.** The ground is cool green-gray paper. Never cream, never pure white for grimoire's own surfaces; white belongs to third-party content only.
 
+### Landing page (Persuade surface)
+The landing page at `web/` reuses every app color above with the same light and dark values, and adds one:
+- **Spark Violet** (spark): the star beside the feather in the wordmark, the star that lands at the end of the written-in title, the small star that pops onto the corner of a page button on hover and focus, and the burst of stars around a passing `Exit 0` stamp. It lifts to a pale lilac in dark mode.
+
+**The Spark Rule.** Violet is the sparkle and nothing else. It is only ever the four-point star shape; never text, a link, a fill, a border, a focus ring or an accent on a control. It does not appear in the app's working views.
+
 ## Typography
 
-**Display Font:** none; the system has no display face.
+**Display Font:** none; the system has no display face. The landing page sets Archivo itself at display sizes (see Landing page below).
 **Body Font:** Archivo Variable (with Archivo, system-ui)
 **Label/Mono Font:** Archivo Variable condensed via the `wdth` axis for labels; JetBrains Mono Variable (with ui-monospace) for code, output and measurements.
 
@@ -243,6 +293,16 @@ A cool, low-chroma paper and ink palette where every saturated hue is a signal.
 
 **The Width Axis Rule.** Hierarchy comes from width and weight on one family (100 for prose, 84 to 86 for metadata, 72 for labels, 66 for stamps), not from adding faces.
 
+### Landing page (Persuade surface)
+The same family runs wider and heavier for a page that has to persuade; nothing new is loaded.
+- **Display** (820, `wdth` 112, -0.04em, line-height 0.9): the `# grimoire` title only, in pen, on one line, with its `#` marker at 480.
+- **Display Close** (800, `wdth` 108, -0.035em): the closing `Open the book.` line only.
+- **Entry Heading** (680, 1.75rem, -0.015em; 1.5rem under 760px): each entry's `##` heading, in pen, with the `##` marker in strong sage at 500.
+- **Lede** (clamp(1.25rem, 2.2vw, 1.625rem), line-height 1.4, max 30ch): the single line under the title. Entry body copy runs at 1.0625rem, line-height 1.7, max 62ch, in pen.
+- **Margin Note** (400, 0.9375rem, `wdth` 92): handwriting-voice asides in the right margin; see Components.
+
+**The Wide For Display Rule.** Display size comes from pushing Archivo past normal width (108 to 112) and weight (800 to 820), never from a second face. Use it twice per page at most: the title and the close.
+
 ## Layout
 
 Every view is the same three-row grid: the cloth band (52px), an optional banner row, then the work area. Module heads are 36px with a 14px left inset; that inset recurs as the left edge of run rows, banners and sandbox messages.
@@ -252,6 +312,9 @@ The study view is a resizable split: source left (about 52%), notebook right, jo
 Notes carry a 4.5rem entry margin left of the text, where E-numbers sit opposite each `##` heading; the run log uses the same idea with R-numbers in a 2.5rem column and output indented to align past it.
 
 Spacing steps are small and tight (6, 8, 12, 14, 16, 20px), with 20px reserved for dialog and peek padding. Under 760px the split stacks vertically, metadata and button labels drop, and the entry numbers move inline. The notebook also responds to its own width through a container query, shedding labels at 720px and file names at 480px.
+
+### Landing page (Persuade surface)
+The page is one NOTES.md: the cloth band (52px), a sticky mono file bar (36px), then a 1200px column with a 40px gutter. Each entry is a three-column grid: a 6.5rem entry margin holding its `E-00` to `E-05` label, a text column up to 680px, and a right margin for the margin note. A full-height sage rule runs down the page just inside the entry margin, and a full-width rule opens every entry after the title. Entries breathe more than the app (44px above, 72px below). Under 1040px the margin note drops beneath the text; under 760px the gutter falls to 16px, the margin rule disappears and the E-number moves to the top right of its entry.
 
 ## Elevation & Depth
 
@@ -318,6 +381,21 @@ Every run is a ruled entry: `R-01` label, mono timestamp and file, the exit stam
 ### Banners
 Full-width rows under the band on caution-soft with a 35% caution hairline and an ochre warning icon; plain-language text with mono file names, actions at the end.
 
+### Landing page (Persuade surface)
+The landing page uses the app's own stamps, modules, tags, entry margin and run log unchanged, with live product demos (INDEX.md, the split, the sandbox, the vault) built as real modules, not screenshots.
+- **Page button:** the primary button scaled for a page: 40px, 16px side padding, 15px text at 600, the same 3px corner. A spark star pops onto its top right corner on hover and focus. One action, View on GitHub, appears in the hero and the close.
+- **File bar:** a sticky 36px mono bar under the band naming the page `~/grimoire/NOTES.md`, a crumb of the entry in view (its E-number in pen), and the save dot with `Writing` or `Saved`. Paper at 92% with an 8px blur so text scrolling beneath stays legible; a hairline below.
+- **Margin note (signature):** a short aside in the pen, tilted -1.5deg, at most 24ch, with a hand-drawn SVG arrow above it (1.5px pen stroke, round caps and joins) pointing back at the text. One per entry at most, and only for a true aside: a caveat, a hint, a reassurance.
+- **Cast cell:** the sandbox module running its own story. R-01 fails, its meta is struck through in red and the traceback stays; the typo is rewritten in pen with a blinking caret; R-02 passes with `Exit 0` and a burst of five spark stars. The Cast button replays it; old runs keep their numbers.
+
+### Motion (landing page)
+Motion is writing, never decoration. Everything is visible by default; JavaScript opts the reveals in, and every reveal, write-in and burst is off under reduced motion.
+- **Quill write-in:** the title is clipped open left to right over 1500ms while the feather quill travels with it and scribbles, then lifts away; the spark star then lands and twinkles every few seconds.
+- **Rule draw-on:** each entry's top rule draws from the left over 900ms when the entry first enters view; its margin note's arrow draws on along its own path. The close line writes in the same way.
+- **Cast sequence:** strike-through (the app's 420ms correction strike), pen rewrite, pass, sparkle burst (760ms, staggered 40ms per star).
+
+**The Write-In Rule.** Things appear the way ink does: drawn left to right or along their path, once, the first time they are seen. Nothing fades up, slides in or bounces.
+
 ## Do's and Don'ts
 
 ### Do:
@@ -330,6 +408,7 @@ Full-width rows under the band on caution-soft with a 35% caution hairline and a
 - **Do** strike a failed entry through with one red rule and leave it visible.
 - **Do** keep corners at 3px for controls, 2px for marks and 4px for dialogs.
 - **Do** show third-party content on its own white ground in its own type.
+- **Do** (landing page) keep spark violet to the four-point star: the wordmark, the title's end, the page button's hover, the pass burst.
 
 ### Don't:
 - **Don't** use correction red in syntax highlighting, decoration or emphasis.
@@ -341,3 +420,4 @@ Full-width rows under the band on caution-soft with a 35% caution hairline and a
 - **Don't** use the uppercase condensed label as a kicker or eyebrow above a heading.
 - **Don't** introduce a second sans or a display face; get hierarchy from Archivo's weight and width.
 - **Don't** use mono for prose or interface labels.
+- **Don't** (landing page) replace live product modules with screenshots or feature cards, or use spark violet as a text, link or control color.
