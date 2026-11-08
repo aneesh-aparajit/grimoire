@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import { FileBar } from "@/components/FileBar";
 import { IndexList } from "@/components/IndexList";
@@ -60,9 +61,9 @@ function Entry({
   );
 }
 
-function GitHubButton() {
+function GitHubButton({ outline = false }: { outline?: boolean }) {
   return (
-    <a className="btn btn-pen" href={REPO}>
+    <a className={outline ? "btn btn-outline" : "btn btn-pen"} href={REPO}>
       <GitHubIcon />
       View on GitHub
       <Twinkle />
@@ -96,6 +97,7 @@ export default function Home() {
             </a>
           ))}
           <span className="sep" aria-hidden="true" />
+          <Link href="/install">Install</Link>
           <a href={REPO}>
             <GitHubIcon size={15} />
             GitHub
@@ -130,7 +132,10 @@ export default function Home() {
               <strong>cast the code</strong>, all in one window.
             </p>
             <div className="acts">
-              <GitHubButton />
+              <Link className="btn btn-pen" href="/install">
+                Install for macOS
+              </Link>
+              <GitHubButton outline />
               <span className="facts">macOS 13+ · plain files · no account</span>
             </div>
           </div>
@@ -254,7 +259,10 @@ export default function Home() {
               <a href={`${REPO}/blob/master/docs/PRD.md`}>the plan</a>, follow along, or lend a hand.
             </p>
             <div className="acts">
-              <GitHubButton />
+              <Link className="btn btn-pen" href="/install">
+                Install grimoire
+              </Link>
+              <GitHubButton outline />
             </div>
           </div>
         </section>
