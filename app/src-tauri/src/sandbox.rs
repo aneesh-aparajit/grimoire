@@ -11,7 +11,7 @@ use std::process::Stdio;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use tauri::{AppHandle, Emitter};
+use tauri::{AppHandle, Emitter, Runtime};
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::sync::Mutex;
 
@@ -195,9 +195,10 @@ impl Runner {
         }
     }
 
-    pub async fn start(
+    #[allow(clippy::too_many_arguments)]
+    pub async fn start<R: Runtime>(
         self: Arc<Self>,
-        app: AppHandle,
+        app: AppHandle<R>,
         language: String,
         code: String,
         stdin: Option<String>,
@@ -255,7 +256,7 @@ impl Runner {
                 let mut child = match cmd.spawn() {
                     Ok(c) => c,
                     Err(e) => {
-                        let _ = app.emit_to("main", "sandbox://output", OutputEvent {
+                        let _ = app.emit("sandbox://output", OutputEvent {
                             run_id,
                             stream: "stderr",
                             chunk: format!("couldn't start {program}: {e}\n"),
@@ -305,14 +306,14 @@ impl Runner {
                             }
                             _ => {
                                 if let Some((s, text)) = current.take() {
-                                    let _ = app.emit_to("main", "sandbox://output", OutputEvent { run_id, stream: s, chunk: text });
+                                    let _ = app.emit("sandbox://output", OutputEvent { run_id, stream: s, chunk: text });
                                 }
                                 current = Some((stream, format!("{line}\n")));
                             }
                         }
                     }
                     if let Some((s, text)) = current {
-                        let _ = app.emit_to("main", "sandbox://output", OutputEvent { run_id, stream: s, chunk: text });
+                        let _ = app.emit("sandbox://output", OutputEvent { run_id, stream: s, chunk: text });
                     }
                 };
                 let mut closed = false;
@@ -364,6 +365,10 @@ impl Runner {
                         break;
                     }
                     Some(st) => {
+                        if !me.active.lock().await.contains_key(&run_id) {
+                            result.reason = "stopped";
+                            break;
+                        }
                         result.code = st.code();
                         if !st.success() {
                             break;
@@ -374,9 +379,92 @@ impl Runner {
             result.duration_ms = started.elapsed().as_millis() as u64;
             result.truncated = truncated;
             me.active.lock().await.remove(&run_id);
-            let _ = app.emit_to("main", "sandbox://exit", result);
+            let _ = app.emit("sandbox://exit", result);
             drop(dir);
         });
         Ok(run_id)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::sync::Mutex as StdMutex;
+    use tauri::Listener;
+
+    async fn run_and_collect(code: &str, lang: &str, timeout_ms: u64, stop_after: Option<u64>) -> (String, serde_json::Value) {
+        let app = tauri::test::mock_app();
+        let handle = app.handle().clone();
+        let out = Arc::new(StdMutex::new(String::new()));
+        let exit = Arc::new(StdMutex::new(None::<serde_json::Value>));
+        let o = out.clone();
+        handle.listen_any("sandbox://output", move |e| {
+            let v: serde_json::Value = serde_json::from_str(e.payload()).unwrap();
+            o.lock().unwrap().push_str(v["chunk"].as_str().unwrap());
+        });
+        let x = exit.clone();
+        handle.listen_any("sandbox://exit", move |e| {
+            *x.lock().unwrap() = Some(serde_json::from_str(e.payload()).unwrap());
+        });
+        let runner = Arc::new(Runner::default());
+        let id = runner
+            .clone()
+            .start(handle, lang.into(), code.into(), None, Map::new(), timeout_ms, 1 << 20)
+            .await
+            .unwrap();
+        if let Some(ms) = stop_after {
+            tokio::time::sleep(Duration::from_millis(ms)).await;
+            runner.stop(id).await;
+        }
+        for _ in 0..200 {
+            if exit.lock().unwrap().is_some() {
+                break;
+            }
+            tokio::time::sleep(Duration::from_millis(50)).await;
+        }
+        let o = out.lock().unwrap().clone();
+        let e = exit.lock().unwrap().clone().expect("no exit event");
+        (o, e)
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn runs_python_and_reports_exit() {
+        if which("python3").is_none() {
+            return;
+        }
+        let (out, exit) = run_and_collect("print('hi')\nimport sys; print('oops', file=sys.stderr); sys.exit(3)\n", "python", 10_000, None).await;
+        assert!(out.contains("hi\n"), "{out}");
+        assert!(out.contains("oops"), "{out}");
+        assert_eq!(exit["code"], 3);
+        assert_eq!(exit["reason"], "exit");
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn times_out_and_kills() {
+        if which("python3").is_none() {
+            return;
+        }
+        let (_, exit) = run_and_collect("import time\nwhile True: time.sleep(0.1)\n", "python", 1_000, None).await;
+        assert_eq!(exit["reason"], "timeout");
+        assert!(exit["durationMs"].as_u64().unwrap() < 3_000);
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn stop_ends_the_run() {
+        if which("python3").is_none() {
+            return;
+        }
+        let (_, exit) = run_and_collect("import time\nwhile True: time.sleep(0.1)\n", "python", 30_000, Some(400)).await;
+        assert_eq!(exit["reason"], "stopped");
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn compiles_and_runs_c() {
+        if which("cc").is_none() {
+            return;
+        }
+        let (out, exit) = run_and_collect("#include <stdio.h>\nint main(void){printf(\"c ok\\n\");return 0;}\n", "c", 20_000, None).await;
+        assert!(out.contains("c ok"), "{out}");
+        assert_eq!(exit["code"], 0);
     }
 }

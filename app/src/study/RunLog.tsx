@@ -106,7 +106,7 @@ export function RunLog({ style }: { style?: React.CSSProperties }) {
   const [opened, setOpened] = useState<Set<number>>(new Set());
   // Runs loaded from earlier sessions start folded so failures stay in view;
   // a run started now opens on its own.
-  const [mountedAt] = useState(Date.now);
+  const mountedAt = useStudy((s) => s.openedAt);
   const last = runs.at(-1);
   const latest = last && last.startedAt >= mountedAt ? last.n : undefined;
 

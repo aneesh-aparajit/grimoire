@@ -25,6 +25,8 @@ type StudyState = {
   runs: Run[];
   runId: number | null;
   stdin: string;
+  /** When this item was opened; runs started after it open themselves in the log. */
+  openedAt: number;
 
   open: (item: Item) => Promise<void>;
   close: () => void;
@@ -100,6 +102,7 @@ export const useStudy = create<StudyState>((set, get) => {
     runs: [],
     runId: null,
     stdin: "",
+    openedAt: Date.now(),
 
     open: async (item) => {
       get().close();
@@ -117,6 +120,7 @@ export const useStudy = create<StudyState>((set, get) => {
         snippets: {},
         savedSnippets: [],
         stdin: "",
+        openedAt: Date.now(),
         split: cfg?.layout.splitRatio ?? 0.54,
         sandboxOpen: !narrow && (cfg?.layout.sandboxOpen ?? false),
         language: cfg?.sandbox.defaultLanguage ?? "python",

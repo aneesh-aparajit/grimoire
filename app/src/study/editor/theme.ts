@@ -54,7 +54,7 @@ const base = {
 
 export const notesTheme = EditorView.theme({
   ...base,
-  ".cm-scroller": { fontFamily: "var(--font-ui)", fontSize: "var(--text-body)", lineHeight: "1.7" },
+  ".cm-scroller": { fontFamily: "var(--font-ui)", fontSize: "var(--notes-size, var(--text-body))", lineHeight: "1.7" },
   ".cm-content": { color: "var(--pen)", padding: "1.75rem 2rem 6rem 0", maxWidth: "calc(68ch + 2rem)", caretColor: "var(--pen)" },
   ".cm-line": { padding: "0" },
   ".cm-gutters": { backgroundColor: "transparent", border: "none", width: "4.5rem" },

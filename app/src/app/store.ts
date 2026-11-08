@@ -51,6 +51,7 @@ type AppState = {
 };
 
 let noticeTimer: ReturnType<typeof setTimeout> | undefined;
+let booted = false;
 
 export function applyConfig(c: EffectiveConfig | null) {
   const root = document.documentElement;
@@ -99,6 +100,8 @@ export const useApp = create<AppState>((set, get) => {
     busy: null,
 
     boot: async () => {
+      if (booted) return;
+      booted = true;
       backend.on("index://changed", (s) => set({ items: s.items, conflicted: s.conflicted }));
       backend.on("config://changed", (c) => {
         applyConfig(c);

@@ -56,6 +56,7 @@ export function PdfViewer({ item }: { item: Item }) {
     if (!el) return;
     let cancelled = false;
     let doc: pdfjs.PDFDocumentProxy | null = null;
+    let task: ReturnType<typeof pdfjs.getDocument> | null = null;
     let saveTimer: ReturnType<typeof setTimeout> | undefined;
     const bus = new EventBus();
     const linkService = new PDFLinkService({ eventBus: bus });
@@ -75,7 +76,8 @@ export function PdfViewer({ item }: { item: Item }) {
     (async () => {
       try {
         const url = await backend.pdfOpen(item.id);
-        doc = await pdfjs.getDocument({ url }).promise;
+        task = pdfjs.getDocument({ url });
+        doc = await task.promise;
         if (cancelled) return;
         viewer.setDocument(doc);
         linkService.setDocument(doc);
@@ -100,7 +102,7 @@ export function PdfViewer({ item }: { item: Item }) {
       cancelled = true;
       clearTimeout(saveTimer);
       ctx.current = null;
-      void doc?.destroy();
+      void task?.destroy();
     };
   }, [item.id, defaultZoom]);
 

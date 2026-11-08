@@ -96,7 +96,7 @@ function slug(t: string) {
 
 export const mockBackend: Backend = {
   mock: true,
-  vaultRecent: () => wait(["~/notes/vault"]),
+  vaultRecent: () => wait(params.get("picker") === "1" ? [] : ["~/notes/vault"]),
   vaultOpen: (path) =>
     wait({ root: path, name: path.split("/").pop() || "vault", index: snapshot(), config, state: {} }),
   vaultCreate: (path) => mockBackend.vaultOpen(path),

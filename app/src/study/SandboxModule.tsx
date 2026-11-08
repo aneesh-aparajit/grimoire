@@ -7,8 +7,9 @@ import { rust } from "@codemirror/lang-rust";
 import type { Extension } from "@codemirror/state";
 import { lineNumbers } from "@codemirror/view";
 import { ChevronDown, ChevronUp, CornerDownLeft, Play, Save, Square, TriangleAlert } from "lucide-react";
-import { useRef } from "react";
-import { type Language, LANGUAGES } from "../mock/types";
+import { useState } from "react";
+import { useApp } from "../app/store";
+import { type Language, LANGUAGES } from "../ipc/schemas";
 import { CodeMirror } from "./editor/CodeMirror";
 import { codeTheme, syntax } from "./editor/theme";
 import { RunLog } from "./RunLog";
@@ -26,24 +27,18 @@ const LANG_EXT: Record<Language, Extension> = {
 
 const CODE_EXTENSIONS = [lineNumbers(), syntax, codeTheme];
 
-const INSTALL: Record<Language, string> = {
-  python: "Python 3",
-  javascript: "Node.js",
-  go: "Go",
-  rust: "Rust",
-  c: "clang or gcc",
-  java: "a JDK (11 or newer)",
-};
-
 export function SandboxModule({ style }: { style?: React.CSSProperties }) {
+  const id = useStudy((s) => s.item?.id ?? "");
   const open = useStudy((s) => s.sandboxOpen);
   const setOpen = useStudy((s) => s.setSandboxOpen);
   const language = useStudy((s) => s.language);
   const setLanguage = useStudy((s) => s.setLanguage);
   const code = useStudy((s) => s.snippets[s.language] ?? "");
   const setSnippet = useStudy((s) => s.setSnippet);
-  const toolchains = useStudy((s) => s.fixture.toolchains);
+  const stdin = useStudy((s) => s.stdin);
+  const setStdin = useStudy((s) => s.setStdin);
   const saved = useStudy((s) => s.savedSnippets);
+  const loadSnippet = useStudy((s) => s.loadSnippet);
   const runs = useStudy((s) => s.runs);
   const run = useStudy((s) => s.run);
   const stop = useStudy((s) => s.stop);
@@ -51,18 +46,20 @@ export function SandboxModule({ style }: { style?: React.CSSProperties }) {
   const insertRun = useStudy((s) => s.insertRun);
   const split = useStudy((s) => s.sandboxSplit);
   const setSplit = useStudy((s) => s.setSandboxSplit);
-  const body = useRef<HTMLDivElement>(null);
+  const toolchains = useApp((s) => s.toolchains);
+  const [showStdin, setShowStdin] = useState(false);
 
   const lang = LANGUAGES.find((l) => l.id === language) ?? LANGUAGES[0];
-  const running = runs.at(-1)?.status === "running";
-  const available = toolchains[language];
+  const tc = toolchains.find((t) => t.language === language);
+  const available = !tc || Boolean(tc.path);
   const last = runs.at(-1);
+  const running = last?.status === "running";
   const isSaved = lang ? saved.includes(lang.file) : false;
 
   const keys = [
-    { key: "Mod-Enter", run: () => (run(), true) },
+    { key: "Mod-Enter", run: () => (void run(), true) },
     { key: "Mod-.", run: () => (stop(), true) },
-    { key: "Mod-s", run: () => (saveSnippet(), true), preventDefault: true },
+    { key: "Mod-s", run: () => (void saveSnippet(), true), preventDefault: true },
   ];
 
   return (
@@ -75,27 +72,45 @@ export function SandboxModule({ style }: { style?: React.CSSProperties }) {
           className="select"
           aria-label="Language"
           value={language}
-          onChange={(e) => setLanguage(e.target.value as Language)}
+          onChange={(e) => void setLanguage(e.target.value as Language)}
         >
-          {LANGUAGES.map((l) => (
-            <option key={l.id} value={l.id}>
-              {l.label}
-              {toolchains[l.id] ? "" : " (not found)"}
-            </option>
-          ))}
+          {LANGUAGES.map((l) => {
+            const t = toolchains.find((x) => x.language === l.id);
+            return (
+              <option key={l.id} value={l.id}>
+                {l.label}
+                {t && !t.path ? " (not found)" : ""}
+              </option>
+            );
+          })}
         </select>
         {open ? (
-          <span className="head-file" title={isSaved ? "Saved in sandbox/" : "Not saved yet"}>
-            {isSaved ? "sandbox/" : ""}
-            <b>{lang?.file}</b>
-            {isSaved ? "" : " · unsaved"}
-          </span>
+          saved.length > 0 ? (
+            <select
+              className="select head-file-select"
+              aria-label="Saved snippets"
+              value={isSaved ? lang?.file : ""}
+              onChange={(e) => e.target.value && void loadSnippet(e.target.value)}
+              title={`${id}/sandbox/`}
+            >
+              {!isSaved && <option value="">{lang?.file} · unsaved</option>}
+              {saved.map((f) => (
+                <option key={f} value={f}>
+                  sandbox/{f}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span className="head-file">
+              <b>{lang?.file}</b> · unsaved
+            </span>
+          )
         ) : (
           last && (
             <span className="last-run">
               <span className="mono">R-{String(last.n).padStart(2, "0")}</span>
               <span className="mono">
-                {last.status === "ok" ? "exit 0" : last.status === "error" ? `exit ${last.exitCode}` : last.status}
+                {last.status === "ok" ? "exit 0" : last.status === "error" ? `exit ${last.exitCode ?? "?"}` : last.status}
               </span>
             </span>
           )
@@ -103,11 +118,32 @@ export function SandboxModule({ style }: { style?: React.CSSProperties }) {
         <span className="spacer" />
         {open && (
           <>
-            <button type="button" className="btn" onClick={() => insertRun()} title="Insert the snippet into NOTES.md" aria-label="Insert into notes">
+            <button
+              type="button"
+              className="btn hide-narrow"
+              aria-pressed={showStdin}
+              onClick={() => setShowStdin(!showStdin)}
+              title="Text fed to the program's standard input"
+            >
+              stdin
+            </button>
+            <button
+              type="button"
+              className="btn"
+              onClick={() => insertRun()}
+              title="Insert the snippet into NOTES.md"
+              aria-label="Insert into notes"
+            >
               <CornerDownLeft />
               <span className="btn-label">Insert</span>
             </button>
-            <button type="button" className="btn" onClick={saveSnippet} title={`Save to sandbox/${lang?.file} (⌘S)`} aria-label="Save snippet">
+            <button
+              type="button"
+              className="btn"
+              onClick={() => void saveSnippet()}
+              title={`Save to ${id}/sandbox/${lang?.file} (⌘S)`}
+              aria-label="Save snippet"
+            >
               <Save />
               <span className="btn-label">Save</span>
             </button>
@@ -122,7 +158,7 @@ export function SandboxModule({ style }: { style?: React.CSSProperties }) {
           <button
             type="button"
             className="btn btn-primary"
-            onClick={run}
+            onClick={() => void run()}
             disabled={!available}
             title={available ? "Run (⌘↵)" : `${lang?.bin} not found`}
           >
@@ -141,15 +177,25 @@ export function SandboxModule({ style }: { style?: React.CSSProperties }) {
         </button>
       </div>
       {open && (
-        <div className="sandbox-body" ref={body}>
+        <div className="sandbox-body">
           {!available && lang && (
             <div className="missing" role="status">
               <TriangleAlert />
               <p>
-                <code>{lang.bin}</code> isn't on your PATH, so {lang.label} snippets can't run. Install {INSTALL[language]}, or set
-                its path in Settings → Toolchains. The other languages still work.
+                <code>{lang.bin}</code> isn't on your PATH, so {lang.label} snippets can't run. Install {lang.install}, or
+                set its path in Settings → Toolchains. The other languages still work.
               </p>
             </div>
+          )}
+          {showStdin && (
+            <textarea
+              className="stdin"
+              aria-label="Standard input"
+              placeholder="Input passed to the program on stdin"
+              value={stdin}
+              onChange={(e) => setStdin(e.target.value)}
+              rows={3}
+            />
           )}
           <CodeMirror
             className="code-host"

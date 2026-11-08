@@ -1,67 +1,91 @@
-import { ArrowLeft, FileText, Globe, PanelLeft, PanelRight, PlaySquare, TriangleAlert, X } from "lucide-react";
+import { ArrowLeft, Pencil, PanelLeft, PanelRight, TriangleAlert } from "lucide-react";
 import { useEffect } from "react";
-import type { ContentKind } from "../mock/types";
+import { useApp } from "../app/store";
+import { KindIcon } from "../components/KindIcon";
+import { backend } from "../ipc";
 import { ContentPane } from "./ContentPane";
 import { NotesModule } from "./NotesModule";
 import { SandboxModule } from "./SandboxModule";
 import { Splitter } from "./Splitter";
 import { useStudy } from "./store";
 
-const KIND: Record<ContentKind, { icon: typeof Globe; label: string }> = {
-  article: { icon: Globe, label: "Article" },
-  video: { icon: PlaySquare, label: "Video" },
-  pdf: { icon: FileText, label: "PDF" },
-};
-
-export function StudyView() {
-  const fixture = useStudy((s) => s.fixture);
+export function StudyView({ id }: { id: string }) {
+  const item = useApp((s) => s.items.find((i) => i.id === id));
+  const conflicted = useApp((s) => s.conflicted);
+  const dialog = useApp((s) => s.dialog);
+  const back = useApp((s) => s.back);
+  const toggleDone = useApp((s) => s.toggleDone);
+  const setDialog = useApp((s) => s.setDialog);
+  const vaultRoot = useApp((s) => s.vault?.root ?? "");
+  const open = useStudy((s) => s.open);
+  const close = useStudy((s) => s.close);
+  const flush = useStudy((s) => s.flush);
+  const loadedId = useStudy((s) => s.item?.id);
   const split = useStudy((s) => s.split);
   const setSplit = useStudy((s) => s.setSplit);
   const contentCollapsed = useStudy((s) => s.contentCollapsed);
   const notebookCollapsed = useStudy((s) => s.notebookCollapsed);
   const toggleContent = useStudy((s) => s.toggleContent);
   const toggleNotebook = useStudy((s) => s.toggleNotebook);
-  const notice = useStudy((s) => s.notice);
-  const dismissNotice = useStudy((s) => s.dismissNotice);
   const sandboxOpen = useStudy((s) => s.sandboxOpen);
 
-  const { item } = fixture;
-  const Kind = KIND[item.kind];
+  // Load once per item; edits to the item (title, tags) don't reload notes.
+  useEffect(() => {
+    const it = useApp.getState().items.find((i) => i.id === id);
+    if (it) void open(it);
+    return () => close();
+  }, [id]);
+
+  useEffect(() => {
+    if (item && loadedId === item.id) useStudy.setState({ item });
+  }, [item]);
+
+  const goBack = async () => {
+    await flush();
+    back();
+  };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (useApp.getState().dialog) return;
       const mod = e.metaKey || e.ctrlKey;
       const s = useStudy.getState();
       if (mod && e.key === "Enter") {
         e.preventDefault();
-        s.run();
+        void s.run();
       } else if (mod && e.key === ".") {
         e.preventDefault();
         s.stop();
-      } else if (mod && e.key.toLowerCase() === "s") {
+      } else if (mod && !e.shiftKey && e.key.toLowerCase() === "s") {
         e.preventDefault();
-        s.saveSnippet();
+        void s.saveSnippet();
       } else if (mod && e.key.toLowerCase() === "p") {
         e.preventDefault();
         s.togglePreview();
       } else if (e.key === "Escape" && !e.defaultPrevented) {
-        const inEditor = (e.target as HTMLElement | null)?.closest?.(".cm-editor");
-        if (inEditor) (document.activeElement as HTMLElement | null)?.blur();
-        else goBack();
+        const target = e.target as HTMLElement | null;
+        if (target?.closest?.(".cm-editor, input, textarea, select")) target.blur();
+        else void goBack();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const goBack = () => {
-    // The reading list is M1. Until then, say where Esc will go.
-    useStudy.setState({ notice: "Back to the reading list. (The list view arrives in M1.)" });
-  };
-
-  const openExternal = () => {
-    window.open(item.source.startsWith("http") ? item.source : "about:blank", "_blank", "noopener");
-  };
+  if (!item) {
+    return (
+      <div className="study">
+        <header className="band">
+          <button type="button" className="btn" onClick={back}>
+            <ArrowLeft />
+            Reading list
+          </button>
+        </header>
+        <div />
+        <p className="empty-note">This item is no longer in INDEX.md. It may have been removed on another machine.</p>
+      </div>
+    );
+  }
 
   const showContent = !contentCollapsed;
   const showNotebook = !notebookCollapsed;
@@ -69,14 +93,14 @@ export function StudyView() {
   return (
     <div className="study">
       <header className="band">
-        <button type="button" className="btn" onClick={goBack} title="Back to reading list (Esc)">
+        <button type="button" className="btn" onClick={() => void goBack()} title="Back to reading list (Esc)">
           <ArrowLeft />
           <span className="hide-narrow">Reading list</span>
         </button>
         <span className="band-divider" />
         <div className="band-item">
-          <span className="band-kind" title={Kind.label}>
-            <Kind.icon aria-label={Kind.label} />
+          <span className="band-kind">
+            <KindIcon kind={item.kind} />
           </span>
           <h1 className="band-title" title={item.title}>
             {item.title}
@@ -87,7 +111,24 @@ export function StudyView() {
           </span>
         </div>
         <div className="band-tools">
-          {item.done && <span className="stamp">Done</span>}
+          <button
+            type="button"
+            className="btn done-toggle"
+            aria-pressed={item.done}
+            onClick={() => void toggleDone(item.id)}
+            title={item.done ? "Mark as not done" : "Mark as done"}
+          >
+            {item.done ? <span className="stamp">Done</span> : <span className="hide-narrow">Mark done</span>}
+          </button>
+          <button
+            type="button"
+            className="btn btn-icon"
+            aria-label="Edit title, source and tags"
+            title="Edit title, source and tags"
+            onClick={() => setDialog({ kind: "edit", id: item.id })}
+          >
+            <Pencil />
+          </button>
           <button
             type="button"
             className="btn btn-icon"
@@ -111,15 +152,19 @@ export function StudyView() {
         </div>
       </header>
 
-      {fixture.indexConflict ? (
+      {conflicted ? (
         <div className="banner" role="alert">
           <TriangleAlert />
           <p>
-            <code>INDEX.md</code> has merge conflict markers from <code>git pull</code>. Grimoire won't write to it until
-            they're resolved, so tag and title edits are paused. Notes and the sandbox still save.
+            <code>INDEX.md</code> has merge conflict markers. Grimoire won't write to it until they're resolved, so tag
+            and title edits are paused. Notes and the sandbox still save.
           </p>
-          <button type="button" className="btn btn-outline">
-            Open INDEX.md
+          <button
+            type="button"
+            className="btn btn-outline"
+            onClick={() => void backend.revealPath(`${vaultRoot}/INDEX.md`)}
+          >
+            Show INDEX.md
           </button>
         </div>
       ) : (
@@ -134,12 +179,12 @@ export function StudyView() {
             aria-label="Source"
             style={showNotebook ? { width: `${split * 100}%` } : { flex: 1 }}
           >
-            <ContentPane fixture={fixture} onOpenExternal={openExternal} />
+            <ContentPane item={item} hidden={dialog !== null} />
           </section>
         ) : (
           <div className="rail">
             <button type="button" className="btn btn-icon" aria-label="Show source pane" onClick={toggleContent}>
-              <Kind.icon />
+              <KindIcon kind={item.kind} />
             </button>
             <span className="label rail-label">Source</span>
           </div>
@@ -169,15 +214,6 @@ export function StudyView() {
           </div>
         )}
       </main>
-
-      {notice && (
-        <div className="notice" role="status">
-          <span>{notice}</span>
-          <button type="button" className="btn btn-icon" aria-label="Dismiss" onClick={dismissNotice}>
-            <X />
-          </button>
-        </div>
-      )}
     </div>
   );
 }
