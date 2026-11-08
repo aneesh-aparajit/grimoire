@@ -16,7 +16,7 @@ use serde::Deserialize;
 use serde_json::{json, Value};
 use std::path::PathBuf;
 use std::sync::Arc;
-use tauri::{AppHandle, LogicalPosition, LogicalSize, State, WebviewBuilder, WebviewUrl};
+use tauri::{AppHandle, Emitter, LogicalPosition, LogicalSize, State, WebviewBuilder, WebviewUrl};
 use vault::{notes_header, IndexSnapshot, VaultCell, VaultSnapshot};
 
 /* ---------- vault ---------- */
@@ -45,6 +45,14 @@ fn vault_close(app: AppHandle, cell: State<VaultCell>) -> Result<()> {
 }
 
 /* ---------- index ---------- */
+
+/// The watcher ignores Grimoire's own writes, so commands that change
+/// INDEX.md tell the UI themselves.
+fn emit_index(app: &AppHandle, cell: &VaultCell) {
+    if let Ok(snap) = cell.with(|v| Ok(v.snapshot())) {
+        let _ = app.emit_to("main", "index://changed", snap);
+    }
+}
 
 #[tauri::command]
 fn index_get(cell: State<VaultCell>) -> Result<IndexSnapshot> {
@@ -80,7 +88,7 @@ fn clean_tags(tags: Vec<String>) -> Result<Vec<String>> {
 }
 
 #[tauri::command]
-async fn item_add(cell: State<'_, VaultCell>, input: AddInput) -> Result<Item> {
+async fn item_add(app: AppHandle, cell: State<'_, VaultCell>, input: AddInput) -> Result<Item> {
     let tags = clean_tags(input.tags)?;
     let root = cell.root()?;
     let given = input.title.map(|t| t.trim().to_string()).filter(|t| !t.is_empty());
@@ -110,7 +118,7 @@ async fn item_add(cell: State<'_, VaultCell>, input: AddInput) -> Result<Item> {
     };
 
     let title: String = title.chars().take(200).collect();
-    cell.with(|v| {
+    let out = cell.with(|v| {
         if v.index.conflicted {
             return Err(AppError::Conflict("INDEX.md has merge conflict markers. Resolve them first.".into()));
         }
@@ -142,7 +150,11 @@ async fn item_add(cell: State<'_, VaultCell>, input: AddInput) -> Result<Item> {
         cell.save_index(v)?;
         let _ = &root;
         Ok(item)
-    })
+    });
+    if out.is_ok() {
+        emit_index(&app, &cell);
+    }
+    out
 }
 
 #[derive(Deserialize)]
@@ -155,9 +167,9 @@ struct Patch {
 }
 
 #[tauri::command]
-fn item_update(cell: State<VaultCell>, id: String, patch: Patch) -> Result<Item> {
+fn item_update(app: AppHandle, cell: State<VaultCell>, id: String, patch: Patch) -> Result<Item> {
     let tags = patch.tags.map(clean_tags).transpose()?;
-    cell.with(|v| {
+    let out = cell.with(|v| {
         if v.index.conflicted {
             return Err(AppError::Conflict("INDEX.md has merge conflict markers. Resolve them first.".into()));
         }
@@ -179,13 +191,17 @@ fn item_update(cell: State<VaultCell>, id: String, patch: Patch) -> Result<Item>
         let out = item.clone();
         cell.save_index(v)?;
         Ok(out)
-    })
+    });
+    if out.is_ok() {
+        emit_index(&app, &cell);
+    }
+    out
 }
 
 #[tauri::command]
-fn item_delete(cell: State<VaultCell>, id: String, delete_folder: bool) -> Result<()> {
+fn item_delete(app: AppHandle, cell: State<VaultCell>, id: String, delete_folder: bool) -> Result<()> {
     check_id(&id)?;
-    cell.with(|v| {
+    let out = cell.with(|v| {
         if v.index.conflicted {
             return Err(AppError::Conflict("INDEX.md has merge conflict markers. Resolve them first.".into()));
         }
@@ -200,14 +216,18 @@ fn item_delete(cell: State<VaultCell>, id: String, delete_folder: bool) -> Resul
             }
         }
         Ok(())
-    })
+    });
+    if out.is_ok() {
+        emit_index(&app, &cell);
+    }
+    out
 }
 
 /// Called when an item is opened: makes sure its folder, NOTES.md and the
 /// notes link in INDEX.md exist (hand-added lines get them lazily).
 #[tauri::command]
-fn item_ensure(cell: State<VaultCell>, id: String) -> Result<Item> {
-    cell.with(|v| {
+fn item_ensure(app: AppHandle, cell: State<VaultCell>, id: String) -> Result<Item> {
+    let out = cell.with(|v| {
         let dir = v.item_dir(&id)?;
         let item = v.index.get(&id).cloned().ok_or_else(|| AppError::NotFound(format!("No item {id}")))?;
         std::fs::create_dir_all(&dir)?;
@@ -219,7 +239,11 @@ fn item_ensure(cell: State<VaultCell>, id: String) -> Result<Item> {
             cell.save_index(v)?;
         }
         Ok(v.index.get(&id).cloned().unwrap())
-    })
+    });
+    if out.is_ok() {
+        emit_index(&app, &cell);
+    }
+    out
 }
 
 /* ---------- notes ---------- */
@@ -432,7 +456,7 @@ async fn pdf_open(cell: State<'_, VaultCell>, id: String) -> Result<String> {
 
 /// Moves a cached remote PDF into the item folder and points the item at it.
 #[tauri::command]
-async fn pdf_make_local(cell: State<'_, VaultCell>, id: String) -> Result<Item> {
+async fn pdf_make_local(app: AppHandle, cell: State<'_, VaultCell>, id: String) -> Result<Item> {
     let (root, item) = cell.with(|v| Ok((v.root.clone(), v.index.get(&id).cloned().ok_or_else(|| AppError::NotFound(id.clone()))?)))?;
     if !item.source.starts_with("http") {
         return Ok(item);
@@ -441,7 +465,7 @@ async fn pdf_make_local(cell: State<'_, VaultCell>, id: String) -> Result<Item> 
     let name = content::sanitize_file_name(
         url::Url::parse(&item.source).ok().and_then(|u| u.path_segments()?.next_back().map(str::to_string)).as_deref().unwrap_or("document.pdf"),
     );
-    cell.with(|v| {
+    let out = cell.with(|v| {
         let dir = v.item_dir(&id)?;
         std::fs::create_dir_all(&dir)?;
         std::fs::copy(&cached, dir.join(&name))?;
@@ -451,7 +475,11 @@ async fn pdf_make_local(cell: State<'_, VaultCell>, id: String) -> Result<Item> 
         let out = it.clone();
         cell.save_index(v)?;
         Ok(out)
-    })
+    });
+    if out.is_ok() {
+        emit_index(&app, &cell);
+    }
+    out
 }
 
 #[tauri::command]

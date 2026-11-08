@@ -59,6 +59,8 @@ export function AddItemDialog({ filePath: initialFile }: { filePath?: string }) 
       const item = await backend.itemAdd(
         mode === "url" ? { url: url.trim(), title: title || undefined, tags } : { filePath, title: title || undefined, tags },
       );
+      // The index event normally delivers this; don't depend on it.
+      useApp.setState((s) => (s.items.some((i) => i.id === item.id) ? {} : { items: [...s.items, item] }));
       select(item.id);
       notify(`Added ${item.title}`);
       close();
@@ -219,7 +221,12 @@ export function EditItemDialog({ id }: { id: string }) {
           if (!ready) return;
           setBusy(true);
           try {
-            await backend.itemUpdate(id, { title: title.trim(), source: local ? undefined : source.trim(), tags });
+            const updated = await backend.itemUpdate(id, {
+              title: title.trim(),
+              source: local ? undefined : source.trim(),
+              tags,
+            });
+            useApp.setState((s) => ({ items: s.items.map((i) => (i.id === id ? updated : i)) }));
             notify("Saved to INDEX.md");
             close();
           } catch (err) {
@@ -281,6 +288,7 @@ export function DeleteItemDialog({ id }: { id: string }) {
               setBusy(true);
               try {
                 await backend.itemDelete(id, withFolder);
+                useApp.setState((s) => ({ items: s.items.filter((i) => i.id !== id) }));
                 if (route.view === "item") back();
                 notify(withFolder ? `Removed ${item.title} and deleted ${id}/` : `Removed ${item.title} from INDEX.md`);
                 close();

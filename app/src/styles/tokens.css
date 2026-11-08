@@ -75,6 +75,7 @@
 }
 
 :root[data-theme="dark"] {
+  --cloth-raise: #27375a;
   --paper: #141a25;
   --paper-sunk: #10151f;
   --paper-raise: #182030;

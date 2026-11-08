@@ -708,6 +708,10 @@
   font-size: 0.8125rem;
   line-height: 1.55;
 }
+.preview del {
+  text-decoration-color: var(--correction);
+  text-decoration-thickness: 1.5px;
+}
 .preview blockquote {
   margin: 0.75rem 0;
   padding-left: 1rem;

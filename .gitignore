@@ -60,4 +60,11 @@ Thumbs.db
 !.vscode/extensions.json
 !.vscode/settings.json
 
+# ── Tooling, per machine ────────────────────────────────────
+# Impeccable review screenshots are regenerated on every pass
 .impeccable/review/
+.impeccable/config.local.json
+# Claude Code: keep shared launch config, ignore personal settings
+.claude/settings.local.json
+# Tauri's generated schemas/capability output
+**/src-tauri/gen/
