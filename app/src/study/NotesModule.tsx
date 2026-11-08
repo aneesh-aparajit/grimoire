@@ -7,27 +7,29 @@ import remarkGfm from "remark-gfm";
 import { CodeMirror } from "./editor/CodeMirror";
 import { entries, lintMarkdown, notesLint } from "./editor/notesExtensions";
 import { notesTheme, syntax } from "./editor/theme";
+import { useApp } from "../app/store";
 import { useStudy } from "./store";
 
-const NOTES_EXTENSIONS = [
-  markdown({ codeLanguages: languages }),
-  EditorView.lineWrapping,
-  entries,
-  notesLint,
-  syntax,
-  notesTheme,
-];
+const BASE = [markdown({ codeLanguages: languages }), entries, syntax, notesTheme];
+const WRAP_LINT = [...BASE, EditorView.lineWrapping, notesLint];
+const WRAP = [...BASE, EditorView.lineWrapping];
+const LINT = [...BASE, notesLint];
 
-const SAVE_LABEL = { saved: "Saved", saving: "Saving…", dirty: "Edited" } as const;
+const SAVE_LABEL = { saved: "Saved", saving: "Saving…", dirty: "Edited", error: "Not saved" } as const;
 
 export function NotesModule() {
-  const id = useStudy((s) => s.fixture.item.id);
+  const id = useStudy((s) => s.item?.id ?? "");
+  const loading = useStudy((s) => s.loading);
+  const diskConflict = useStudy((s) => s.diskConflict);
+  const resolveConflict = useStudy((s) => s.resolveConflict);
+  const lintOn = useApp((s) => s.config?.config.lint.enabled ?? true);
   const notes = useStudy((s) => s.notes);
   const setNotes = useStudy((s) => s.setNotes);
   const saveState = useStudy((s) => s.saveState);
   const preview = useStudy((s) => s.preview);
   const togglePreview = useStudy((s) => s.togglePreview);
-  const hints = lintMarkdown(notes).length;
+  const wrap = useApp((s) => s.config?.config.editor.lineWrap ?? true);
+  const hints = lintOn ? lintMarkdown(notes).length : 0;
 
   return (
     <section className="notes" aria-label="Notes">
@@ -53,7 +55,20 @@ export function NotesModule() {
           </button>
         </div>
       </div>
-      {preview ? (
+      {diskConflict !== null && (
+        <div className="banner" role="alert">
+          <p>NOTES.md changed on disk while you were editing.</p>
+          <button type="button" className="btn btn-outline" onClick={() => resolveConflict(false)}>
+            Load disk version
+          </button>
+          <button type="button" className="btn btn-outline" onClick={() => resolveConflict(true)}>
+            Keep mine
+          </button>
+        </div>
+      )}
+      {loading ? (
+        <div className="editor-host" />
+      ) : preview ? (
         <div className="preview">
           <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSanitize]}>
             {notes}
@@ -61,12 +76,12 @@ export function NotesModule() {
         </div>
       ) : (
         <CodeMirror
-          key={id}
+          key={`${id}-${wrap}-${lintOn}`}
           className="editor-host"
           label="NOTES.md"
           value={notes}
           onChange={setNotes}
-          extensions={NOTES_EXTENSIONS}
+          extensions={wrap ? (lintOn ? WRAP_LINT : WRAP) : lintOn ? LINT : BASE}
         />
       )}
     </section>

@@ -1,7 +1,8 @@
 import { ChevronRight, CornerDownLeft } from "lucide-react";
 import { useEffect, useState } from "react";
-import { LANGUAGES, type Run } from "../mock/types";
-import { TIMEOUT_MS, useStudy } from "./store";
+import { useApp } from "../app/store";
+import { LANGUAGES, type Run } from "../ipc/schemas";
+import { getTimeoutMs, useStudy } from "./store";
 
 const clock = new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
 
@@ -31,7 +32,7 @@ function useElapsed(run: Run) {
     const t = setInterval(() => setNow(Date.now()), 100);
     return () => clearInterval(t);
   }, [run.status]);
-  return run.status === "running" ? Math.min(TIMEOUT_MS, now - run.startedAt) : run.durationMs;
+  return run.status === "running" ? Math.min(getTimeoutMs(), now - run.startedAt) : run.durationMs;
 }
 
 function RunEntry({ run, open, onToggle }: { run: Run; open: boolean; onToggle: () => void }) {
@@ -58,10 +59,10 @@ function RunEntry({ run, open, onToggle }: { run: Run; open: boolean; onToggle: 
       <div
         className="run-scale"
         role="img"
-        aria-label={`${seconds(elapsed)} of the ${TIMEOUT_MS / 1000} s timeout`}
-        title={`${seconds(elapsed)} of the ${TIMEOUT_MS / 1000} s timeout`}
+        aria-label={`${seconds(elapsed)} of the ${getTimeoutMs() / 1000} s timeout`}
+        title={`${seconds(elapsed)} of the ${getTimeoutMs() / 1000} s timeout`}
       >
-        <i style={{ transform: `scaleX(${Math.max(0.004, elapsed / TIMEOUT_MS)})` }} />
+        <i style={{ transform: `scaleX(${Math.max(0.004, elapsed / getTimeoutMs())})` }} />
       </div>
       {open && (
         <>
@@ -78,8 +79,9 @@ function RunEntry({ run, open, onToggle }: { run: Run; open: boolean; onToggle: 
               ))
             )}
             {run.status === "timeout" && (
-              <span className="err">Killed after {TIMEOUT_MS / 1000} s. Change the limit in vault settings.{"\n"}</span>
+              <span className="err">Killed after {getTimeoutMs() / 1000} s. Change the limit in Settings.{"\n"}</span>
             )}
+            {run.truncated && <span className="err">Output was cut off at the size limit.{"\n"}</span>}
           </pre>
           {run.status !== "running" && (
             <div className="run-actions">
@@ -97,10 +99,9 @@ function RunEntry({ run, open, onToggle }: { run: Run; open: boolean; onToggle: 
 
 export function RunLog({ style }: { style?: React.CSSProperties }) {
   const runs = useStudy((s) => s.runs);
-  const missing = useStudy((s) => {
-    const lang = LANGUAGES.find((l) => l.id === s.language);
-    return s.fixture.toolchains[s.language] ? null : lang;
-  });
+  const language = useStudy((s) => s.language);
+  const toolchain = useApp((s) => s.toolchains.find((t) => t.language === language));
+  const missing = toolchain && !toolchain.path ? LANGUAGES.find((l) => l.id === language) : null;
   const [closed, setClosed] = useState<Set<number>>(new Set());
   const [opened, setOpened] = useState<Set<number>>(new Set());
   // Runs loaded from earlier sessions start folded so failures stay in view;

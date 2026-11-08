@@ -112,7 +112,11 @@ fn parse_item(line: &str) -> Option<(Item, Vec<String>)> {
         'x' | 'X' => true,
         _ => return None,
     };
-    let rest = chars.as_str().strip_prefix("] ")?;
+    let after = chars.as_str().strip_prefix(']')?;
+    if !after.starts_with(' ') {
+        return None;
+    }
+    let rest = after.trim_start();
     let (title, source, mut rest) = take_link(rest)?;
     if title.trim().is_empty() || source.trim().is_empty() {
         return None;
