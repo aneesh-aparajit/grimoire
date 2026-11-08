@@ -1,0 +1,61 @@
+# ── Node / pnpm ──────────────────────────────────────────────
+node_modules/
+.pnpm-store/
+.pnpm-debug.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.tsbuildinfo
+.eslintcache
+
+# ── Vite / frontend build ───────────────────────────────────
+dist/
+dist-ssr/
+.vite/
+*.local
+
+# ── Tauri / Rust (src-tauri) ────────────────────────────────
+target/
+# Tauri regenerates these from capabilities/config on build
+**/src-tauri/gen/schemas/
+# Rust formatting backups
+**/*.rs.bk
+
+# ── Tests (Playwright / coverage) ───────────────────────────
+coverage/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# ── Env & secrets ───────────────────────────────────────────
+.env
+.env.*
+!.env.example
+# Tauri updater private signing key (the .pub is safe to commit)
+*.key
+
+# ── Generated tooling output ────────────────────────────────
+graphify-out/
+
+# ── Logs ────────────────────────────────────────────────────
+logs/
+*.log
+# Impeccable design-session logs are project history, keep them
+!.impeccable/**/*.log
+
+# ── OS ──────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+Thumbs.db
+
+# ── Editors ─────────────────────────────────────────────────
+.idea/
+*.swp
+*.swo
+*~
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json

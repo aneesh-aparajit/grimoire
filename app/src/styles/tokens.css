@@ -1,0 +1,164 @@
+@import "tailwindcss";
+@import "@fontsource-variable/archivo/wdth.css";
+@import "@fontsource-variable/jetbrains-mono/index.css";
+
+/* grimoire: the lab notebook.
+   Cool paper, notebook-cloth navy, ink-blue for what you write,
+   correction red only for failure, sage for rules. */
+:root {
+  --paper: #f3f5f1;
+  --paper-sunk: #e8ece5;
+  --paper-raise: #fafbf8;
+  --desk: #d9dfd6;
+  --rule: #cdd6cb;
+  --rule-strong: #9fb3a1;
+  --ink: #1c2230;
+  --ink-muted: #535e6c;
+  --ink-faint: #5d6876;
+  --pen: #24396e;
+  --pen-soft: color-mix(in oklab, var(--pen) 12%, transparent);
+  --pen-on: #f5f7fb;
+  --correction: #b8382a;
+  --correction-soft: color-mix(in oklab, var(--correction) 9%, transparent);
+  --pass: #2f6b4a;
+  --caution: #8a5a00;
+  --caution-soft: #f4e9cf;
+  --cloth: #22304a;
+  --cloth-raise: #2c3c5a;
+  --cloth-ink: #eef1ea;
+  --cloth-muted: #aeb9cb;
+  --cloth-rule: #3b4b69;
+  --site-ground: #ffffff;
+  --site-ink: #262626;
+  --focus: #3a62c4;
+
+  --font-ui: "Archivo Variable", "Archivo", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, monospace;
+
+  --text-label: 0.6875rem; /* 11px form labels */
+  --text-ui: 0.8125rem; /* 13px */
+  --text-body: 0.96875rem; /* 15.5px notes */
+  --text-title: 0.96875rem;
+
+  --band-h: 3.25rem;
+  --head-h: 2.25rem;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #141a25;
+    --paper-sunk: #10151f;
+    --paper-raise: #182030;
+    --desk: #0d121b;
+    --rule: #263145;
+    --rule-strong: #3d5160;
+    --ink: #e2e6de;
+    --ink-muted: #a3adba;
+    --ink-faint: #8792a1;
+    --pen: #a8c0f2;
+    --pen-on: #101828;
+    --correction: #ff8473;
+    --pass: #8fd0a8;
+    --caution: #e8b75a;
+    --caution-soft: #2b2416;
+    --cloth: #1d2a42;
+    --cloth-raise: #27375a;
+    --cloth-ink: #e9ede6;
+    --cloth-muted: #a5b1c4;
+    --cloth-rule: #33435f;
+    --focus: #8fb0ff;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #141a25;
+  --paper-sunk: #10151f;
+  --paper-raise: #182030;
+  --desk: #0d121b;
+  --rule: #263145;
+  --rule-strong: #3d5160;
+  --ink: #e2e6de;
+  --ink-muted: #a3adba;
+  --ink-faint: #8792a1;
+  --pen: #a8c0f2;
+  --pen-on: #101828;
+  --correction: #ff8473;
+  --pass: #8fd0a8;
+  --caution: #e8b75a;
+  --caution-soft: #2b2416;
+  --cloth: #1d2a42;
+  --cloth-ink: #e9ede6;
+  --cloth-muted: #a5b1c4;
+  --cloth-rule: #33435f;
+  --focus: #8fb0ff;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-pen: var(--pen);
+  --color-correction: var(--correction);
+  --color-cloth: var(--cloth);
+  --font-sans: var(--font-ui);
+  --font-mono: var(--font-mono);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: var(--text-ui);
+  font-variation-settings: "wdth" 100;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--pen) 22%, transparent);
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule-strong) transparent;
+}
+
+button,
+select,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

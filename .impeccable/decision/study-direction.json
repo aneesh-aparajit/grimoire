@@ -1,0 +1,130 @@
+{
+  "title": "Choose the visual world for grimoire",
+  "question": "The roll assigned the Pelican paperback system to the study view. Keep it, take an alternate, or re-roll.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "Pelican Library",
+      "kicker": "THE ROLL",
+      "lineage": "Pelican Books, 'a library of self-education', with Penguin's subject-colour code and Tschichold's composition rules",
+      "thesis": "Every item you study wears its subject colour, like a Pelican on the shelf: one study view, one cover grid.",
+      "palette": ["#1f5a99", "#ee7623", "#00845a", "#6b3a8c", "#fbfbf8", "#1a1a1a"],
+      "materials": ["subject-colour bands", "humanist sans titling", "white working band", "strict horizontal grid"],
+      "viewport": "Standard study shell: a colour band header in the item's primary-tag colour carrying back, title and source; a white middle band split into content (left) and NOTES.md (right, dominant) with the sandbox docked below; a matching colour footer band carrying autosave, toolchain and last-run state.",
+      "risk": "If the band colours are timid or arbitrary it reads as a theme switcher; the subject code has to be consistent across list and study view.",
+      "raised": [
+        {"from": "challenger-ticket-wallet", "raise": "Done, stopped and timed-out states stamp themselves onto the band and stay visible; nothing silently disappears."},
+        {"from": "challenger-japanese-density", "raise": "Notes, sandbox and output are ruled modules with small tab heads on one hairline system, no cards or shadows."},
+        {"from": "challenger-labanotation", "raise": "Run history draws each run as a bar whose length is its real duration."},
+        {"from": "challenger-transit", "raise": "The open item's subject colour is the only saturated ink in the work band; every other tag stays quiet."}
+      ]
+    },
+    {
+      "id": "model-pick",
+      "label": "Engineer's Lab Notebook",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "bound, page-numbered engineering notebooks with dated, witnessed entries",
+      "thesis": "Study as experiment: every note and run is a dated, numbered entry in the item's notebook.",
+      "palette": ["#f4f6f2", "#2b3a55", "#c43d2f", "#9fb3a1", "#1c1c1c"],
+      "materials": ["numbered entries", "dated margins", "ink-blue writing", "red correction mark"],
+      "viewport": "Standard study shell with notes as dated entries down a numbered margin; sandbox runs log as entries with timestamp and exit code.",
+      "risk": "Graph-paper notebooks are a common developer aesthetic, and the grid paper easily turns into a costume."
+    },
+    {
+      "id": "challenger-ticket-wallet",
+      "label": "Jet-age Ticket Wallet",
+      "verdict": "declined",
+      "lineage": "airline coupon books and baggage tags",
+      "thesis": "The reading list as a coupon book; each item tears off when studied.",
+      "palette": ["#1b2a52", "#d22630", "#ffffff", "#5b3f8c"],
+      "materials": ["carbon numerals", "coupon stock", "VOID stamp"],
+      "viewport": "Study view as one coupon leg with fare boxes for source and tags.",
+      "case": "Fuses poorly: studying isn't a journey to complete, and coupon boxes crowd the long-session work band.",
+      "risk": "Reads as travel novelty.",
+      "kept": "States stamp themselves on and stay visible; nothing disappears.",
+      "hero": "https://impeccable.style/worlds/cards/vernacular-ephemera-jet-age-ticket-wallet-hero.webp"
+    },
+    {
+      "id": "challenger-japanese-density",
+      "label": "Japanese High-density Web",
+      "verdict": "declined",
+      "lineage": "contemporary Japanese portal and retail sites",
+      "thesis": "Pack every module onto one ruled mosaic.",
+      "palette": ["#ffffff", "#111111", "#d7000f", "#c9ccd1"],
+      "materials": ["hairline modules", "small red tabs", "tiny gothic sans"],
+      "viewport": "Study view as a mosaic of ruled modules around the content.",
+      "case": "Fuses poorly: hours of reading and writing need calm, not maximum density.",
+      "risk": "Tiring over long sessions.",
+      "kept": "One strict hairline module system with small tab heads.",
+      "hero": "https://impeccable.style/worlds/cards/japanese-high-density-web-hero.webp"
+    },
+    {
+      "id": "challenger-labanotation",
+      "label": "Labanotation Score",
+      "verdict": "declined",
+      "lineage": "dance notation scores",
+      "thesis": "Time runs upward; length is exact duration.",
+      "palette": ["#ffffff", "#111111", "#d9d9d9"],
+      "materials": ["centre staff", "shaded blocks"],
+      "viewport": "Notes and runs on a vertical time staff.",
+      "case": "Fuses poorly: no audience identification, and a staff obscures Markdown source.",
+      "risk": "Opaque to anyone who can't read the score.",
+      "kept": "Length encodes real duration (run times).",
+      "hero": "https://impeccable.style/worlds/cards/notation-diagram-systems-labanotation-hero.webp"
+    },
+    {
+      "id": "challenger-transit",
+      "label": "Midnight Transit Diagram",
+      "verdict": "declined",
+      "lineage": "enamel metro maps",
+      "thesis": "Tags as coloured lines, items as stations.",
+      "palette": ["#14213d", "#e63946", "#2a6fdb", "#f4a300", "#2a9d5c"],
+      "materials": ["enamel ground", "45° line work", "interchange rings"],
+      "viewport": "Study view under a line strip showing where the item sits among its tags.",
+      "case": "Fuses partly on audience, but the map belongs to the reading list, not the study view, and the dark enamel fights long reading.",
+      "risk": "A map with nowhere to travel in this surface.",
+      "kept": "The chosen line burns brightest; everything else stays quiet.",
+      "hero": "https://impeccable.style/worlds/cards/wayfinding-cartography-signage-midnight-transit-diagram-hero.webp"
+    },
+    {
+      "id": "challenger-botanical",
+      "label": "Botanical Folio",
+      "verdict": "declined",
+      "lineage": "seasonal botanical plates",
+      "thesis": "One subject at fixed scale through its stages.",
+      "palette": ["#f3ead8", "#5c7a3a", "#b3261e", "#6b5b4b"],
+      "materials": ["engraved italics", "sepia hairlines"],
+      "viewport": "Item stages as aligned plates.",
+      "case": "Fuses poorly: lands on the cream-and-serif default and has no task fit.",
+      "risk": "The default wearing botanical clothes.",
+      "kept": "All panes share one baseline grid.",
+      "hero": "https://impeccable.style/worlds/cards/editorial-sequence-montage-botanical-folio-season-hero.webp"
+    },
+    {
+      "id": "challenger-specimen",
+      "label": "Variable Type Specimen",
+      "verdict": "declined",
+      "lineage": "foundry specimen sites",
+      "thesis": "Hierarchy by scale contrast alone.",
+      "palette": ["#fafafa", "#0a0a0a", "#ff4f00"],
+      "materials": ["giant glyphs", "mono readouts"],
+      "viewport": "Item title set huge over notes.",
+      "case": "Fuses poorly: a specimen is a display, not a workspace.",
+      "risk": "Wastes the work band.",
+      "kept": "No ornament; type scale carries hierarchy.",
+      "hero": "https://impeccable.style/worlds/cards/variable-font-specimen-hero.webp"
+    }
+  ],
+  "reroll": {"registers": ["safer", "bolder"]},
+  "buildPath": {"value": "code", "toggle": false},
+  "canon": true,
+  "canonCard": {
+    "label": "The category standard",
+    "thesis": "A notes-and-code app the way Obsidian or VS Code would ship it, at full craft.",
+    "palette": ["#1e1e22", "#2a2a30", "#e6e6e6", "#8b6cf0"],
+    "materials": ["neutral dark shell", "tabbed panes", "workhorse UI sans"],
+    "viewport": "Dark neutral split view with tabs over notes and sandbox and one accent colour.",
+    "risk": "Indistinguishable from the tools it sits beside, by design."
+  },
+  "steer": true
+}

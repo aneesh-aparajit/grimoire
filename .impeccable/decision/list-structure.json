@@ -1,0 +1,57 @@
+{
+  "title": "Choose the reading list layout",
+  "question": "Same notebook world as the study view (navy band, cool paper, hairline modules). Pick how the reading list is organised.",
+  "options": [
+    {
+      "id": "board",
+      "label": "State board",
+      "kicker": "THE ROLL",
+      "thesis": "The list as three columns: To read, Studying, Done. Studying means NOTES.md has entries beyond its header, so state comes from your files.",
+      "palette": ["#22304a", "#f3f5f1", "#24396e", "#2f6b4a", "#b8382a"],
+      "materials": ["three hairline columns", "E-/R- counts per item", "Done stamp"],
+      "viewport": "Cloth band with vault path, search and Add. A tag bar with counts. Three equal columns below; each item is a compact entry: type icon, title, domain, tags, and its E-entry and R-run counts.",
+      "risk": "Columns waste width at 1,000 items, and 'Studying' is a derived state that INDEX.md doesn't store.",
+      "wireframe": {"cols": 12, "rows": 10, "regions": [
+        {"label": "band: vault · search · Add", "x": 0, "y": 0, "w": 12, "h": 1, "accent": true},
+        {"label": "tag bar with counts", "x": 0, "y": 1, "w": 12, "h": 1},
+        {"label": "To read", "x": 0, "y": 2, "w": 4, "h": 8},
+        {"label": "Studying", "x": 4, "y": 2, "w": 4, "h": 8},
+        {"label": "Done", "x": 8, "y": 2, "w": 4, "h": 8}
+      ]}
+    },
+    {
+      "id": "master-detail",
+      "label": "List with notebook peek",
+      "thesis": "A dense list on the left. The selected item's notebook opens on the right: its entries, last runs and source, before you even open it.",
+      "palette": ["#22304a", "#f3f5f1", "#e8ece5", "#24396e", "#9fb3a1"],
+      "materials": ["dense ruled rows", "entry index peek", "run log summary"],
+      "viewport": "Cloth band with search and Add. Left 55%: tag filter row, then pending items, then done. Right 45%: the selected item's title, source, its E-01… headings as a contents list, and its last three runs. Enter opens the study view.",
+      "risk": "Two panes on the list screen as well as the study view can feel like the same screen twice.",
+      "wireframe": {"cols": 12, "rows": 10, "regions": [
+        {"label": "band: vault · search · Add", "x": 0, "y": 0, "w": 12, "h": 1, "accent": true},
+        {"label": "tag filter", "x": 0, "y": 1, "w": 7, "h": 1},
+        {"label": "items (pending, then done)", "x": 0, "y": 2, "w": 7, "h": 8},
+        {"label": "selected: source + E- entries", "x": 7, "y": 1, "w": 5, "h": 6},
+        {"label": "last runs", "x": 7, "y": 7, "w": 5, "h": 3}
+      ]}
+    },
+    {
+      "id": "contents",
+      "label": "Contents page",
+      "thesis": "The vault read like a notebook's contents page: one numbered line per item in two ruled sections, Pending and Done, with entries, runs and source in aligned columns.",
+      "palette": ["#22304a", "#f3f5f1", "#24396e", "#5d6876", "#cdd6cb"],
+      "materials": ["numbered lines", "aligned tabular columns", "tag rail"],
+      "viewport": "Cloth band with search and Add. A narrow tag rail on the left with counts. Main area: a sortable table, Pending first then a ruled Done section; columns: No., title, source, tags, entries, runs, last edited.",
+      "risk": "Closest to the category default table; the notebook voice rests on the numbering and column rhythm.",
+      "wireframe": {"cols": 12, "rows": 10, "regions": [
+        {"label": "band: vault · search · Add", "x": 0, "y": 0, "w": 12, "h": 1, "accent": true},
+        {"label": "tags + counts", "x": 0, "y": 1, "w": 2, "h": 9},
+        {"label": "Pending: No. · title · source · tags · E · R", "x": 2, "y": 1, "w": 10, "h": 6},
+        {"label": "Done", "x": 2, "y": 7, "w": 10, "h": 3}
+      ]}
+    }
+  ],
+  "reroll": true,
+  "buildPath": {"value": "code", "toggle": false},
+  "steer": true
+}
