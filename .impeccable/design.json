@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-09T00:00:00Z",
+  "generatedAt": "2026-11-09T12:00:00Z",
   "title": "Design System: grimoire",
   "extensions": {
     "colorMeta": {
@@ -27,7 +27,8 @@
       "ink": { "role": "neutral", "displayName": "Ink", "canonical": "oklch(25.3% 0.028 266)", "dark": "#e2e6de", "tonalRamp": ["#090b0f", "#22252c", "#3d424d", "#5b6170", "#7b8292", "#9fa5b2", "#c5c9d3", "#ebeef5"] },
       "ink-muted": { "role": "neutral", "displayName": "Muted Ink", "dark": "#a3adba" },
       "ink-faint": { "role": "neutral", "displayName": "Faint Ink", "dark": "#8792a1" },
-      "site-ground": { "role": "neutral", "displayName": "Site Ground" }
+      "site-ground": { "role": "neutral", "displayName": "Site Ground" },
+      "spark": { "role": "tertiary", "displayName": "Spark Violet", "dark": "#b8a4ff", "scope": "landing page", "purpose": "The four-point star only: wordmark star, title spark, page-button twinkle, pass burst. Never text, links, fills, borders or controls." }
     },
     "typographyMeta": {
       "headline": { "displayName": "Headline", "purpose": "Note H1; peek title and vault picker heading sit at this level." },
@@ -37,7 +38,11 @@
       "label": { "displayName": "Form Label", "purpose": "Uppercase condensed field, module and section names; E- and R-numbers. Never a kicker." },
       "stamp": { "displayName": "Stamp", "purpose": "Status stamps only." },
       "mono": { "displayName": "Measurement", "purpose": "Paths, URLs, timestamps, durations, counts, page numbers, run output; tabular numerals." },
-      "code": { "displayName": "Code", "purpose": "Sandbox editor and fenced code." }
+      "code": { "displayName": "Code", "purpose": "Sandbox editor and fenced code." },
+      "display": { "displayName": "Display (landing)", "purpose": "The # grimoire title only, in pen, one line." },
+      "display-close": { "displayName": "Display Close (landing)", "purpose": "The closing 'Open the book.' line only." },
+      "entry-heading": { "displayName": "Entry Heading (landing)", "purpose": "Each entry's ## heading in pen; 1.5rem under 760px." },
+      "margin-note": { "displayName": "Margin Note (landing)", "purpose": "Pen asides in the right margin, tilted -1.5deg, max 24ch." }
     },
     "shadows": [
       { "name": "dialog-lift", "value": "0 4px 10px rgb(10 20 40 / 0.12), 0 24px 60px rgb(10 20 40 / 0.22)", "purpose": "Modal dialogs and the command palette." },
@@ -53,12 +58,22 @@
       { "name": "notice-rise", "value": "260ms; 6px rise with fade", "purpose": "Notice toast entrance." },
       { "name": "strike", "value": "420ms; scaleX 0 to 1 from the left", "purpose": "Correction strike drawn through a failed run." },
       { "name": "running-pulse", "value": "1.2s ease-in-out infinite; opacity to 0.45", "purpose": "Duration bar of a run in progress." },
-      { "name": "reduced-motion", "value": "0.01ms", "purpose": "All animation and transition durations under prefers-reduced-motion." }
+      { "name": "reduced-motion", "value": "0.01ms", "purpose": "All animation and transition durations under prefers-reduced-motion." },
+      { "name": "landing-control", "value": "160ms", "purpose": "Landing page button, band link and splitter state changes." },
+      { "name": "write-in", "value": "1500ms cubic-bezier(0.45, 0.05, 0.3, 1), 250ms delay; clip-path inset from the right", "purpose": "Landing title written in left to right, with the quill travelling alongside (190ms scribble) and lifting away over 600ms." },
+      { "name": "spark-in", "value": "700ms ease-out; then twinkle 4.8s infinite", "purpose": "The title's spark star landing after the write-in." },
+      { "name": "rule-draw", "value": "900ms ease-out; scaleX 0 to 1 from the left", "purpose": "Landing entry rule drawn on first view." },
+      { "name": "arrow-draw", "value": "900ms ease-out, 250ms delay; stroke-dashoffset to 0", "purpose": "Margin-note arrows drawn along their path on first view." },
+      { "name": "close-write-in", "value": "1300ms cubic-bezier(0.45, 0.05, 0.3, 1), 200ms delay", "purpose": "The closing line written in on first view." },
+      { "name": "sparkle-burst", "value": "760ms ease-out, 40ms stagger, five stars", "purpose": "Spark stars thrown from a passing Exit 0 stamp in the landing cast cell." },
+      { "name": "twinkle-hover", "value": "320ms ease-out; scale 0 rotate -45deg to rest", "purpose": "Spark star on the page button's corner on hover and focus." },
+      { "name": "landing-reduced-motion", "value": "reveals, write-ins and bursts off; content visible by default", "purpose": "Landing page under prefers-reduced-motion; JS opts reveals in only under no-preference." }
     ],
     "breakpoints": [
       { "name": "narrow-window", "value": "760px" },
       { "name": "notebook-compact (container)", "value": "720px" },
-      { "name": "notebook-tight (container)", "value": "480px" }
+      { "name": "notebook-tight (container)", "value": "480px" },
+      { "name": "landing-aside-drop", "value": "1040px" }
     ]
   },
   "components": [
@@ -141,6 +156,30 @@
       "description": "A ruled list row: checkbox, condensed number, kind icon, title over meta. Selection is the ink wash.",
       "html": "<div class=\"ds-row\"><input type=\"checkbox\"><span class=\"ds-row-no\">01</span><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18\"/></svg><div class=\"ds-row-main\"><span class=\"ds-row-title\">Async Rust, chapter 3</span><span class=\"ds-row-meta\">rust-lang.github.io <span>#rust #async</span></span></div></div><div class=\"ds-row\" aria-selected=\"true\"><input type=\"checkbox\"><span class=\"ds-row-no\">02</span><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\"><path d=\"M14 3H6v18h12V7z\"/><path d=\"M14 3v4h4M9 13h6M9 17h6\"/></svg><div class=\"ds-row-main\"><span class=\"ds-row-title\">Attention Is All You Need</span><span class=\"ds-row-meta\">local PDF <span>#ml #papers</span></span></div></div>",
       "css": ".ds-row { display: grid; grid-template-columns: auto 1.75rem 1rem minmax(0, 1fr); align-items: center; gap: 0.625rem; padding: 0.5rem 1rem; border-bottom: 1px solid color-mix(in oklab, var(--rule) 60%, transparent); background: var(--paper); font-family: var(--font-ui); } .ds-row:hover { background: color-mix(in oklab, var(--ink) 3%, var(--paper)); } .ds-row[aria-selected='true'] { background: color-mix(in oklab, var(--pen) 12%, var(--paper)); } .ds-row input { width: 0.9375rem; height: 0.9375rem; margin: 0; accent-color: var(--pen); } .ds-row-no { font-size: 0.6875rem; font-weight: 640; font-variation-settings: 'wdth' 72; letter-spacing: 0.06em; color: var(--ink-faint); font-variant-numeric: tabular-nums; } .ds-row svg { width: 1rem; height: 1rem; color: var(--ink-muted); } .ds-row-main { display: flex; flex-direction: column; gap: 0.0625rem; min-width: 0; } .ds-row-title { font-size: 0.875rem; font-weight: 560; color: var(--ink); } .ds-row[aria-selected='true'] .ds-row-title { color: var(--pen); } .ds-row-meta { display: flex; gap: 0.75rem; font-size: 0.75rem; font-variation-settings: 'wdth' 86; color: var(--ink-muted); } .ds-row-meta span { color: var(--ink-faint); }"
+    },
+    {
+      "name": "Page Button",
+      "kind": "button",
+      "refersTo": "button-page",
+      "description": "Landing page primary action (View on GitHub) with a spark star on hover.",
+      "html": "<a class=\"ds-pbtn\" href=\"#\">View on GitHub<svg class=\"ds-tw\" viewBox=\"0 0 24 24\"><path fill=\"currentColor\" d=\"M12 0C12.9 7.2 16.8 11.1 24 12 16.8 12.9 12.9 16.8 12 24 11.1 16.8 7.2 12.9 0 12 7.2 11.1 11.1 7.2 12 0Z\"/></svg></a>",
+      "css": ".ds-pbtn{position:relative;display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:3px;background:#24396e;color:#f5f7fb;font:600 0.9375rem/1 'Archivo Variable',Archivo,system-ui,sans-serif;text-decoration:none;transition:background-color 160ms cubic-bezier(0.16,1,0.3,1)}.ds-pbtn:hover{background:color-mix(in oklab,#24396e 88%,#1c2230)}.ds-tw{position:absolute;top:-7px;right:-7px;width:14px;height:14px;color:#7b5ce8;transform:scale(0) rotate(-45deg);transition:transform 320ms cubic-bezier(0.16,1,0.3,1)}.ds-pbtn:hover .ds-tw,.ds-pbtn:focus-visible .ds-tw{transform:scale(1) rotate(0)}"
+    },
+    {
+      "name": "File Bar",
+      "kind": "nav",
+      "refersTo": "file-bar",
+      "description": "Landing page sticky mono bar naming the page NOTES.md, the entry in view and the save state.",
+      "html": "<div class=\"ds-fb\"><span>~/grimoire/<b>NOTES.md</b></span><span class=\"ds-cr\">› <i>E-02</i> Study beside the source</span><span class=\"ds-st\"><span class=\"ds-dot\"></span>Saved</span></div>",
+      "css": ".ds-fb{display:flex;align-items:center;gap:10px;height:36px;padding:0 16px;background:color-mix(in oklab,#f3f5f1 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid #cdd6cb;color:#535e6c;font:0.8125rem 'JetBrains Mono Variable',ui-monospace,monospace}.ds-fb b{color:#1c2230;font-weight:500}.ds-cr{color:#5d6876}.ds-cr i{font-style:normal;color:#24396e}.ds-st{margin-left:auto;display:inline-flex;align-items:center;gap:8px}.ds-dot{width:6px;height:6px;border-radius:50%;background:#2f6b4a}"
+    },
+    {
+      "name": "Margin Note",
+      "kind": "custom",
+      "refersTo": "margin-note",
+      "description": "Landing page aside in the pen with a hand-drawn arrow back to the text.",
+      "html": "<p class=\"ds-note\"><svg width=\"70\" height=\"34\" viewBox=\"0 0 70 34\"><path d=\"M66 30C48 32 22 26 8 6M8 6l1 11M8 6l10 4\"/></svg>Every page in it is a plain file you could open in vim.</p>",
+      "css": ".ds-note{color:#24396e;font:400 0.9375rem/1.45 'Archivo Variable',Archivo,system-ui,sans-serif;font-stretch:92%;max-width:24ch;transform:rotate(-1.5deg);transform-origin:left top;margin:0}.ds-note svg{display:block;margin:0 0 6px -6px;overflow:visible}.ds-note path{fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}"
     }
   ],
   "narrative": {
@@ -162,7 +201,10 @@
       { "name": "The Measurement Rule", "body": "If it is code, output, a path or a number someone might compare (time, duration, count, page), set it in JetBrains Mono with tabular numerals. Nothing else is mono.", "section": "typography" },
       { "name": "The Width Axis Rule", "body": "Hierarchy comes from width and weight on one family (100 for prose, 84 to 86 for metadata, 72 for labels, 66 for stamps), not from adding faces.", "section": "typography" },
       { "name": "The No-Shadow Panes Rule", "body": "Panes, modules, rows, the peek and the band never cast shadows. If it does not float above the page, it is separated by a rule or a tone, not a shadow.", "section": "elevation" },
-      { "name": "The Hairline Rule", "body": "Every division is a single 1px sage line. No double borders, no boxed cards.", "section": "shapes" }
+      { "name": "The Hairline Rule", "body": "Every division is a single 1px sage line. No double borders, no boxed cards.", "section": "shapes" },
+      { "name": "The Spark Rule", "body": "Violet is the sparkle and nothing else: only ever the four-point star, never text, a link, a fill, a border, a focus ring or a control accent. Landing page only.", "section": "colors" },
+      { "name": "The Wide For Display Rule", "body": "Landing display size comes from Archivo past normal width (108 to 112) and weight (800 to 820), never a second face; the title and the close only.", "section": "typography" },
+      { "name": "The Write-In Rule", "body": "On the landing page things appear the way ink does: drawn left to right or along their path, once, on first view. Nothing fades up, slides in or bounces; all of it off under reduced motion.", "section": "motion" }
     ],
     "dos": [
       "**Do** keep red for failure: failed runs, error exits, timeouts, invalid input, and the Stop and delete-with-folder actions.",
@@ -173,7 +215,8 @@
       "**Do** mark status with a bordered stamp that stays put rather than a transient toast or a filled pill.",
       "**Do** strike a failed entry through with one red rule and leave it visible.",
       "**Do** keep corners at 3px for controls, 2px for marks and 4px for dialogs.",
-      "**Do** show third-party content on its own white ground in its own type."
+      "**Do** show third-party content on its own white ground in its own type.",
+      "**Do** (landing page) keep spark violet to the four-point star: the wordmark, the title's end, the page button's hover, the pass burst."
     ],
     "donts": [
       "**Don't** use correction red in syntax highlighting, decoration or emphasis.",
@@ -184,7 +227,8 @@
       "**Don't** fall back to a dark neutral IDE split with tabs and a single purple accent.",
       "**Don't** use the uppercase condensed label as a kicker or eyebrow above a heading.",
       "**Don't** introduce a second sans or a display face; get hierarchy from Archivo's weight and width.",
-      "**Don't** use mono for prose or interface labels."
+      "**Don't** use mono for prose or interface labels.",
+      "**Don't** (landing page) replace live product modules with screenshots or feature cards, or use spark violet as a text, link or control color."
     ]
   }
 }
