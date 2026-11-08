@@ -1,10 +1,8 @@
-import { ChevronRight, CornerDownLeft } from "lucide-react";
+import { CornerDownLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useApp } from "../app/store";
 import { LANGUAGES, type Run } from "../ipc/schemas";
 import { getTimeoutMs, useStudy } from "./store";
-
-const clock = new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
 
 function seconds(ms: number) {
   return ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(2)} s`;
@@ -35,27 +33,37 @@ function useElapsed(run: Run) {
   return run.status === "running" ? Math.min(getTimeoutMs(), now - run.startedAt) : run.durationMs;
 }
 
-function RunEntry({ run, open, onToggle }: { run: Run; open: boolean; onToggle: () => void }) {
+/** Output of the most recent run started in this session. */
+function Output({ run }: { run: Run }) {
   const insertRun = useStudy((s) => s.insertRun);
   const elapsed = useElapsed(run);
   const failed = run.status === "error" || run.status === "timeout";
   const lang = LANGUAGES.find((l) => l.id === run.language);
-  const outId = `run-${run.n}-out`;
 
   return (
-    <li className="run" data-open={open} data-failed={failed} data-status={run.status}>
-      <button type="button" className="run-head" aria-expanded={open} aria-controls={outId} onClick={onToggle}>
-        <span className="run-no">R-{String(run.n).padStart(2, "0")}</span>
+    <div className="run" data-open="true" data-failed={failed} data-status={run.status}>
+      <div className="run-head">
         <span className="run-meta">
-          <span>{clock.format(run.startedAt)}</span>
           <span>{lang?.file}</span>
         </span>
         <span>
           <Stamp run={run} />
         </span>
         <span className="run-dur">{seconds(elapsed)}</span>
-        <ChevronRight className="run-chev" aria-hidden="true" />
-      </button>
+        {run.status !== "running" ? (
+          <button
+            type="button"
+            className="btn btn-icon"
+            onClick={() => insertRun(run.n)}
+            title="Insert code and output into notes"
+            aria-label="Insert code and output into notes"
+          >
+            <CornerDownLeft />
+          </button>
+        ) : (
+          <span />
+        )}
+      </div>
       <div
         className="run-scale"
         role="img"
@@ -64,81 +72,48 @@ function RunEntry({ run, open, onToggle }: { run: Run; open: boolean; onToggle: 
       >
         <i style={{ transform: `scaleX(${Math.max(0.004, elapsed / getTimeoutMs())})` }} />
       </div>
-      {open && (
-        <>
-          <pre className="run-out" id={outId} aria-live={run.status === "running" ? "polite" : undefined}>
-            {run.output.length === 0 ? (
-              <span className="none">{run.status === "running" ? "Waiting for output…" : "No output."}</span>
-            ) : (
-              run.output.map((l, i) => (
-                // biome-ignore lint/suspicious/noArrayIndexKey: output lines are append-only.
-                <span key={i} className={l.stream === "stderr" ? "err" : undefined}>
-                  {l.text}
-                  {"\n"}
-                </span>
-              ))
-            )}
-            {run.status === "timeout" && (
-              <span className="err">Killed after {getTimeoutMs() / 1000} s. Change the limit in Settings.{"\n"}</span>
-            )}
-            {run.truncated && <span className="err">Output was cut off at the size limit.{"\n"}</span>}
-          </pre>
-          {run.status !== "running" && (
-            <div className="run-actions">
-              <button type="button" className="btn" onClick={() => insertRun(run.n)}>
-                <CornerDownLeft />
-                Insert code and output into notes
-              </button>
-            </div>
-          )}
-        </>
-      )}
-    </li>
+      <pre className="run-out" aria-live={run.status === "running" ? "polite" : undefined}>
+        {run.output.length === 0 ? (
+          <span className="none">{run.status === "running" ? "Waiting for output…" : "No output."}</span>
+        ) : (
+          run.output.map((l, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: output lines are append-only.
+            <span key={i} className={l.stream === "stderr" ? "err" : undefined}>
+              {l.text}
+              {"\n"}
+            </span>
+          ))
+        )}
+        {run.status === "timeout" && (
+          <span className="err">Killed after {getTimeoutMs() / 1000} s. Change the limit in Settings.{"\n"}</span>
+        )}
+        {run.truncated && <span className="err">Output was cut off at the size limit.{"\n"}</span>}
+      </pre>
+    </div>
   );
 }
 
 export function RunLog({ style }: { style?: React.CSSProperties }) {
-  const runs = useStudy((s) => s.runs);
+  const last = useStudy((s) => s.runs.at(-1));
+  const openedAt = useStudy((s) => s.openedAt);
   const language = useStudy((s) => s.language);
   const toolchain = useApp((s) => s.toolchains.find((t) => t.language === language));
   const missing = toolchain && !toolchain.path ? LANGUAGES.find((l) => l.id === language) : null;
-  const [closed, setClosed] = useState<Set<number>>(new Set());
-  const [opened, setOpened] = useState<Set<number>>(new Set());
-  // Runs loaded from earlier sessions start folded so failures stay in view;
-  // a run started now opens on its own.
-  const mountedAt = useStudy((s) => s.openedAt);
-  const last = runs.at(-1);
-  const latest = last && last.startedAt >= mountedAt ? last.n : undefined;
-
-  const isOpen = (n: number) => (n === latest ? !closed.has(n) : opened.has(n));
-  const toggle = (n: number) => {
-    if (n === latest) {
-      const next = new Set(closed);
-      next.has(n) ? next.delete(n) : next.add(n);
-      setClosed(next);
-    } else {
-      const next = new Set(opened);
-      next.has(n) ? next.delete(n) : next.add(n);
-      setOpened(next);
-    }
-  };
+  // Only the run started in this session is shown; earlier runs aren't kept on screen.
+  const current = last && last.startedAt >= openedAt ? last : undefined;
 
   return (
-    <section className="runlog" id="run-log" style={style} aria-label="Run log">
-      {runs.length === 0 ? (
+    <section className="runlog" id="run-log" style={style} aria-label="Output">
+      {current ? (
+        <Output run={current} />
+      ) : (
         <p className="runlog-empty">
           {missing ? (
-            <>No runs yet. {missing.label} can't run until <code className="mono">{missing.bin}</code> is installed; switch language to run something else.</>
+            <>{missing.label} can't run until <code className="mono">{missing.bin}</code> is installed; switch language to run something else.</>
           ) : (
-            <>No runs yet. Press <span className="kbd">⌘↵</span> to run the snippet. Each run is logged here with its time, exit code and output.</>
+            <>Press <span className="kbd">⌘↵</span> to run the snippet. Its output shows here.</>
           )}
         </p>
-      ) : (
-        <ol style={{ listStyle: "none", margin: 0, padding: 0 }}>
-          {[...runs].reverse().map((r) => (
-            <RunEntry key={r.n} run={r} open={isOpen(r.n)} onToggle={() => toggle(r.n)} />
-          ))}
-        </ol>
       )}
     </section>
   );

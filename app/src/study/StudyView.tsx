@@ -28,6 +28,8 @@ export function StudyView({ id }: { id: string }) {
   const toggleContent = useStudy((s) => s.toggleContent);
   const toggleNotebook = useStudy((s) => s.toggleNotebook);
   const sandboxOpen = useStudy((s) => s.sandboxOpen);
+  const notebookSplit = useStudy((s) => s.notebookSplit);
+  const setNotebookSplit = useStudy((s) => s.setNotebookSplit);
 
   // Load once per item; edits to the item (title, tags) don't reload notes.
   useEffect(() => {
@@ -202,8 +204,17 @@ export function StudyView({ id }: { id: string }) {
 
         {showNotebook ? (
           <section className="pane notebook" aria-label="Notebook" style={{ flex: 1 }}>
-            <NotesModule />
-            <SandboxModule style={sandboxOpen ? { flex: "0 0 46%" } : undefined} />
+            <NotesModule style={sandboxOpen ? { flex: `${notebookSplit} 1 0` } : undefined} />
+            {sandboxOpen && (
+              <Splitter
+                orientation="horizontal"
+                value={notebookSplit}
+                onChange={setNotebookSplit}
+                label="Resize notes and sandbox"
+                controls="notes-module"
+              />
+            )}
+            <SandboxModule style={sandboxOpen ? { flex: `${1 - notebookSplit} 1 0` } : undefined} />
           </section>
         ) : (
           <div className="rail right">

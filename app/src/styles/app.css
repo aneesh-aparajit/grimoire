@@ -381,8 +381,7 @@ li:has(.check:checked) .row-title {
   color: var(--ink-muted);
   line-height: 1.5;
 }
-.entries,
-.peek-runs {
+.entries {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -404,51 +403,6 @@ li:has(.check:checked) .row-title {
   color: var(--ink-faint);
   padding-top: 0.125rem;
 }
-.peek-runs li {
-  display: grid;
-  grid-template-columns: 3rem 1fr auto 4.25rem;
-  grid-template-rows: auto auto;
-  align-items: center;
-  column-gap: 0.5rem;
-  padding: 0.4375rem 0 0.25rem;
-  border-top: 1px solid var(--rule);
-}
-.peek-run-meta {
-  position: relative;
-  font-size: 0.71875rem;
-  color: var(--ink-muted);
-  justify-self: start;
-}
-.peek-runs li[data-failed="true"] .peek-run-meta::after {
-  content: "";
-  position: absolute;
-  left: -0.125rem;
-  right: -0.125rem;
-  top: 52%;
-  height: 1.5px;
-  background: var(--correction);
-}
-.peek-dur {
-  font-size: 0.71875rem;
-  text-align: right;
-}
-.peek-scale {
-  grid-column: 2 / -1;
-  position: relative;
-  height: 2px;
-  margin-top: 0.3125rem;
-  background: var(--rule);
-}
-.peek-scale i {
-  position: absolute;
-  inset: 0;
-  background: var(--pen);
-  transform-origin: left center;
-}
-.peek-runs li[data-failed="true"] .peek-scale i {
-  background: var(--correction);
-}
-
 /* ---------- dialogs ---------- */
 
 .modal {

@@ -17,7 +17,7 @@ const LINT = [...BASE, notesLint];
 
 const SAVE_LABEL = { saved: "Saved", saving: "Saving…", dirty: "Edited", error: "Not saved" } as const;
 
-export function NotesModule() {
+export function NotesModule({ style }: { style?: React.CSSProperties }) {
   const id = useStudy((s) => s.item?.id ?? "");
   const loading = useStudy((s) => s.loading);
   const diskConflict = useStudy((s) => s.diskConflict);
@@ -32,7 +32,7 @@ export function NotesModule() {
   const hints = lintOn ? lintMarkdown(notes).length : 0;
 
   return (
-    <section className="notes" aria-label="Notes">
+    <section className="notes" id="notes-module" aria-label="Notes" style={style}>
       <div className="head">
         <span className="head-file" title={`${id}/NOTES.md`}>
           {id}/<b>NOTES.md</b>

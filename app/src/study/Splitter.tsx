@@ -40,6 +40,7 @@ export function Splitter({ value, onChange, orientation, label, controls }: Prop
       data-dragging={dragging}
       className={vertical ? "splitter" : "splitter row"}
       onPointerDown={(e) => {
+        e.preventDefault();
         e.currentTarget.setPointerCapture(e.pointerId);
         setDragging(true);
       }}
