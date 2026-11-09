@@ -307,9 +307,9 @@ h3 {
 .device {
   margin: 0;
   display: grid;
-  grid-template-rows: 2rem 1fr;
+  grid-template-rows: 2rem minmax(0, 1fr) auto;
   gap: 0.5rem;
-  aspect-ratio: 16 / 10.5;
+  aspect-ratio: 16 / 11.25;
   padding: 0.625rem;
   border-radius: 14px;
   background: var(--panel);
@@ -388,6 +388,139 @@ h3 {
   align-items: center;
   gap: 0.5rem;
   color: var(--ink-faint);
+}
+
+.device .srcwrap {
+  display: grid;
+  min-height: 0;
+}
+.device .src.vid {
+  display: grid;
+  align-content: start;
+  gap: 0.5rem;
+}
+.device .src.vid h3 {
+  margin: 0.25rem 0 0;
+}
+.device .src.vid .meta {
+  margin: 0;
+  color: #666;
+  font: 0.6875rem/1.4 -apple-system, system-ui, sans-serif;
+}
+.device .frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 6px;
+  background: linear-gradient(160deg, #2b2d31, #121315);
+}
+.device .frame .play {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin: -1.125rem 0 0 -1.125rem;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.14);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.25);
+}
+.device .frame .play::after {
+  content: "";
+  position: absolute;
+  inset: 50% auto auto 54%;
+  translate: -50% -50%;
+  border-style: solid;
+  border-width: 0.4rem 0 0.4rem 0.65rem;
+  border-color: transparent transparent transparent #fff;
+}
+.device .frame .tc {
+  position: absolute;
+  left: 0.5rem;
+  bottom: 0.375rem;
+  color: rgb(255 255 255 / 0.8);
+  font-size: 0.625rem;
+}
+.device .src.pdf {
+  background: #8b8c8f;
+  padding: 0.875rem;
+}
+.device .src.pdf .page {
+  height: 100%;
+  padding: 1rem 1.125rem;
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.25);
+}
+.device .src.pdf .pg {
+  float: right;
+  color: #888;
+  font-size: 0.625rem;
+}
+.device .src.pdf mark {
+  background: color-mix(in oklab, var(--signal) 20%, #fff);
+  color: inherit;
+}
+.device .notes {
+  display: flex;
+  flex-direction: column;
+}
+.device .notes .md,
+.device .notes .raw {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.device .notes .run {
+  flex: none;
+}
+.device .notes .raw {
+  margin: 0;
+  font: 0.6875rem/1.6 var(--font-mono);
+  color: var(--ink-muted);
+  white-space: pre-wrap;
+}
+.device .notes code {
+  font: 0.6875rem var(--font-mono);
+}
+.device .notes blockquote {
+  margin: 0;
+  padding-left: 0.625rem;
+  border-left: 2px solid var(--rule-strong);
+  color: var(--ink-muted);
+}
+.device .run .code,
+.device .run .out {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--ink);
+}
+.device .run .out {
+  color: var(--ink-muted);
+}
+.device .run .foot {
+  min-height: 1.625rem;
+}
+.device .run .rerun {
+  margin-left: auto;
+  height: 1.375rem;
+  font-family: var(--font-ui);
+}
+.device .run .rerun:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.device .kinds {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0 0.375rem;
+}
+.device .kinds > span[role="group"] {
+  display: flex;
+  gap: 0.25rem;
+}
+.device button.key:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 
 /* ---------- blocks: a short claim beside an instrument panel ---------- */
@@ -713,7 +846,7 @@ footer .push {
   }
   .device {
     aspect-ratio: auto;
-    height: 26rem;
+    height: 28rem;
   }
   .device .bar {
     font-size: 0.75rem;
@@ -727,7 +860,7 @@ footer .push {
   .device .panes {
     grid-template-columns: 1fr;
   }
-  .device .src {
+  .device .srcwrap {
     display: none;
   }
   .block,
