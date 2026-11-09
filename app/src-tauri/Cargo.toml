@@ -32,6 +32,12 @@ regex = "1"
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
 
+# Loads the video embed page into the content WKWebView with an https base URL,
+# so YouTube's player gets the Referer it now requires.
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2-foundation = { version = "0.3", features = ["NSString", "NSURL"] }
+objc2-web-kit = { version = "0.3", features = ["objc2-app-kit", "WKWebView", "WKNavigation"] }
+
 [dev-dependencies]
 tempfile = "3"
 tauri = { version = "2", features = ["unstable", "protocol-asset", "test"] }
