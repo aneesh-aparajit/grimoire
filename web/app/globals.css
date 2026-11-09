@@ -195,7 +195,6 @@ a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; 
 }
 .entry > .num { padding-top: 9px; color: var(--ink-faint); }
 .entry > .body { min-width: 0; }
-.entry > .aside { padding: 64px 0 0 44px; }
 
 h2 {
   font-size: 1.75rem; line-height: 1.2; font-weight: 680; letter-spacing: -0.015em;
@@ -214,7 +213,6 @@ code, .path { font-family: var(--font-mono); font-size: 0.86em; color: var(--ink
 .hero::before { display: none; }
 .hero > .num { padding-top: 2.1rem; }
 .hero > .body { grid-column: 2 / 4; grid-row: 1; }
-.hero > .aside { grid-column: 3; grid-row: 1; align-self: end; padding: 0 0 6px 44px; }
 .title {
   position: relative; display: inline-block;
   font-size: clamp(3.4rem, 12.5vw, 9rem); line-height: 0.9; font-weight: 820;
@@ -236,13 +234,6 @@ code, .path { font-family: var(--font-mono); font-size: 0.86em; color: var(--ink
 .acts { margin-top: 34px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 20px; }
 .facts { color: var(--ink-muted); font-size: 0.875rem; font-stretch: 86%; }
 
-/* Margin notes, in the pen */
-.note {
-  color: var(--pen); font-size: 0.9375rem; line-height: 1.45; max-width: 24ch;
-  font-stretch: 92%; transform: rotate(-1.5deg); transform-origin: left top;
-}
-.note svg { display: block; margin: 0 0 6px -6px; overflow: visible; }
-.note path { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 
 /* Modules: sunk head + flush content, no cards */
 .module { margin-top: 26px; border: 1px solid var(--rule); background: var(--paper-raise); }
@@ -387,8 +378,6 @@ footer a { color: var(--ink); }
   .js .entry:not(.seen)::before { transform: scaleX(0); }
   .js .close h2 { clip-path: inset(-20% -5% -20% 0); transition: clip-path 1300ms cubic-bezier(0.45, 0.05, 0.3, 1) 200ms; }
   .js .close:not(.seen) h2 { clip-path: inset(-20% 100% -20% 0); }
-  .js .note path { stroke-dasharray: var(--len, 200); stroke-dashoffset: 0; transition: stroke-dashoffset 900ms var(--ease-out) 250ms; }
-  .js .entry:not(.seen) .note path { stroke-dashoffset: var(--len, 200); }
 }
 @keyframes write { from { clip-path: inset(-20% 100% -20% 0); } to { clip-path: inset(-20% -5% -20% 0); } }
 @keyframes quill-move { from { left: 0; opacity: 1; } to { left: calc(100% - 0.55em); opacity: 1; } }
@@ -407,9 +396,7 @@ footer a { color: var(--ink); }
 /* Narrow */
 @media (max-width: 1040px) {
   .entry { grid-template-columns: var(--margin) minmax(0, 1fr); }
-  .entry > .aside { grid-column: 2; padding: 28px 0 0; }
   .hero > .body { grid-column: 2; }
-  .hero > .aside { grid-column: 2; grid-row: 2; padding: 36px 0 0; }
 }
 @media (max-width: 760px) {
   :root { --gutter: 16px; }
@@ -421,10 +408,9 @@ footer a { color: var(--ink); }
   .page::before { display: none; }
   .entry > .num { position: absolute; right: 0; top: 46px; padding: 0; }
   .entry > .body h2 { padding-right: 3rem; }
-  .entry > .aside { grid-column: 1; }
   .hero { padding: 48px 0 56px; }
   .hero > .num { top: 48px; }
-  .hero > .body, .hero > .aside { grid-column: 1; grid-row: auto; }
+  .hero > .body { grid-column: 1; grid-row: auto; }
   h2 { font-size: 1.5rem; }
   .lede { margin-top: 24px; }
   .desk { height: 260px; }
