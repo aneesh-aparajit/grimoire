@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Riso Study Zine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Familjen+Grotesk:wght@400;500;600;700&family=Martian+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --stock:#eff1f1; --stock-2:#e4e7e8; --stock-3:#f8f9f9; --site:#ffffff;
+  --blue:#0078bf; --blue-ink:#2a3f8f; --blue-deep:#1b2a66;
+  --yellow:#ffe800; --pink:#ff48b0; --green:#006d00;
+  --ink:#1d1f2b; --muted:#4f5566; --rule:#c9ced3;
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --sans:"Familjen Grotesk",system-ui,sans-serif; --display:"Big Shoulders Display",sans-serif; --mono:"Martian Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0}
+::selection{background:var(--yellow);color:var(--blue-deep)}
+body{background:#d8dcdf;color:var(--ink);font:14px/1.5 var(--sans);padding:40px 24px 80px}
+.sheet{max-width:1280px;margin:0 auto 56px}
+.caption{font:600 13px/1.4 var(--sans);color:var(--blue-deep);margin:0 0 12px;display:flex;justify-content:space-between;gap:16px}
+.caption span{font-weight:400;color:var(--muted)}
+.frame{border-radius:10px;overflow:hidden;box-shadow:0 18px 50px -20px rgba(20,30,60,.45),0 2px 6px rgba(20,30,60,.12);background:var(--stock)}
+.chrome{height:30px;background:var(--blue-deep);display:flex;align-items:center;gap:7px;padding:0 12px}
+.chrome i{width:11px;height:11px;border-radius:50%;background:#4b5a8f;display:block}
+.grain{position:relative;isolation:isolate}
+.grain::after{content:"";position:absolute;inset:0;background:var(--grain);mix-blend-mode:multiply;opacity:.35;pointer-events:none;z-index:2}
+
+/* ---------- APP ---------- */
+.app{height:800px;display:grid;grid-template-rows:56px 1fr}
+.band{background:var(--blue);color:#fff;display:flex;align-items:center;gap:18px;padding:0 18px}
+.band .back{font:600 13px var(--sans);color:#fff;text-decoration:none;opacity:.9}
+.mark{font:900 26px/1 var(--display);letter-spacing:.01em;position:relative;color:#fff}
+.mark::before{content:attr(data-t);position:absolute;left:2px;top:1px;color:var(--yellow);mix-blend-mode:multiply;z-index:-1}
+.band .title{font:600 15px var(--sans)}
+.band .src{font:400 11px var(--mono);opacity:.85}
+.band nav{margin-left:auto;display:flex;gap:18px;font:600 13px var(--sans)}
+.band nav a{color:#fff;text-decoration:none;border-bottom:2px solid transparent;padding:2px 0}
+.band nav a:hover{border-color:var(--yellow)}
+.band nav a.on{border-color:var(--yellow)}
+.work{display:grid;grid-template-columns:52% 1px 1fr;min-height:0}
+.split{background:var(--blue)}
+
+/* source pane */
+.source{display:grid;grid-template-rows:34px 1fr;min-height:0}
+.phead{display:flex;align-items:center;gap:10px;padding:0 14px;background:var(--stock-2);font:500 11px var(--mono);color:var(--muted);border-bottom:1px solid var(--rule)}
+.phead b{font:700 12px var(--sans);letter-spacing:.02em;color:var(--blue-deep)}
+.phead .r{margin-left:auto}
+.site{background:var(--site);overflow:hidden;padding:34px 48px;color:#222;font:16px/1.65 Georgia,serif}
+.site .crumbs{font:13px system-ui;color:#777;margin-bottom:20px}
+.site h1{font:700 30px/1.2 system-ui;margin-bottom:16px;color:#111}
+.site h2{font:700 21px system-ui;margin:22px 0 8px}
+.site p{margin-bottom:12px;max-width:62ch}
+.site pre{background:#f6f7f6;border:1px solid #e3e3e3;padding:12px 14px;font:13px/1.5 ui-monospace,monospace;margin:10px 0}
+.site mark{background:var(--yellow);mix-blend-mode:multiply}
+
+/* notebook */
+.book{display:grid;grid-template-rows:1fr auto;min-height:0;background:var(--stock)}
+.notes{overflow:hidden;display:grid;grid-template-rows:34px 1fr}
+.notes .body{padding:26px 34px 0 34px;color:var(--blue-ink);font:15.5px/1.7 var(--sans);max-width:70ch}
+.notes h1{font:900 40px/1 var(--display);color:var(--blue);letter-spacing:.005em;margin-bottom:6px;position:relative;display:inline-block}
+.notes h1::before{content:attr(data-t);position:absolute;left:2px;top:2px;color:var(--yellow);mix-blend-mode:multiply;z-index:-1}
+.notes .link{font:400 11px var(--mono);color:var(--muted);display:block;margin-bottom:18px}
+.notes h2{font:700 19px/1.3 var(--sans);color:var(--blue-deep);margin:20px 0 6px;display:flex;align-items:baseline;gap:10px}
+.notes h2 .hash{color:var(--blue);opacity:.45;font-weight:500}
+.notes ul{padding-left:18px}
+.notes li{margin-bottom:3px}
+.notes li::marker{color:var(--blue)}
+.notes code{font:500 12.5px var(--mono);background:rgba(0,120,191,.09);padding:1px 4px;border-radius:2px}
+.notes s{text-decoration-color:var(--pink);text-decoration-thickness:2px;color:var(--muted)}
+.hl{background:linear-gradient(transparent 38%,var(--yellow) 38%, var(--yellow) 92%,transparent 92%);mix-blend-mode:multiply;padding:0 2px}
+.caret{display:inline-block;width:2px;height:1.1em;background:var(--blue);vertical-align:-3px;margin-left:1px}
+
+/* sandbox */
+.sandbox{border-top:2px solid var(--blue);background:var(--stock-3);display:grid;grid-template-columns:1fr 1fr;height:300px}
+.sandbox .head{grid-column:1/-1;height:38px;display:flex;align-items:center;gap:14px;padding:0 14px;border-bottom:1px solid var(--rule)}
+.sandbox .head b{font:700 12px var(--sans);letter-spacing:.02em;color:var(--blue-deep)}
+.sel{font:500 11px var(--mono);color:var(--blue-deep);border-bottom:1.5px solid var(--blue);padding:1px 2px}
+.btn{font:700 12.5px var(--sans);border:0;border-radius:2px;height:26px;padding:0 12px;cursor:pointer}
+.btn.run{background:var(--yellow);color:var(--blue-deep);position:relative;margin-left:auto}
+.btn.run::after{content:"";position:absolute;inset:0;transform:translate(2px,2px);background:var(--blue);mix-blend-mode:multiply;opacity:0;transition:opacity .15s}
+.btn.run:hover::after{opacity:.25}
+.btn.ghost{background:none;color:var(--blue-deep);padding:0 4px}
+.kbd{font:500 10px var(--mono);color:var(--muted)}
+.editor{padding:12px 14px;font:12.5px/1.65 var(--mono);color:var(--ink);border-right:1px solid var(--rule);white-space:pre;overflow:hidden}
+.editor .k{color:var(--blue)} .editor .s{color:var(--green)} .editor .c{color:#7a8090} .editor .n{color:var(--blue-deep);font-weight:500}
+.log{overflow:hidden;font:12px/1.55 var(--mono)}
+.run{display:grid;grid-template-columns:44px 1fr auto;gap:0 10px;padding:9px 14px;border-bottom:1px solid var(--rule);align-items:start}
+.run .no{font:700 12px var(--sans);color:var(--blue)}
+.run .out{color:var(--ink);white-space:pre}
+.run .t{font:500 11px var(--mono);color:var(--muted);text-align:right}
+.stamp{display:inline-block;position:relative;font:700 10px/18px var(--sans);letter-spacing:.08em;text-transform:uppercase;padding:0 7px;margin-bottom:5px}
+.stamp.pass{color:#fff;background:var(--yellow)}
+.stamp.pass::before{content:"";position:absolute;inset:0;background:var(--blue);mix-blend-mode:multiply;transform:translate(1px,1px)}
+.stamp.pass span{position:relative;z-index:1}
+.stamp.fail{background:var(--pink);color:var(--blue-deep)}
+.run.failed .out{text-decoration:line-through;text-decoration-color:var(--pink);text-decoration-thickness:2px;color:var(--muted)}
+.foot{grid-column:1/-1}
+
+/* ---------- LANDING ---------- */
+.web{height:780px;background:var(--stock);display:grid;grid-template-rows:auto 1fr;overflow:hidden;position:relative}
+.drench{background:var(--blue);color:#fff;padding:22px 48px 0;position:relative;overflow:hidden}
+.topnav{display:flex;align-items:center;gap:28px;font:600 14px var(--sans)}
+.topnav a{color:#fff;text-decoration:none}
+.topnav .gh{margin-left:auto}
+.word{font:900 clamp(140px,22vw,300px)/.78 var(--display);letter-spacing:-.01em;margin:44px 0 0 -10px;position:relative;color:#fff;white-space:nowrap}
+.word::before{content:"grimoire";position:absolute;left:7px;top:5px;color:var(--yellow);mix-blend-mode:multiply}
+.lede{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:end;padding:64px 0 34px}
+.lede p{font:500 26px/1.25 var(--sans);max-width:22ch}
+.lede .cta{display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.cta .row{display:flex;gap:14px;align-items:center}
+.btn-page{font:700 16px var(--sans);height:46px;padding:0 20px;border-radius:2px;background:var(--yellow);color:var(--blue-deep);text-decoration:none;display:inline-flex;align-items:center;gap:10px;position:relative}
+.btn-page::after{content:"";position:absolute;inset:0;background:var(--pink);mix-blend-mode:multiply;transform:translate(4px,4px);opacity:0;transition:opacity .2s, transform .2s}
+.btn-page:hover::after{opacity:.6;transform:translate(3px,3px)}
+.btn-line{font:600 15px var(--sans);color:#fff;text-decoration:none;border-bottom:2px solid var(--yellow);padding-bottom:2px}
+.small{font:400 11px var(--mono);opacity:.9}
+.strip{display:grid;grid-template-columns:repeat(3,1fr);border-top:2px solid var(--blue)}
+.strip div{padding:22px 48px 0 48px;border-right:1px solid var(--rule)}
+.strip div:last-child{border:0}
+.strip h3{font:900 34px/1 var(--display);color:var(--blue);margin-bottom:8px}
+.strip p{color:var(--blue-ink);font:15px/1.5 var(--sans);max-width:34ch}
+.strip code{font:500 12px var(--mono)}
+.stamp-big{position:absolute;right:54px;top:118px;transform:rotate(-6deg);font:900 30px/1 var(--display);padding:8px 14px;color:var(--blue-deep);background:var(--pink);letter-spacing:.02em}
+</style>
+</head>
+<body>
+
+<section class="sheet">
+  <p class="caption">Desktop app: study view <span>1280 × 830 · light · synthetic demo content</span></p>
+  <div class="frame">
+    <div class="chrome"><i></i><i></i><i></i></div>
+    <div class="app">
+      <header class="band grain">
+        <a class="back" href="#">← List</a>
+        <span class="mark" data-t="grimoire">grimoire</span>
+        <span class="title">Async Rust, chapter 3</span>
+        <span class="src">rust-lang.github.io · 18 min read</span>
+        <nav><a class="on" href="#">Study</a><a href="#">Preview</a><a href="#">Open in browser</a></nav>
+      </header>
+      <div class="work">
+        <section class="source">
+          <div class="phead"><b>SOURCE</b> rust-lang.github.io/async-book/03_async_await/01_chapter.html <span class="r">web</span></div>
+          <article class="site">
+            <div class="crumbs">Asynchronous Programming in Rust › async/.await</div>
+            <h1>async/.await</h1>
+            <p><code>async</code>/<code>.await</code> are special pieces of Rust syntax that make it possible to yield control of the current thread rather than blocking, allowing other code to make progress while waiting on an operation to complete.</p>
+            <p>There are two main ways to use <code>async</code>: <code>async fn</code> and <code>async</code> blocks. Each returns a value that implements the <code>Future</code> trait.</p>
+            <pre>// `foo()` returns a type that implements `Future&lt;Output = u8&gt;`.
+async fn foo() -&gt; u8 { 5 }</pre>
+            <p><mark>Async bodies and other futures are lazy: they do nothing until they are run.</mark> The most common way to run a <code>Future</code> is to <code>.await</code> it.</p>
+            <h2>async lifetimes</h2>
+            <p>Unlike traditional functions, <code>async fn</code>s which take references or other non-<code>'static</code> arguments return a <code>Future</code> which is bounded by the lifetime of the arguments.</p>
+          </article>
+        </section>
+        <div class="split"></div>
+        <section class="book">
+          <div class="notes">
+            <div class="phead"><b>NOTES.md</b> async-rust-ch3/NOTES.md <span class="r">saved 14:02</span></div>
+            <div class="body">
+              <h1 data-t="Async Rust, chapter 3">Async Rust, chapter 3</h1>
+              <span class="link">&lt;https://rust-lang.github.io/async-book/03_async_await/01_chapter.html&gt;</span>
+              <h2><span class="hash">##</span> async fn returns a future</h2>
+              <ul>
+                <li><code>async fn</code> doesn't run anything when called. It returns a value that implements <code>Future</code>, and <span class="hl">nothing happens until something polls it.</span></li>
+                <li><code>.await</code> is where the current future yields if the inner one is <code>Pending</code>.</li>
+                <li><s>Futures start running as soon as they're created.</s> They don't; see above.</li>
+              </ul>
+              <h2><span class="hash">##</span> Lifetimes and async</h2>
+              <p>An <code>async fn</code> that borrows its arguments returns a future that borrows them too, so the future can't outlive them.<span class="caret"></span></p>
+            </div>
+          </div>
+          <div class="sandbox">
+            <div class="head">
+              <b>SANDBOX</b><span class="sel">rust ▾</span><span class="kbd">sandbox/main.rs</span>
+              <button class="btn run">Run</button><span class="kbd">⌘↵</span>
+              <button class="btn ghost">Insert into notes</button>
+            </div>
+            <div class="editor"><span class="k">use</span> std::future::Future;
+
+<span class="k">fn</span> <span class="n">good</span>() -&gt; <span class="k">impl</span> Future&lt;Output = u8&gt; {
+    <span class="k">async move</span> {
+        <span class="k">let</span> x = 5;
+        borrow_x(&amp;x).<span class="k">await</span>
+    }
+}
+<span class="c">// prints the future's output</span>
+println!(<span class="s">"{}"</span>, block_on(good()));</div>
+            <div class="log">
+              <div class="run"><span class="no">R-03</span><div><span class="stamp pass"><span>Exit 0</span></span><div class="out">5</div></div><span class="t">0.41 s</span></div>
+              <div class="run failed"><span class="no">R-02</span><div><span class="stamp fail">Exit 101</span><div class="out">error[E0597]: `x` does not live long enough</div></div><span class="t">1.12 s</span></div>
+              <div class="run"><span class="no">R-01</span><div><span class="stamp pass"><span>Exit 0</span></span><div class="out">hello from async</div></div><span class="t">0.38 s</span></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sheet">
+  <p class="caption">Web: landing, first viewport <span>1280 × 780 · persuade</span></p>
+  <div class="frame">
+    <div class="web">
+      <div class="drench grain">
+        <nav class="topnav"><span class="mark" data-t="grimoire" style="font-size:24px">grimoire</span><a href="#">Install</a><a href="#">Docs</a><a class="gh" href="#">GitHub</a></nav>
+        <div class="word">grimoire</div>
+        <span class="stamp-big">PLAIN FILES</span>
+        <div class="lede">
+          <p>Read it, write it down, run it. One window, one folder per thing you're learning.</p>
+          <div class="cta">
+            <div class="row"><a class="btn-page" href="#">Download for macOS</a><a class="btn-line" href="#">Read the source</a></div>
+            <span class="small">macOS 13+ · plain files · no account</span>
+          </div>
+        </div>
+      </div>
+      <div class="strip">
+        <div><h3>Read</h3><p>Articles, talks and PDFs open on the left, in their own look. Sites that refuse iframes still load.</p></div>
+        <div><h3>Write</h3><p>Markdown notes on the right, saved as <code>NOTES.md</code> beside the item. Every page is a file you could open in vim.</p></div>
+        <div><h3>Run</h3><p>Try the snippet with the toolchains already on your machine. It runs as you; it is not a sandbox in the security sense.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

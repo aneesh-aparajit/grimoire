@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Swiss Grid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#f7f7f5; --site:#fff; --ink:#111; --ink-2:#555; --ink-3:#6e6e6e; --rule:#d9d9d6; --red:#e3000f;
+  --sans:"Hanken Grotesk",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0}
+::selection{background:#111;color:#fff}
+body{background:#e2e2df;color:var(--ink);font:14px/1.5 var(--sans);padding:40px 24px 80px}
+.sheet{max-width:1280px;margin:0 auto 56px}
+.caption{font:600 13px/1.4 var(--sans);margin:0 0 12px;display:flex;justify-content:space-between}
+.caption span{font-weight:400;color:var(--ink-3)}
+.frame{border-radius:10px;overflow:hidden;box-shadow:0 18px 50px -24px rgba(0,0,0,.35),0 1px 3px rgba(0,0,0,.08);background:var(--ground)}
+.chrome{height:30px;background:var(--ground);border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:7px;padding:0 12px}
+.chrome i{width:11px;height:11px;border-radius:50%;background:#d0d0cc;display:block}
+.mono{font:400 11.5px/1.5 var(--mono);font-variant-numeric:tabular-nums}
+.lab{font:600 11px/1 var(--sans);color:var(--ink-3)}
+
+.app{height:800px;display:grid;grid-template-rows:64px 1fr}
+.band{display:grid;grid-template-columns:repeat(12,1fr);column-gap:16px;align-items:end;padding:0 24px 12px;border-bottom:1px solid var(--ink)}
+.band a{color:var(--ink);text-decoration:none;font:500 13px var(--sans)}
+.band a:hover{color:var(--red)}
+.band .back{grid-column:1/3}
+.band .t{grid-column:3/8;font:700 22px/1 var(--sans);letter-spacing:-.02em}
+.band .m{grid-column:8/10;color:var(--ink-3)}
+.band nav{grid-column:10/13;display:flex;gap:18px;justify-content:flex-end}
+.band nav a.on{font-weight:700;box-shadow:0 2px 0 var(--ink)}
+.work{display:grid;grid-template-columns:52% 1px 1fr;min-height:0}
+.split{background:var(--ink)}
+.source{display:grid;grid-template-rows:32px 1fr;min-height:0}
+.phead{display:flex;align-items:center;gap:12px;padding:0 24px;border-bottom:1px solid var(--rule)}
+.phead .r{margin-left:auto}
+.site{background:var(--site);overflow:hidden;padding:30px 44px;color:#222;font:16px/1.65 Georgia,serif}
+.site h1{font:700 28px/1.2 system-ui;margin-bottom:14px;color:#111}
+.site p{margin-bottom:12px;max-width:62ch}
+.site pre{background:#f6f7f6;border:1px solid #e3e3e3;padding:12px 14px;font:13px/1.5 ui-monospace,monospace;margin:10px 0}
+.site code{font:14px ui-monospace,monospace}
+.book{display:grid;grid-template-rows:1fr auto;min-height:0}
+.notes{display:grid;grid-template-rows:32px 1fr;min-height:0}
+.notes .body{padding:28px 40px 0 24px;display:grid;grid-template-columns:96px 1fr;column-gap:16px;align-content:start;font:15.5px/1.65 var(--sans)}
+.notes .k{grid-column:1;font:500 11px/1 var(--mono);color:var(--ink-3);padding-top:7px}
+.notes .v{grid-column:2;max-width:62ch}
+.notes h1{font:800 34px/1.05 var(--sans);letter-spacing:-.025em;margin-bottom:22px}
+.notes h2{font:700 17px/1.3 var(--sans);margin:0 0 4px}
+.notes .k.cur{color:var(--red)}
+.notes ul{padding-left:16px;margin-bottom:20px}
+.notes li{margin-bottom:2px}
+.notes code{font:12.5px var(--mono)}
+.notes s{color:var(--ink-3)}
+.caret{display:inline-block;width:2px;height:1.1em;background:var(--red);vertical-align:-3px}
+.sandbox{display:grid;grid-template-columns:1fr 1fr;height:290px;border-top:1px solid var(--ink)}
+.sandbox .head{grid-column:1/-1;height:40px;display:flex;align-items:center;gap:16px;padding:0 24px}
+.sandbox .head b{font:700 13px var(--sans)}
+.runb{margin-left:auto;font:700 13px var(--sans);height:28px;padding:0 14px;border:0;background:var(--ink);color:#fff}
+.runb:hover{background:var(--red)}
+.ghost{background:none;border:0;font:500 13px var(--sans);color:var(--ink)}
+.editor{padding:4px 24px 12px;font:12.5px/1.7 var(--mono);white-space:pre;overflow:hidden;color:#222}
+.editor .c{color:var(--ink-3)}
+.log{font:12px/1.5 var(--mono);padding:4px 24px 0 16px;border-left:1px solid var(--rule);background:var(--ground);position:relative}
+.log .row{display:grid;grid-template-columns:40px 64px 1fr 52px;gap:10px;padding:7px 0;border-top:1px solid var(--rule)}
+.log .row:first-child{border-top:1px solid var(--ink)}
+.log .t{text-align:right;color:var(--ink-3)}
+.log .bad{color:var(--red);font-weight:500}
+.log .row.f .o{text-decoration:line-through;color:var(--ink-3)}
+.log .o{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.web{height:780px;padding:28px 40px 36px;display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:auto 1fr auto auto;column-gap:16px;background:var(--ground)}
+.web nav{grid-column:1/-1;display:grid;grid-template-columns:repeat(12,1fr);column-gap:16px;font:500 14px var(--sans)}
+.web nav a{color:var(--ink);text-decoration:none}
+.web nav .gh{grid-column:12;text-align:right}
+.wm{grid-column:1/-1;align-self:start;margin-top:56px;font:800 clamp(140px,21vw,290px)/.8 var(--sans);letter-spacing:-.055em;margin-left:-12px}
+.redrule{grid-column:1/-1;height:10px;background:var(--red);margin:34px 0 22px;width:calc(100% * 4 / 12)}
+.cols{grid-column:1/-1;display:grid;grid-template-columns:repeat(12,1fr);column-gap:16px;border-top:1px solid var(--ink);padding-top:14px}
+.cols .lede{grid-column:1/6;font:500 24px/1.25 var(--sans);letter-spacing:-.01em;max-width:24ch}
+.cols .c{grid-column:span 2;font:15px/1.5 var(--sans);color:var(--ink-2)}
+.cols .c b{display:block;color:var(--ink);font-weight:700;margin-bottom:4px}
+.cols .c code{font:12.5px var(--mono)}
+.cols .cta{grid-column:12/13;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.dl{font:700 15px var(--sans);background:var(--ink);color:#fff;text-decoration:none;padding:12px 14px;white-space:nowrap}
+.dl:hover{background:var(--red)}
+.alt{color:var(--ink);font:500 14px var(--sans)}
+</style>
+</head>
+<body>
+<section class="sheet">
+  <p class="caption">Desktop app: study view <span>1280 × 830 · light · synthetic content</span></p>
+  <div class="frame">
+    <div class="chrome"><i></i><i></i><i></i></div>
+    <div class="app">
+      <header class="band">
+        <a class="back" href="#">← Reading list</a>
+        <span class="t">Async Rust, chapter 3</span>
+        <span class="m mono">rust-lang.github.io</span>
+        <nav><a class="on" href="#">Study</a><a href="#">Preview</a><a href="#">Open in browser</a></nav>
+      </header>
+      <div class="work">
+        <section class="source">
+          <div class="phead"><span class="lab">Source</span><span class="mono" style="color:var(--ink-3)">rust-lang.github.io/async-book/03_async_await/01_chapter.html</span></div>
+          <article class="site">
+            <h1>async/.await</h1>
+            <p><code>async</code>/<code>.await</code> are special pieces of Rust syntax that make it possible to yield control of the current thread rather than blocking, allowing other code to make progress while waiting on an operation to complete.</p>
+            <p>There are two main ways to use <code>async</code>: <code>async fn</code> and <code>async</code> blocks. Each returns a value that implements the <code>Future</code> trait.</p>
+            <pre>// `foo()` returns a type that implements `Future&lt;Output = u8&gt;`.
+async fn foo() -&gt; u8 { 5 }</pre>
+            <p>Async bodies and other futures are lazy: they do nothing until they are run. The most common way to run a <code>Future</code> is to <code>.await</code> it.</p>
+            <p>Unlike traditional functions, <code>async fn</code>s which take references or other non-<code>'static</code> arguments return a <code>Future</code> which is bounded by the lifetime of the arguments.</p>
+          </article>
+        </section>
+        <div class="split"></div>
+        <section class="book">
+          <div class="notes">
+            <div class="phead"><span class="lab">Notes</span><span class="mono" style="color:var(--ink-3)">NOTES.md</span><span class="r mono" style="color:var(--ink-3)">saved 14:02</span></div>
+            <div class="body">
+              <span class="k"></span><h1 class="v">Async Rust, chapter 3</h1>
+              <span class="k">ln 5</span><div class="v"><h2>async fn returns a future</h2>
+              <ul>
+                <li><code>async fn</code> doesn't run anything when called. It returns a value that implements <code>Future</code>, and nothing happens until something polls it.</li>
+                <li><code>.await</code> is where the current future yields if the inner one is <code>Pending</code>.</li>
+                <li><s>Futures start running as soon as they're created.</s> They don't; see above.</li>
+              </ul></div>
+              <span class="k cur">ln 14</span><div class="v"><h2>Lifetimes and async</h2>
+              <p>An <code>async fn</code> that borrows its arguments returns a future that borrows them too, so the future can't outlive them.<span class="caret"></span></p></div>
+            </div>
+          </div>
+          <div class="sandbox">
+            <div class="head"><b>Sandbox</b><span class="mono">rust</span><span class="mono" style="color:var(--ink-3)">sandbox/main.rs</span><button class="runb">Run ⌘↵</button><button class="ghost">Insert into notes</button></div>
+            <div class="editor">fn good() -&gt; impl Future&lt;Output = u8&gt; {
+    async move {
+        let x = 5;
+        borrow_x(&amp;x).await
+    }
+}
+<span class="c">// expect 5</span>
+println!("{}", block_on(good()));</div>
+            <div class="log">
+              <div class="row"><span>R3</span><span>exit 0</span><span class="o">5</span><span class="t">0.41 s</span></div>
+              <div class="row f"><span>R2</span><span class="bad">exit 101</span><span class="o">error[E0597]: `x` does not live long enough</span><span class="t">1.12 s</span></div>
+              <div class="row"><span>R1</span><span>exit 0</span><span class="o">hello from async</span><span class="t">0.38 s</span></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sheet">
+  <p class="caption">Web: landing, first viewport <span>1280 × 780 · persuade</span></p>
+  <div class="frame">
+    <div class="web">
+      <nav><a href="#">Install</a><a href="#">Docs</a><a class="gh" href="#">GitHub</a></nav>
+      <h1 class="wm">grimoire</h1>
+      <div class="redrule"></div>
+      <div class="cols">
+        <p class="lede">Read, write and run what you're learning, in one window.</p>
+        <p class="c"><b>Read</b>Articles, talks and PDFs on the left, in their own look.</p>
+        <p class="c"><b>Write</b>Markdown notes on the right, saved as <code>NOTES.md</code>.</p>
+        <p class="c"><b>Run</b>Snippets, with the toolchains already on your machine.</p>
+        <div class="cta"><a class="dl" href="#">Download</a><a class="alt" href="#">GitHub</a><span class="mono" style="color:var(--ink-3)">macOS 13+</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+</body>
+</html>

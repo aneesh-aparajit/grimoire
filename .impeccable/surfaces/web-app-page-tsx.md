@@ -2,25 +2,25 @@
 version: 1
 slug: "web-app-page-tsx"
 primary_target: "web/app/page.tsx"
-related_targets: ["web/components/Sandbox.tsx","web/app/globals.css"]
+related_targets: ["web/app/globals.css","web/app/install/page.tsx"]
 ---
 
 # Landing page
 
-Scope: public landing page at grimoire.aneesh-aparajit.in, Next.js app in `web/` (App Router), deployed on Vercel. Mode: Persuade.
+Scope: public landing page at grimoire.aneesh-aparajit.in, Next.js app in `web/` (App Router), deployed on Vercel, plus the install guide at `/install`. Mode: Persuade.
 
-Audience: developers and self-learners who study blogs, papers and talks. Action: View on GitHub (the app is early design; no download yet). Proof: real product mechanics only (INDEX.md, NOTES.md, sandbox runs, vault folder, git). No invented users, stats, releases or screenshots. Wizardry lives in voice and motion, in the app's own palette (user-pinned).
+Audience: developers and self-learners who study blogs, papers and talks. Action: download for macOS (via the install guide) or read the source on GitHub. Proof: real product mechanics only (INDEX.md, NOTES.md, sandbox, vault folder, git). No invented users, stats, licences or screenshots presented as real.
 
 ## Direction contract
 
-THESIS: The landing page is itself a NOTES.md page in the user's grimoire: the pitch is written as numbered entries in a ruled margin, and the spells are real runs. Refuses the split hero with product screenshot over a row of feature cards.
+THESIS: The page presents grimoire the way Braun presented a product: the object itself on a plain ground, a short specification, and nothing shouting. Refuses the gradient hero, feature-card grid and testimonial strip.
 
-OWN-WORLD: The app's world unchanged: cool paper, cloth-navy band, notebook-ink blue for written text, correction red only for failure, sage hairlines. Archivo at its widths (wide heavy for the title, condensed for labels), JetBrains Mono for paths, code and measurements. No cards, no pane shadows.
+OWN-WORLD: The app's Quiet Instrument world: warm-grey body, lighter inset panels, soft keys, one orange key for the primary action, green/red/amber status lights, Figtree throughout, JetBrains Mono for paths, code and measurements. Light and dark follow the system.
 
-STORY: The visitor sees a page of study notes, learns the four rites (gather, study, cast, keep), watches a spell misfire and get corrected, and goes to GitHub.
+STORY: The visitor sees the study view as a product shot, reads a four-line spec (runs on, storage, sync, account), learns three facts (every item is a folder, code runs as you, sync is git), and downloads or opens GitHub.
 
-FIRST VIEWPORT: Cloth band with feather mark and wordmark; a mono file bar `~/grimoire/NOTES.md` with save state; E-00 margin label beside a ~8rem ink-blue `# grimoire` written in by the quill; one-line spellbook lede; pen-blue View on GitHub with mono facts; a hand-drawn margin note in pen. Signature interaction: the cast cell, where R-01 fails and is struck in red, the code is corrected, R-02 passes with Exit 0 and a sparkle; Cast replays it.
+FIRST VIEWPORT: Small wordmark nav; left column with a 52px headline "A quiet place to study.", one-sentence lede, orange Download for macOS key and GitHub key, then a spec list; right column a device-like panel showing the study view with synthetic content. Signature: the device panel and spec list; each later section pairs a short claim with an instrument panel (file tree, toolchain lights, terminal).
 
-FORM: Marginalia (NOTES.md page), dealt lead, ranked #6 on my list; seed key 385e04ae.
+FORM: Quiet Instrument (Braun product graphics), round 3 pick; seed key 2dc2f830 (reroll 2).
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance

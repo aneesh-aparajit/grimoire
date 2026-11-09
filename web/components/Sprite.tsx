@@ -1,4 +1,4 @@
-/** Shared SVG symbols: the feather mark, its sparkle, and the GitHub mark. */
+/** Shared SVG symbols: the feather mark and the GitHub mark. */
 export function Sprite() {
   return (
     <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
@@ -10,9 +10,6 @@ export function Sprite() {
           />
           <path d="M512 722L512 850" stroke="currentColor" strokeWidth="20" strokeLinecap="round" />
         </g>
-      </symbol>
-      <symbol id="star" viewBox="0 0 24 24">
-        <path fill="currentColor" d="M12 0C12.9 7.2 16.8 11.1 24 12 16.8 12.9 12.9 16.8 12 24 11.1 16.8 7.2 12.9 0 12 7.2 11.1 11.1 7.2 12 0Z" />
       </symbol>
       <symbol id="gh" viewBox="0 0 16 16">
         <path
@@ -27,11 +24,5 @@ export function Sprite() {
 export const GitHubIcon = ({ size = 16 }: { size?: number }) => (
   <svg width={size} height={size} aria-hidden="true">
     <use href="#gh" />
-  </svg>
-);
-
-export const Twinkle = () => (
-  <svg className="twinkle" aria-hidden="true">
-    <use href="#star" />
   </svg>
 );

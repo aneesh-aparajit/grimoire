@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiet Instrument</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="qi.css">
+<style>
+body{background:#d6d6d2;color:#2a2b2d;font:14px/1.5 var(--sans);padding:40px 24px 80px}
+.sheet{max-width:1280px;margin:0 auto 56px}
+.caption{font:600 13px/1.4 var(--sans);margin:0 0 12px;display:flex;justify-content:space-between;gap:16px;color:#2a2b2d}
+.caption span{font-weight:400;color:#6e7075}
+.frame{border-radius:12px;overflow:hidden;box-shadow:0 18px 50px -24px rgba(0,0,0,.35),0 1px 3px rgba(0,0,0,.08)}
+.chrome{height:30px;background:var(--body);display:flex;align-items:center;gap:7px;padding:0 12px}
+.chrome i{width:11px;height:11px;border-radius:50%;background:var(--rule-2);display:block}
+.tall{height:800px}
+
+/* list */
+.listwork{display:grid;grid-template-columns:200px minmax(0,1fr) 380px;gap:10px;min-height:0}
+.tags{padding:12px 8px;grid-template-rows:auto 1fr;align-content:start}
+.tags .lab{padding:0 8px 8px}
+.tag{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;border-radius:6px;font:500 13px var(--sans);color:var(--ink-2)}
+.tag:hover{background:var(--well)}
+.tag.on{background:var(--key);color:var(--ink);box-shadow:0 0 0 1px var(--rule-2),0 1px 0 var(--shadow)}
+.tag .mono{color:var(--ink-3)}
+.rows{grid-template-rows:44px auto 1fr}
+.rows .tools{display:flex;align-items:center;gap:8px;padding:0 10px;border-bottom:1px solid var(--rule)}
+.rows .tools .well{flex:1}
+.sec{padding:12px 14px 6px;display:flex;justify-content:space-between}
+.row{display:grid;grid-template-columns:16px 18px minmax(0,1fr) auto 64px;gap:12px;align-items:center;padding:9px 14px;border-top:1px solid var(--rule);cursor:default}
+.row:hover{background:color-mix(in oklab,var(--well) 60%,transparent)}
+.row.sel{background:var(--key);box-shadow:inset 0 0 0 1px var(--rule-2)}
+.row .ti{font:500 14px var(--sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .ti small{display:block;font:400 12px var(--sans);color:var(--ink-3)}
+.row .tg{display:flex;gap:4px}
+.chip{font:500 11px var(--sans);color:var(--ink-2);background:var(--well);padding:2px 7px;border-radius:10px}
+.row .t{text-align:right;color:var(--ink-3)}
+.row.done .ti{color:var(--ink-2)}
+.peek{grid-template-rows:auto 1fr auto;padding:20px}
+.peek h2{font:600 21px/1.2 var(--sans);letter-spacing:-.01em;margin:10px 0 6px}
+.peek .url{display:block;color:var(--ink-3);margin-bottom:14px;word-break:break-all}
+.spec{display:grid;grid-template-columns:90px 1fr;gap:6px 12px;font:13px var(--sans);padding:12px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.spec dt{color:var(--ink-3)}
+.excerpt{margin-top:14px;font:13.5px/1.6 var(--sans);color:var(--ink-2)}
+.excerpt b{color:var(--ink);font-weight:600;display:block;margin-bottom:2px}
+.peek .acts{display:flex;gap:8px;padding-top:14px}
+
+/* study */
+.work{display:grid;grid-template-columns:52% 10px 1fr;min-height:0}
+.source{grid-template-rows:34px 1fr}
+.rightcol{display:grid;grid-template-rows:1fr 290px;gap:10px;min-height:0}
+.notes{grid-template-rows:34px 1fr}
+.sandbox{grid-template-rows:42px 1fr}
+.sandbox .head{display:flex;align-items:center;gap:10px;padding:0 10px 0 14px;border-bottom:1px solid var(--rule)}
+.sandbox .head .r{margin-left:auto;display:flex;gap:6px;align-items:center}
+.select{display:inline-flex;align-items:center;gap:6px;font:500 12px var(--mono);color:var(--ink);padding:3px 8px;border-radius:5px;background:var(--well)}
+.split{display:grid;place-items:center;cursor:col-resize}
+.split::after{content:"";width:3px;height:28px;border-radius:2px;background:var(--rule-2)}
+
+/* states */
+.states{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.state{color:var(--ink);border-radius:12px;overflow:hidden;box-shadow:0 18px 50px -28px rgba(0,0,0,.35),0 1px 3px rgba(0,0,0,.08);background:var(--body);padding:10px;height:340px;display:grid}
+.state .cap{font:600 13px var(--sans);margin:0 0 10px;color:#2a2b2d}
+.miss{padding:22px;display:grid;align-content:start;gap:10px;font:14px/1.55 var(--sans)}
+.miss h3{font:600 16px var(--sans);display:flex;gap:8px;align-items:center}
+.miss p{color:var(--ink-2);max-width:52ch}
+.miss code{font:12.5px var(--mono);background:var(--well);padding:1px 5px;border-radius:3px}
+.vault{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.vault .pane{padding:22px;align-content:start;gap:10px}
+.vault h3{font:600 20px/1.2 var(--sans);letter-spacing:-.01em}
+.vault p{color:var(--ink-2);font:14px/1.55 var(--sans)}
+.recent{display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px;align-items:center;padding:8px 10px;border-radius:6px;font:500 13.5px var(--sans)}
+.recent:hover{background:var(--well)}
+.recent .mono{grid-column:2;color:var(--ink-3)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-article" viewBox="0 0 16 16"><rect x="3" y="2" width="10" height="12" rx="1.5"/><path d="M5.5 5.5h5M5.5 8h5M5.5 10.5h3"/></symbol>
+  <symbol id="i-video" viewBox="0 0 16 16"><rect x="2" y="3.5" width="12" height="9" rx="1.5"/><path d="M7 6.2v3.6L10 8z"/></symbol>
+  <symbol id="i-pdf" viewBox="0 0 16 16"><path d="M4 2h5.5L12 4.5V14H4z"/><path d="M9.5 2v2.5H12M6 9.5h4M6 11.5h2.5"/></symbol>
+  <symbol id="i-search" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></symbol>
+  <symbol id="i-back" viewBox="0 0 16 16"><path d="M10 3L5 8l5 5"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 16 16"><path d="M6 3H3v10h10v-3M9 3h4v4M13 3L7.5 8.5"/></symbol>
+  <symbol id="i-run" viewBox="0 0 16 16"><path d="M5 3.5l7 4.5-7 4.5z"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 16 16"><rect x="4" y="4" width="8" height="8" rx="1"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 16 16"><path d="M2 4.5V12.5h12V5.5H8L6.5 4H2z"/></symbol>
+  <symbol id="i-insert" viewBox="0 0 16 16"><path d="M3 4h10M3 7h6M3 10h6M11 8v5M9 11l2 2 2-2"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.2"/><path d="M8 1.8v2M8 12.2v2M1.8 8h2M12.2 8h2M3.6 3.6l1.4 1.4M11 11l1.4 1.4M3.6 12.4L5 11M11 5l1.4-1.4"/></symbol>
+</svg>
+
+<!-- ============ READING LIST ============ -->
+<section class="sheet">
+  <p class="caption">Reading list <span>light · row selected, peek open · synthetic vault</span></p>
+  <div class="frame" data-theme="light">
+    <div class="chrome"><i></i><i></i><i></i></div>
+    <div class="app tall">
+      <header class="band">
+        <span class="t">study-vault</span><span class="mono mute">~/notes/study-vault</span>
+        <span class="right"><span class="led"></span><span class="lab">Synced with disk</span><a class="key flat" href="#"><svg><use href="#i-gear"/></svg>Settings</a><a class="key go" href="#"><svg><use href="#i-plus"/></svg>Add <span class="hint">⌘N</span></a></span>
+      </header>
+      <div class="listwork">
+        <aside class="pane tags">
+          <span class="lab">Tags</span>
+          <div>
+            <div class="tag on">All items <span class="mono">64</span></div>
+            <div class="tag">#rust <span class="mono">9</span></div>
+            <div class="tag">#ml <span class="mono">14</span></div>
+            <div class="tag">#compilers <span class="mono">7</span></div>
+            <div class="tag">#systems <span class="mono">11</span></div>
+            <div class="tag">#async <span class="mono">3</span></div>
+            <div class="tag">#talks <span class="mono">8</span></div>
+          </div>
+        </aside>
+        <section class="pane rows">
+          <div class="tools"><div class="well"><svg class="ico"><use href="#i-search"/></svg>Search titles, or filter with #tag <kbd>/</kbd></div><div class="seg"><a class="key on">Pending</a><a class="key">Done</a><a class="key">All</a></div></div>
+          <div class="sec"><span class="lab">Pending · 41</span><span class="lab">Read time</span></div>
+          <div>
+            <div class="row sel"><span class="led off"></span><svg class="ico"><use href="#i-article"/></svg><span class="ti">Async Rust, chapter 3<small>rust-lang.github.io</small></span><span class="tg"><span class="chip">#rust</span><span class="chip">#async</span></span><span class="t mono">18 min</span></div>
+            <div class="row"><span class="led off"></span><svg class="ico"><use href="#i-video"/></svg><span class="ti">Let's build GPT, from scratch<small>youtube.com</small></span><span class="tg"><span class="chip">#ml</span><span class="chip">#talks</span></span><span class="t mono">1 h 56</span></div>
+            <div class="row"><span class="led off"></span><svg class="ico"><use href="#i-article"/></svg><span class="ti">Crafting Interpreters: a tree-walk interpreter<small>craftinginterpreters.com</small></span><span class="tg"><span class="chip">#compilers</span></span><span class="t mono">42 min</span></div>
+            <div class="row"><span class="led off"></span><svg class="ico"><use href="#i-pdf"/></svg><span class="ti">What every programmer should know about memory<small>akkadia.org · 114 pages</small></span><span class="tg"><span class="chip">#systems</span></span><span class="t mono">PDF</span></div>
+            <div class="row"><span class="led off"></span><svg class="ico"><use href="#i-article"/></svg><span class="ti">Pin and suffering<small>fasterthanli.me</small></span><span class="tg"><span class="chip">#rust</span></span><span class="t mono">51 min</span></div>
+            <div class="row"><span class="led off"></span><svg class="ico"><use href="#i-pdf"/></svg><span class="ti">FlashAttention: fast and memory-efficient exact attention<small>arxiv.org · 34 pages</small></span><span class="tg"><span class="chip">#ml</span></span><span class="t mono">PDF</span></div>
+            <div class="sec" style="padding-top:18px"><span class="lab">Done · 23</span><span></span></div>
+            <div class="row done"><span class="led"></span><svg class="ico"><use href="#i-pdf"/></svg><span class="ti">Attention Is All You Need<small>arxiv.org · 15 pages</small></span><span class="tg"><span class="chip">#ml</span></span><span class="t mono">PDF</span></div>
+            <div class="row done"><span class="led"></span><svg class="ico"><use href="#i-article"/></svg><span class="ti">Raft, visualised<small>thesecretlivesofdata.com</small></span><span class="tg"><span class="chip">#systems</span></span><span class="t mono">12 min</span></div>
+          </div>
+        </section>
+        <aside class="pane peek">
+          <div>
+            <span class="lab">Article</span>
+            <h2>Async Rust, chapter 3</h2>
+            <span class="url mono">https://rust-lang.github.io/async-book/03_async_await/01_chapter.html</span>
+            <dl class="spec"><dt>Added</dt><dd>8 Nov 2026</dd><dt>Tags</dt><dd>#rust #async</dd><dt>Folder</dt><dd class="mono">async-rust-ch3/</dd><dt>Sandbox</dt><dd>3 runs · last exit 0</dd></dl>
+            <div class="excerpt"><b>From NOTES.md</b><code class="mono">async fn</code> doesn't run anything when called. It returns a value that implements <code class="mono">Future</code>, and nothing happens until something polls it.</div>
+          </div>
+          <span></span>
+          <div class="acts"><a class="key on" href="#">Study <span class="hint">↵</span></a><a class="key" href="#">Mark done</a><a class="key flat" href="#">Edit</a><a class="key flat" href="#" style="color:var(--red);margin-left:auto">Delete…</a></div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STUDY (light + dark) ============ -->
+<template id="study">
+  <div class="chrome"><i></i><i></i><i></i></div>
+  <div class="app tall">
+    <header class="band">
+      <a class="key" href="#"><svg><use href="#i-back"/></svg>List <span class="hint">esc</span></a>
+      <span class="t">Async Rust, chapter 3</span>
+      <span class="mono mute">rust-lang.github.io</span>
+      <span class="right"><div class="seg"><a class="key on">Study</a><a class="key">Preview</a></div><a class="key" href="#"><svg><use href="#i-ext"/></svg>Open in browser</a></span>
+    </header>
+    <div class="work">
+      <section class="pane source">
+        <div class="phead"><span class="lab">Source</span><span class="mono mute">rust-lang.github.io/async-book/03_async_await/01_chapter.html</span></div>
+        <article class="site">
+          <h1>async/.await</h1>
+          <p><code>async</code>/<code>.await</code> are special pieces of Rust syntax that make it possible to yield control of the current thread rather than blocking, allowing other code to make progress while waiting on an operation to complete.</p>
+          <p>There are two main ways to use <code>async</code>: <code>async fn</code> and <code>async</code> blocks. Each returns a value that implements the <code>Future</code> trait.</p>
+          <pre>// `foo()` returns a type that implements `Future&lt;Output = u8&gt;`.
+async fn foo() -&gt; u8 { 5 }</pre>
+          <p>Async bodies and other futures are lazy: they do nothing until they are run. The most common way to run a <code>Future</code> is to <code>.await</code> it.</p>
+          <p>Unlike traditional functions, <code>async fn</code>s which take references or other non-<code>'static</code> arguments return a <code>Future</code> which is bounded by the lifetime of the arguments.</p>
+        </article>
+      </section>
+      <div class="split" role="separator" aria-label="Resize panes"></div>
+      <div class="rightcol">
+        <section class="pane notes">
+          <div class="phead"><span class="lab">Notes</span><span class="mono mute">NOTES.md</span><span class="r"><span class="led"></span><span class="lab">Saved</span></span></div>
+          <div class="body">
+            <h1>Async Rust, chapter 3</h1>
+            <h2>async fn returns a future</h2>
+            <ul>
+              <li><code>async fn</code> doesn't run anything when called. It returns a value that implements <code>Future</code>, and nothing happens until something polls it.</li>
+              <li><code>.await</code> is where the current future yields if the inner one is <code>Pending</code>.</li>
+              <li><s>Futures start running as soon as they're created.</s> They don't; see above.</li>
+            </ul>
+            <h2>Lifetimes and async</h2>
+            <p>An <code>async fn</code> that borrows its arguments returns a future that borrows them too, so the future can't outlive them.<span class="caret"></span></p>
+          </div>
+        </section>
+        <section class="pane sandbox">
+          <div class="head"><span class="lab">Sandbox</span><span class="select">rust ▾</span><span class="mono mute">sandbox/main.rs</span><span class="r"><a class="key" href="#"><svg><use href="#i-insert"/></svg>Insert into notes</a><a class="key go" href="#"><svg><use href="#i-run"/></svg>Run <span class="hint">⌘↵</span></a></span></div>
+          <div class="sb">
+            <div class="editor">fn good() -&gt; impl Future&lt;Output = u8&gt; {
+    async move {
+        let x = 5;
+        borrow_x(&amp;x).await
+    }
+}
+<span class="c">// expect 5</span>
+println!("{}", block_on(good()));</div>
+            <div class="log">
+              <div class="row"><span class="led"></span><span class="n">3</span><span class="o">5</span><span class="t">0.41 s</span></div>
+              <div class="row f"><span class="led red"></span><span class="n">2</span><span class="o">exit 101 · error[E0597]: `x` does not live long enough</span><span class="t">1.12 s</span></div>
+              <div class="row"><span class="led"></span><span class="n">1</span><span class="o">hello from async</span><span class="t">0.38 s</span></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</template>
+<section class="sheet">
+  <p class="caption">Study view <span>light</span></p>
+  <div class="frame" data-theme="light" data-use="study"></div>
+</section>
+<section class="sheet">
+  <p class="caption">Study view <span>dark: same layout, lit for night. The source keeps its own colours.</span></p>
+  <div class="frame" data-theme="dark" data-use="study"></div>
+</section>
+
+<!-- ============ STATES ============ -->
+<section class="sheet">
+  <p class="caption">States <span>a run in progress, a missing toolchain, an INDEX.md conflict, first run</span></p>
+  <div class="states">
+    <div>
+      <p class="cap state-cap" style="font:600 13px var(--sans);margin-bottom:10px">Running: Run becomes Stop, output streams, the light blinks</p>
+      <div class="state" data-theme="light">
+        <section class="pane sandbox">
+          <div class="head"><span class="lab">Sandbox</span><span class="select">python ▾</span><span class="mono mute">sandbox/main.py</span><span class="r"><span class="led amber blink"></span><span class="mono mute">running 3.2 s</span><a class="key stop" href="#"><svg><use href="#i-stop"/></svg>Stop <span class="hint">⌘.</span></a></span></div>
+          <div class="sb">
+            <div class="editor">import numpy as np
+
+def softmax(x):
+    e = np.exp(x - x.max())
+    return e / e.sum()
+
+q, k = np.random.randn(2, 64, 64)
+for d in (8, 64, 512):
+    print(d, softmax(q @ k.T / d**.5).max())</div>
+            <div class="log"><div class="stream">8 0.4127
+64 0.1903
+<span class="caret" style="height:12px;vertical-align:-1px"></span></div></div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <div>
+      <p class="cap" style="font:600 13px var(--sans);margin-bottom:10px">Missing toolchain: says what to install, never pretends to run</p>
+      <div class="state" data-theme="light">
+        <section class="pane sandbox">
+          <div class="head"><span class="lab">Sandbox</span><span class="select">go ▾</span><span class="mono mute">sandbox/main.go</span><span class="r"><a class="key" href="#" aria-disabled="true" style="opacity:.45;pointer-events:none"><svg><use href="#i-run"/></svg>Run</a></span></div>
+          <div class="miss">
+            <h3><span class="led red"></span>Go isn't installed on this machine</h3>
+            <p>grimoire runs code with the toolchains already on your computer. It looked for <code>go</code> on your PATH and didn't find it.</p>
+            <p>Install Go from <code>go.dev/dl</code>, then press Check again. Your code in <code>sandbox/main.go</code> is saved.</p>
+            <div style="display:flex;gap:8px;margin-top:4px"><a class="key on" href="#">Check again</a><a class="key" href="#">Switch language</a></div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <div>
+      <p class="cap" style="font:600 13px var(--sans);margin-bottom:10px">INDEX.md conflict after a git pull</p>
+      <div class="state" data-theme="light" style="align-content:start;gap:10px">
+        <div class="banner"><span class="led amber"></span><span><b>INDEX.md has merge conflict markers.</b> grimoire hasn't changed it. Resolve the conflict in your editor and the list reloads by itself.</span><span class="r"><a class="key" href="#">Open INDEX.md</a></span></div>
+        <section class="pane" style="grid-template-rows:auto">
+          <div class="row" style="display:grid;grid-template-columns:16px 18px 1fr 64px;gap:12px;padding:10px 14px;align-items:center;opacity:.55"><span class="led off"></span><svg class="ico"><use href="#i-article"/></svg><span style="font:500 14px var(--sans)">Async Rust, chapter 3</span><span class="mono mute" style="text-align:right">18 min</span></div>
+          <div class="row" style="display:grid;grid-template-columns:16px 18px 1fr 64px;gap:12px;padding:10px 14px;align-items:center;border-top:1px solid var(--rule);opacity:.55"><span class="led off"></span><svg class="ico"><use href="#i-video"/></svg><span style="font:500 14px var(--sans)">Let's build GPT, from scratch</span><span class="mono mute" style="text-align:right">1 h 56</span></div>
+          <div style="padding:10px 14px;border-top:1px solid var(--rule)" class="mono mute">Showing the list from before the pull. Editing is paused until the conflict is resolved.</div>
+        </section>
+      </div>
+    </div>
+    <div>
+      <p class="cap" style="font:600 13px var(--sans);margin-bottom:10px">First run: open or create a vault</p>
+      <div class="state vault" data-theme="dark">
+        <section class="pane">
+          <h3>A vault is a folder.</h3>
+          <p>Your reading list is <code class="mono">INDEX.md</code>. Each item gets its own folder of Markdown and code. Put the vault in git to sync it between machines.</p>
+          <div style="display:flex;gap:8px;margin-top:6px"><a class="key go" href="#"><svg><use href="#i-plus"/></svg>Create vault…</a><a class="key" href="#"><svg><use href="#i-folder"/></svg>Open folder…</a></div>
+        </section>
+        <section class="pane">
+          <span class="lab">Recent</span>
+          <div>
+            <div class="recent"><svg class="ico"><use href="#i-folder"/></svg>study-vault<span class="mono">~/notes/study-vault</span></div>
+            <div class="recent"><svg class="ico"><use href="#i-folder"/></svg>papers<span class="mono">~/work/papers</span></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+document.querySelectorAll('[data-use]').forEach(f=>f.append(document.getElementById(f.dataset.use).content.cloneNode(true)));
+</script>
+</body>
+</html>

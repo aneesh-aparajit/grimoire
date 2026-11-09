@@ -1,47 +1,51 @@
 @import "tailwindcss";
-@import "@fontsource-variable/archivo/wdth.css";
+@import "@fontsource-variable/figtree/index.css";
 @import "@fontsource-variable/jetbrains-mono/index.css";
 
-/* grimoire: the lab notebook.
-   Cool paper, notebook-cloth navy, ink-blue for what you write,
-   correction red only for failure, sage for rules. */
+/* grimoire: a quiet instrument.
+   Warm-grey body, lighter inset panels, soft keys.
+   One orange for the primary action; green, red and amber are status lights. */
 :root {
-  --paper: #f3f5f1;
-  --paper-sunk: #e8ece5;
-  --paper-raise: #fafbf8;
-  --desk: #d9dfd6;
-  --rule: #cdd6cb;
-  --rule-strong: #9fb3a1;
-  --ink: #1c2230;
-  --ink-muted: #535e6c;
-  --ink-faint: #5d6876;
-  --pen: #24396e;
-  --pen-soft: color-mix(in oklab, var(--pen) 12%, transparent);
-  --pen-on: #f5f7fb;
-  --correction: #b8382a;
-  --correction-soft: color-mix(in oklab, var(--correction) 9%, transparent);
-  --pass: #2f6b4a;
-  --caution: #8a5a00;
-  --caution-soft: #f4e9cf;
-  --cloth: #22304a;
-  --cloth-raise: #2c3c5a;
-  --cloth-ink: #eef1ea;
-  --cloth-muted: #aeb9cb;
-  --cloth-rule: #3b4b69;
+  --body: #e9e9e6;
+  --panel: #f5f5f3;
+  --raise: #fbfbfa;
+  --well: #ebebe7;
+  --desk: #dcdcd8;
+  --rule: #d8d8d4;
+  --rule-strong: #c4c4bf;
+  --ink: #2a2b2d;
+  --ink-muted: #56585c;
+  --ink-faint: #6b6d72;
+  --signal: #c4520f;
+  --signal-hover: #b0490c;
+  --signal-edge: #a3440b;
+  --signal-ink: #ffffff;
+  --select-soft: color-mix(in oklab, var(--ink) 7%, transparent);
+  --fail: #c4372a;
+  --fail-soft: color-mix(in oklab, var(--fail) 9%, transparent);
+  --pass: #2f7d3e;
+  --caution: #9a6600;
+  --caution-soft: #f5ebd3;
   --site-ground: #ffffff;
   --site-ink: #262626;
-  --focus: #3a62c4;
+  --focus: #2f6fd6;
+  --key-shadow: 0 1px 0 rgb(0 0 0 / 0.06);
+  --overlay: rgb(30 30 28 / 0.32);
+  --lift: 0 4px 10px rgb(20 20 18 / 0.1), 0 24px 60px rgb(20 20 18 / 0.2);
 
-  --font-ui: "Archivo Variable", "Archivo", system-ui, sans-serif;
+  --font-ui: "Figtree Variable", "Figtree", system-ui, sans-serif;
   --font-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, monospace;
 
-  --text-label: 0.6875rem; /* 11px form labels */
+  --text-label: 0.65625rem; /* 10.5px panel labels */
   --text-ui: 0.8125rem; /* 13px */
   --text-body: 0.96875rem; /* 15.5px notes */
-  --text-title: 0.96875rem;
+  --text-title: 0.9375rem;
 
   --band-h: 3.25rem;
   --head-h: 2.25rem;
+  --gutter: 0.625rem;
+  --radius: 8px;
+  --radius-key: 6px;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
   color-scheme: light;
@@ -49,62 +53,57 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper: #141a25;
-    --paper-sunk: #10151f;
-    --paper-raise: #182030;
-    --desk: #0d121b;
-    --rule: #263145;
-    --rule-strong: #3d5160;
-    --ink: #e2e6de;
-    --ink-muted: #a3adba;
-    --ink-faint: #8792a1;
-    --pen: #a8c0f2;
-    --pen-on: #101828;
-    --correction: #ff8473;
-    --pass: #8fd0a8;
-    --caution: #e8b75a;
-    --caution-soft: #2b2416;
-    --cloth: #1d2a42;
-    --cloth-raise: #27375a;
-    --cloth-ink: #e9ede6;
-    --cloth-muted: #a5b1c4;
-    --cloth-rule: #33435f;
-    --focus: #8fb0ff;
+    --body: #1d1e20;
+    --panel: #26272a;
+    --raise: #323337;
+    --well: #2e2f33;
+    --desk: #151618;
+    --rule: #38393d;
+    --rule-strong: #4c4d52;
+    --ink: #e7e7e4;
+    --ink-muted: #b6b7b4;
+    --ink-faint: #9a9ca1;
+    --select-soft: color-mix(in oklab, var(--ink) 9%, transparent);
+    --fail: #ef6a5c;
+    --pass: #5cbf6c;
+    --caution: #e0a634;
+    --caution-soft: #3a3122;
+    --focus: #6f9ff0;
+    --key-shadow: 0 1px 0 rgb(0 0 0 / 0.3);
+    --overlay: rgb(0 0 0 / 0.5);
+    --lift: 0 4px 10px rgb(0 0 0 / 0.3), 0 24px 60px rgb(0 0 0 / 0.45);
     color-scheme: dark;
   }
 }
 
 :root[data-theme="dark"] {
-  --cloth-raise: #27375a;
-  --paper: #141a25;
-  --paper-sunk: #10151f;
-  --paper-raise: #182030;
-  --desk: #0d121b;
-  --rule: #263145;
-  --rule-strong: #3d5160;
-  --ink: #e2e6de;
-  --ink-muted: #a3adba;
-  --ink-faint: #8792a1;
-  --pen: #a8c0f2;
-  --pen-on: #101828;
-  --correction: #ff8473;
-  --pass: #8fd0a8;
-  --caution: #e8b75a;
-  --caution-soft: #2b2416;
-  --cloth: #1d2a42;
-  --cloth-ink: #e9ede6;
-  --cloth-muted: #a5b1c4;
-  --cloth-rule: #33435f;
-  --focus: #8fb0ff;
+  --body: #1d1e20;
+  --panel: #26272a;
+  --raise: #323337;
+  --well: #2e2f33;
+  --desk: #151618;
+  --rule: #38393d;
+  --rule-strong: #4c4d52;
+  --ink: #e7e7e4;
+  --ink-muted: #b6b7b4;
+  --ink-faint: #9a9ca1;
+  --select-soft: color-mix(in oklab, var(--ink) 9%, transparent);
+  --fail: #ef6a5c;
+  --pass: #5cbf6c;
+  --caution: #e0a634;
+  --caution-soft: #3a3122;
+  --focus: #6f9ff0;
+  --key-shadow: 0 1px 0 rgb(0 0 0 / 0.3);
+  --overlay: rgb(0 0 0 / 0.5);
+  --lift: 0 4px 10px rgb(0 0 0 / 0.3), 0 24px 60px rgb(0 0 0 / 0.45);
   color-scheme: dark;
 }
 
 @theme inline {
-  --color-paper: var(--paper);
+  --color-panel: var(--panel);
   --color-ink: var(--ink);
-  --color-pen: var(--pen);
-  --color-correction: var(--correction);
-  --color-cloth: var(--cloth);
+  --color-signal: var(--signal);
+  --color-fail: var(--fail);
   --font-sans: var(--font-ui);
   --font-mono: var(--font-mono);
 }
@@ -123,17 +122,16 @@ body,
 }
 
 body {
-  background: var(--paper);
+  background: var(--body);
   color: var(--ink);
   font-family: var(--font-ui);
   font-size: var(--text-ui);
-  font-variation-settings: "wdth" 100;
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
 }
 
 ::selection {
-  background: color-mix(in oklab, var(--pen) 22%, transparent);
+  background: color-mix(in oklab, var(--signal) 20%, transparent);
   color: inherit;
 }
 

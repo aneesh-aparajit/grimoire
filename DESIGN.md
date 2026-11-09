@@ -1,423 +1,368 @@
 ---
 name: grimoire
-description: A local-first study desk. The source on one side, a bound lab notebook on the other.
+description: A quiet instrument for long study. The source on one side, notes and a sandbox on the other, set as panels into a warm-grey body.
 colors:
-  paper: "#f3f5f1"
-  paper-sunk: "#e8ece5"
-  paper-raise: "#fafbf8"
-  desk: "#d9dfd6"
-  rule: "#cdd6cb"
-  rule-strong: "#9fb3a1"
-  ink: "#1c2230"
-  ink-muted: "#535e6c"
-  ink-faint: "#5d6876"
-  pen: "#24396e"
-  pen-soft: "color-mix(in oklab, #24396e 12%, transparent)"
-  pen-on: "#f5f7fb"
-  correction: "#b8382a"
-  correction-soft: "color-mix(in oklab, #b8382a 9%, transparent)"
-  pass: "#2f6b4a"
-  caution: "#8a5a00"
-  caution-soft: "#f4e9cf"
-  cloth: "#22304a"
-  cloth-raise: "#2c3c5a"
-  cloth-ink: "#eef1ea"
-  cloth-muted: "#aeb9cb"
-  cloth-rule: "#3b4b69"
+  body: "#e9e9e6"
+  panel: "#f5f5f3"
+  raise: "#fbfbfa"
+  well: "#ebebe7"
+  desk: "#dcdcd8"
+  rule: "#d8d8d4"
+  rule-strong: "#c4c4bf"
+  ink: "#2a2b2d"
+  ink-muted: "#56585c"
+  ink-faint: "#6b6d72"
+  select-soft: "color-mix(in oklab, #2a2b2d 7%, transparent)"
+  signal: "#c4520f"
+  signal-hover: "#b0490c"
+  signal-edge: "#a3440b"
+  signal-ink: "#ffffff"
+  pass: "#2f7d3e"
+  fail: "#c4372a"
+  fail-soft: "color-mix(in oklab, #c4372a 9%, transparent)"
+  caution: "#9a6600"
+  caution-soft: "#f5ebd3"
+  focus: "#2f6fd6"
   site-ground: "#ffffff"
-  focus: "#3a62c4"
-  spark: "#7b5ce8"
+  site-ink: "#262626"
 typography:
+  display:
+    fontFamily: "Figtree Variable, Figtree, system-ui, sans-serif"
+    fontSize: "clamp(2.25rem, 4.4vw, 3.25rem)"
+    fontWeight: 600
+    lineHeight: 1.06
+    letterSpacing: "-0.028em"
   headline:
-    fontFamily: "Archivo Variable, Archivo, system-ui, sans-serif"
-    fontSize: "1.375rem"
-    fontWeight: 680
+    fontFamily: "Figtree Variable, Figtree, system-ui, sans-serif"
+    fontSize: "clamp(1.75rem, 3vw, 2.25rem)"
+    fontWeight: 600
+    lineHeight: 1.12
+    letterSpacing: "-0.022em"
+  title-notes:
+    fontFamily: "Figtree Variable, Figtree, system-ui, sans-serif"
+    fontSize: "1.75rem"
+    fontWeight: 600
+    lineHeight: 1.15
+    letterSpacing: "-0.015em"
+  title:
+    fontFamily: "Figtree Variable, Figtree, system-ui, sans-serif"
+    fontSize: "1.3125rem"
+    fontWeight: 600
     lineHeight: 1.25
     letterSpacing: "-0.01em"
-  title:
-    fontFamily: "Archivo Variable, Archivo, system-ui, sans-serif"
-    fontSize: "0.96875rem"
-    fontWeight: 650
-    lineHeight: 1.3
-  body:
-    fontFamily: "Archivo Variable, Archivo, system-ui, sans-serif"
+  title-band:
+    fontFamily: "Figtree Variable, Figtree, system-ui, sans-serif"
+    fontSize: "0.9375rem"
+    fontWeight: 600
+  body-notes:
+    fontFamily: "Figtree Variable, Figtree, system-ui, sans-serif"
     fontSize: "0.96875rem"
     fontWeight: 400
     lineHeight: 1.7
+  body-site:
+    fontFamily: "Figtree Variable, Figtree, system-ui, sans-serif"
+    fontSize: "1rem"
+    fontWeight: 400
+    lineHeight: 1.55
   ui:
-    fontFamily: "Archivo Variable, Archivo, system-ui, sans-serif"
+    fontFamily: "Figtree Variable, Figtree, system-ui, sans-serif"
     fontSize: "0.8125rem"
     fontWeight: 400
-    lineHeight: 1.45
   label:
-    fontFamily: "Archivo Variable, Archivo, system-ui, sans-serif"
-    fontSize: "0.6875rem"
-    fontWeight: 640
-    letterSpacing: "0.07em"
-    fontVariation: "'wdth' 72"
-  stamp:
-    fontFamily: "Archivo Variable, Archivo, system-ui, sans-serif"
-    fontSize: "0.625rem"
-    fontWeight: 700
-    letterSpacing: "0.08em"
-    fontVariation: "'wdth' 66"
+    fontFamily: "Figtree Variable, Figtree, system-ui, sans-serif"
+    fontSize: "0.65625rem"
+    fontWeight: 600
+    letterSpacing: "0.06em"
   mono:
     fontFamily: "JetBrains Mono Variable, JetBrains Mono, ui-monospace, monospace"
     fontSize: "0.75rem"
     fontWeight: 400
     lineHeight: 1.6
-    fontFeature: "'tnum'"
-  code:
-    fontFamily: "JetBrains Mono Variable, JetBrains Mono, ui-monospace, monospace"
-    fontSize: "13px"
-    fontWeight: 400
-    lineHeight: 1.6
-  display:
-    fontFamily: "Archivo Variable, Archivo, system-ui, sans-serif"
-    fontSize: "clamp(3.4rem, 12.5vw, 9rem)"
-    fontWeight: 820
-    lineHeight: 0.9
-    letterSpacing: "-0.04em"
-    fontVariation: "'wdth' 112"
-  display-close:
-    fontFamily: "Archivo Variable, Archivo, system-ui, sans-serif"
-    fontSize: "clamp(2.5rem, 6vw, 4.5rem)"
-    fontWeight: 800
-    lineHeight: 1
-    letterSpacing: "-0.035em"
-    fontVariation: "'wdth' 108"
-  entry-heading:
-    fontFamily: "Archivo Variable, Archivo, system-ui, sans-serif"
-    fontSize: "1.75rem"
-    fontWeight: 680
-    lineHeight: 1.2
-    letterSpacing: "-0.015em"
-  margin-note:
-    fontFamily: "Archivo Variable, Archivo, system-ui, sans-serif"
-    fontSize: "0.9375rem"
-    fontWeight: 400
-    lineHeight: 1.45
-    fontVariation: "'wdth' 92"
+    fontFeature: "tnum"
 rounded:
-  mark: "2px"
-  control: "3px"
-  dialog: "4px"
+  code: "3px"
+  key: "6px"
+  well: "7px"
+  panel: "8px"
+  sheet: "12px"
+  pill: "13px"
+  device: "14px"
 spacing:
-  xs: "6px"
-  sm: "8px"
-  md: "12px"
-  inset: "14px"
-  lg: "16px"
-  xl: "20px"
+  gutter: "10px"
   head: "36px"
   band: "52px"
-  page-gutter: "40px"
-  page-margin: "6.5rem"
+  panel-pad: "20px"
+  site-gutter: "48px"
+  site-gutter-narrow: "16px"
+  site-column: "1200px"
 components:
-  button-primary:
-    backgroundColor: "{colors.pen}"
-    textColor: "{colors.pen-on}"
-    rounded: "{rounded.control}"
-    padding: "0 10px"
-    height: "28px"
-  button-outline:
-    backgroundColor: "transparent"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.control}"
-    padding: "0 10px"
-    height: "28px"
   button-ghost:
     backgroundColor: "transparent"
     textColor: "{colors.ink}"
-    rounded: "{rounded.control}"
+    typography: "{typography.ui}"
+    rounded: "{rounded.key}"
     padding: "0 10px"
+    height: "28px"
+  button-ghost-hover:
+    backgroundColor: "{colors.select-soft}"
+  button-key:
+    backgroundColor: "{colors.raise}"
+    textColor: "{colors.ink}"
+    typography: "{typography.ui}"
+    rounded: "{rounded.key}"
+    padding: "0 10px"
+    height: "28px"
+  button-primary:
+    backgroundColor: "{colors.signal}"
+    textColor: "{colors.signal-ink}"
+    typography: "{typography.ui}"
+    rounded: "{rounded.key}"
+    padding: "0 10px"
+    height: "28px"
+  button-primary-hover:
+    backgroundColor: "{colors.signal-hover}"
+  button-primary-disabled:
+    backgroundColor: "{colors.well}"
+    textColor: "{colors.ink-faint}"
+  button-on:
+    backgroundColor: "{colors.ink}"
+    textColor: "{colors.panel}"
+    rounded: "{rounded.key}"
     height: "28px"
   button-danger:
-    backgroundColor: "transparent"
-    textColor: "{colors.correction}"
-    rounded: "{rounded.control}"
-    padding: "0 10px"
+    backgroundColor: "{colors.raise}"
+    textColor: "{colors.fail}"
+    rounded: "{rounded.key}"
     height: "28px"
-  button-destroy:
-    backgroundColor: "{colors.correction}"
-    textColor: "#ffffff"
-    rounded: "{rounded.control}"
-    padding: "0 10px"
-    height: "28px"
-  button-band-add:
-    backgroundColor: "{colors.cloth-ink}"
-    textColor: "{colors.cloth}"
-    rounded: "{rounded.control}"
-    padding: "0 10px"
-    height: "28px"
-  input-field:
-    backgroundColor: "{colors.paper}"
+  key-site:
+    backgroundColor: "{colors.raise}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.control}"
+    rounded: "{rounded.panel}"
+    padding: "0 18px"
+    height: "44px"
+  key-site-primary:
+    backgroundColor: "{colors.signal}"
+    textColor: "{colors.signal-ink}"
+    rounded: "{rounded.panel}"
+    padding: "0 18px"
+    height: "44px"
+  input:
+    backgroundColor: "{colors.raise}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.key}"
     padding: "0 10px"
     height: "32px"
-  band-search:
-    backgroundColor: "{colors.cloth-raise}"
-    textColor: "{colors.cloth-ink}"
-    rounded: "{rounded.control}"
+  search-well:
+    backgroundColor: "{colors.well}"
+    textColor: "{colors.ink-faint}"
+    rounded: "{rounded.well}"
+    padding: "0 8px 0 10px"
     height: "32px"
+  segmented:
+    backgroundColor: "{colors.well}"
+    rounded: "{rounded.well}"
+    padding: "2px"
+  segmented-on:
+    backgroundColor: "{colors.raise}"
+    textColor: "{colors.ink}"
+    rounded: "5px"
+    height: "22px"
   tag:
-    backgroundColor: "{colors.paper-raise}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.control}"
-    padding: "0 8px"
+    backgroundColor: "{colors.well}"
+    textColor: "{colors.ink-muted}"
+    rounded: "{rounded.pill}"
+    padding: "0 10px"
     height: "26px"
-  tag-selected:
-    backgroundColor: "{colors.pen}"
-    textColor: "{colors.pen-on}"
-  stamp-pass:
-    textColor: "{colors.pass}"
-    typography: "{typography.stamp}"
-    rounded: "{rounded.mark}"
-    height: "18px"
-  stamp-fail:
-    textColor: "{colors.correction}"
-    typography: "{typography.stamp}"
-    rounded: "{rounded.mark}"
-    height: "18px"
-  module-head:
-    backgroundColor: "{colors.paper-sunk}"
-    textColor: "{colors.ink-muted}"
-    height: "{spacing.head}"
-  band:
-    backgroundColor: "{colors.cloth}"
-    textColor: "{colors.cloth-ink}"
-    height: "{spacing.band}"
-  dialog:
-    backgroundColor: "{colors.paper-raise}"
+  tag-active:
+    backgroundColor: "{colors.ink}"
+    textColor: "{colors.panel}"
+  panel:
+    backgroundColor: "{colors.panel}"
+    rounded: "{rounded.panel}"
+  modal:
+    backgroundColor: "{colors.panel}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.dialog}"
-  button-page:
-    backgroundColor: "{colors.pen}"
-    textColor: "{colors.pen-on}"
-    rounded: "{rounded.control}"
-    padding: "0 16px"
-    height: "40px"
-  file-bar:
-    backgroundColor: "{colors.paper}"
-    textColor: "{colors.ink-muted}"
-    typography: "{typography.mono}"
-    height: "{spacing.head}"
-  margin-note:
-    textColor: "{colors.pen}"
-    typography: "{typography.margin-note}"
-    width: "24ch"
+    rounded: "{rounded.sheet}"
+  toast:
+    backgroundColor: "{colors.ink}"
+    textColor: "{colors.panel}"
+    rounded: "{rounded.panel}"
+    padding: "8px 8px 8px 14px"
 ---
 
 # Design System: grimoire
 
 ## Overview
 
-**Creative North Star: "The Engineer's Lab Notebook"**
+**Creative North Star: "The Quiet Instrument"**
 
-Every item you study is a bound lab notebook. Notes are numbered entries in a ruled margin, every sandbox run is a logged and timed entry, and failures are struck through with a single red line rather than erased. The app is the notebook's binding: a navy cloth band across the top, cool ruled paper below, and the source material laid on the desk beside it.
+grimoire is drawn the way Braun drew its products: a warm-grey body with lighter panels set into it, soft physical keys, and small lights that tell you the state of things. The source and the notebook sit side by side as two inset panels separated only by a 10px gutter of body colour. Nothing is chrome for its own sake. The window shows what the moment needs, and the rest stays at rest.
 
-The system is dense and quiet, built for sessions that last hours. Structure comes from hairline rules and small tabbed module heads, not from cards, panels or shadows. Color carries meaning, not decoration: blue ink is what you wrote, red is a correction, green is a pass, ochre is a caution, and sage is the ruling on the page. Type follows a printed form. Archivo at normal width does the reading and writing; its condensed cut, uppercase and letterspaced, is the voice of a form's field names; JetBrains Mono records code, output and measurements.
+Density is that of a tool used for hours: 13px UI type, 28px keys, 36px panel heads, a 52px top band that is the body itself rather than a coloured bar. Prose (notes, the landing's claims) opens up to 15.5–16px with generous leading. Colour is almost absent. The grey family carries structure, ink carries meaning, one orange marks the single primary action, and green, red and amber appear as lights. Light and dark follow the system; dark keeps the same structure with a charcoal body and lifted panels.
 
-The world rejects the default dark neutral IDE split with tabs and a single purple accent, and it rejects cream "paper": the ground is a cool, faintly green-gray stock.
+The landing site is the same instrument presented as a product: the study view as an object on a plain ground, a short spec list, and each claim paired with an instrument panel (file tree, toolchain lights, terminal). It shares the app's tokens and is scaled up for reading at a distance: 44px keys, 12px panel corners, a soft drop under panels and the device shot.
 
 **Key Characteristics:**
-- Cool ruled paper ground with a notebook-cloth navy band as the only heavy surface.
-- Ink-blue for the user's own writing; correction red reserved for failure.
-- Hairline modules with small tab heads; panes never cast shadows.
-- Condensed uppercase form labels, numbered entries (E-01) and numbered runs (R-01).
-- Status marks itself with bordered stamps that stay on the page.
-- Light and dark follow the system; dark is night ink on navy paper, not inverted gray.
+- Warm-grey body, lighter inset panels on an 8px radius with a 1px hairline ring.
+- Soft keys: raised fill, 1px edge, 1px bottom shadow, a 1px press.
+- One orange key per view; green, red and amber as 7px status lamps with a word beside them.
+- Figtree for all UI and prose; JetBrains Mono only for code, paths, URLs and measurements.
+- Small uppercase labels name panels and fields from inside their heads.
+- No numbering systems, no rubber stamps, no coloured band.
 
 ## Colors
 
-A cool, low-chroma paper and ink palette where every saturated hue is a signal.
+A near-monochrome warm grey family with ink for meaning, one orange for action, and three status hues used as lights.
 
 ### Primary
-- **Notebook Ink Blue** (pen): the user's own writing. Note text in the editor and preview, entry titles in the peek, the caret, the selection tint, the current outline item, selected rows and tags, and the primary action. In dark mode it lifts to a pale periwinkle so writing stays the brightest thing on the page.
-- **Ink Wash** (pen-soft): the 12% wash of the same ink behind selected list rows, the active palette item, the current PDF outline entry and hovered recent vaults.
+- **Braun Orange** (signal): fills the one primary key of each view: Run in the sandbox, Add in the reading list, Install on the landing. Hover deepens to **Pressed Orange** (signal-hover); the key's 1px edge is **Burnt Edge** (signal-edge); its label is white (signal-ink). Outside that key, orange appears only as the 2px text caret in the editors and as the selection tint (18–20% mix). Unchanged in dark mode.
 
-### Secondary
-- **Notebook Cloth Navy** (cloth): the shell band at the top of every view and the transient notice toast. Its raise (cloth-raise) is the hover and pressed fill for band buttons and the search well; cloth-ink and cloth-muted are the text on it; cloth-rule divides band groups.
-
-### Tertiary (signals)
-- **Correction Red** (correction): failure. The strike through a failed run, the failed run's duration bar, `Exit n` and `Timed out` stamps, invalid fields, form errors, the error notice, and the two actions that end or destroy something (Stop a run; delete an item together with its folder).
-- **Pass Green** (pass): a clean exit, the saved dot, `Done` stamps, and strings in code.
-- **Caution Ochre** (caution, caution-soft): stopped runs, the unsaved dot, lint hints, missing toolchains and the `INDEX.md` merge-conflict banner. Its soft fill backs banners only.
-- **Focus Blue** (focus): the 2px keyboard focus ring and focused input outline, brighter than the pen so focus never reads as writing.
+### Tertiary (status lights)
+- **Lamp Green** (pass): saved, exit 0, done, toolchain found, In sync. Dark: #5cbf6c.
+- **Fault Red** (fail): failed run, save error, missing toolchain, destructive keys and invalid fields. Its soft mix (fail-soft) is the lamp halo. Dark: #ef6a5c.
+- **Caution Amber** (caution): running, saving, unsaved, lint hints, and the warning banner (fill caution-soft). Dark: #e0a634, banner #3a3122.
 
 ### Neutral
-- **Cool Paper** (paper): the ground of the notebook, list, dialogs' footers and the run log.
-- **Sunk Paper** (paper-sunk): module heads, tag bar, find bar, collapsed-pane rails, fenced code.
-- **Raised Paper** (paper-raise): the peek, dialogs, the code editor, select and URL wells.
-- **Desk** (desk): the surface behind PDF pages.
-- **Sage Rule** (rule) and **Strong Sage Rule** (rule-strong): hairlines between modules, rows and entries; control borders, splitter hover and scrollbar thumbs.
-- **Ink** (ink), **Muted Ink** (ink-muted), **Faint Ink** (ink-faint): printed text, secondary text and metadata, and entry and row numbers.
-- **Site Ground** (site-ground): the white behind third-party content. The source is shown in its own look, not grimoire's.
+- **Warm-Grey Body** (body): the window ground, the top band, the modal footer. Dark: #1d1e20.
+- **Panel Grey** (panel): every inset panel (list, peek, notes, sandbox, rails, dialogs). Dark: #26272a.
+- **Key Face** (raise): the face of keys, inputs and the pressed segment. Dark: #323337.
+- **Sunk Well** (well): search well, segmented control trough, inline code, code fences, URL field, find bar. Dark: #2e2f33.
+- **Desk Grey** (desk): behind PDF pages only. Dark: #151618.
+- **Hairline** (rule): panel rings, head and row dividers. Dark: #38393d.
+- **Key Edge** (rule-strong): key and input borders, splitter grips, off lamps, section rules on the landing. Dark: #4c4d52.
+- **Ink** (ink), **Muted Ink** (ink-muted), **Faint Ink** (ink-faint): primary text; secondary text and list prose; labels, meta and comments. Dark: #e7e7e4 / #b6b7b4 / #9a9ca1.
+- **Selection Tint** (select-soft): hovered ghost buttons, selected rows, pressed pane toggles. 9% in dark.
+- **Focus Blue** (focus): the 2px focus ring and focused input border only. Dark: #6f9ff0.
+- **Site White** (site-ground) and **Site Ink** (site-ink): the ground of the content pane, where third-party pages render in their own look.
 
 ### Named Rules
-**The Correction Rule.** Red means something failed or is about to be destroyed. It never appears in syntax highlighting, decoration, badges or emphasis.
+**The One Orange Rule.** Each view has exactly one orange key. Everything else is a grey key, an ink key, or a flat button. Orange elsewhere is limited to the text caret and the selection tint.
 
-**The Ink Is Yours Rule.** Notebook ink blue is the color of what the person wrote. Printed interface text stays in ink; the pen also marks selection and the one primary action per view, never ornament.
+**The Lights Are State Rule.** Green, red and amber mean state. In the interface they appear as a 7px lamp with a 2px halo of their own colour, beside a plain word; never as fills, panels or decoration. The one exception the build ships is code syntax, where strings take Lamp Green and numbers take Caution Amber at text weight; orange and red are kept out of syntax on purpose.
 
-**The Cool Paper Rule.** The ground is cool green-gray paper. Never cream, never pure white for grimoire's own surfaces; white belongs to third-party content only.
-
-### Landing page (Persuade surface)
-The landing page at `web/` reuses every app color above with the same light and dark values, and adds one:
-- **Spark Violet** (spark): the star beside the feather in the wordmark, the star that lands at the end of the written-in title, the small star that pops onto the corner of a page button on hover and focus, and the burst of stars around a passing `Exit 0` stamp. It lifts to a pale lilac in dark mode.
-
-**The Spark Rule.** Violet is the sparkle and nothing else. It is only ever the four-point star shape; never text, a link, a fill, a border, a focus ring or an accent on a control. It does not appear in the app's working views.
+**The Ink Select Rule.** Selection and "on" states are ink, not colour: an active tag or pressed segment fills with ink (on light) and a selected row takes a 7% ink tint.
 
 ## Typography
 
-**Display Font:** none; the system has no display face. The landing page sets Archivo itself at display sizes (see Landing page below).
-**Body Font:** Archivo Variable (with Archivo, system-ui)
-**Label/Mono Font:** Archivo Variable condensed via the `wdth` axis for labels; JetBrains Mono Variable (with ui-monospace) for code, output and measurements.
+**Body Font:** Figtree Variable (with Figtree, system-ui, sans-serif)
+**Label/Mono Font:** JetBrains Mono Variable (with JetBrains Mono, ui-monospace, monospace)
 
-**Character:** one grotesque used at two widths, like a printed lab form: normal width for reading and writing, condensed and letterspaced for the form's field names. Mono is the instrument readout.
+**Character:** A friendly, even geometric sans for everything a person reads or presses, and a plain mono kept for what a machine would print. The pairing reads like a product label: words in the sans, measurements in the mono.
 
 ### Hierarchy
-- **Headline** (680, 1.375rem, -0.01em): the note's H1 in source and preview. The peek title (660, 1.25rem) and vault picker heading (1.5rem) sit at this level.
-- **Title** (620 to 650, 0.96875rem): band item title, dialog titles, note H2 entries (1.0625rem).
-- **Body** (400, 0.96875rem, line-height 1.7): notes, max 68ch.
-- **UI** (400 to 560, 0.8125rem): controls, rows (row titles 0.875rem at 560), dialogs.
-- **Meta** (0.75 to 0.78rem, `wdth` 84 to 86): domains, tags and secondary row lines, slightly condensed.
-- **Label** (640, 0.6875rem, 0.07em, uppercase, `wdth` 72): field names, module names, list section heads, table heads, entry and run numbers.
-- **Stamp** (700, 0.625rem, 0.08em, uppercase, `wdth` 66): status stamps only.
-- **Mono** (0.71875 to 0.75rem, tabular numerals): file paths, URLs, timestamps, durations, counts, page numbers, run output. Code editor at 13px, line-height 1.6.
+- **Display** (600, clamp(2.25rem, 4.4vw, 3.25rem), 1.06, -0.028em): landing and install page headline only, held to about 13ch.
+- **Headline** (600, clamp(1.75rem, 3vw, 2.25rem), 1.12, -0.022em): landing section claims, max 16ch. Install guide section heads step down to 1.375rem.
+- **Title, notes** (600, 1.75rem, 1.15): the first heading of a NOTES.md, in both the editor and the preview.
+- **Title** (600, 1.3125rem, 1.25): the selected item in the peek; the vault picker heading is 1.625rem.
+- **Title, band** (600, 0.9375rem): item title in the top band, list row titles at 0.875rem/550, dialog titles at 0.96875rem.
+- **Body, notes** (400, 0.96875rem, 1.7): notes in the editor and preview, capped at 68ch.
+- **Body, site** (400, 1rem, 1.55): landing prose, 44–52ch; the lede is 1.125rem in muted ink.
+- **UI** (400–500, 0.8125rem): buttons, meta, spec lists, most interface text.
+- **Label** (600, 0.65625rem in the app / 0.6875rem on the landing, 0.06em, uppercase, faint ink): names a panel or a field.
+- **Mono** (400, 0.71875–0.8125rem, tabular figures): paths, URLs, file names, counts, durations, exit codes, shell commands, the code editor (13px).
 
 ### Named Rules
-**The Printed Form Rule.** Uppercase condensed labels name a field, a module or a list section, sitting in a head or beside the thing they name. They are never a kicker above a heading.
+**The Mono Is Measurement Rule.** JetBrains Mono is for things a machine produced or would accept: code, output, paths, URLs, counts and timings. Captions, notes, list prose and empty-state copy are Figtree.
 
-**The Measurement Rule.** If it is code, output, a path or a number someone might compare (time, duration, count, page), set it in JetBrains Mono with tabular numerals. Nothing else is mono.
-
-**The Width Axis Rule.** Hierarchy comes from width and weight on one family (100 for prose, 84 to 86 for metadata, 72 for labels, 66 for stamps), not from adding faces.
-
-### Landing page (Persuade surface)
-The same family runs wider and heavier for a page that has to persuade; nothing new is loaded.
-- **Display** (820, `wdth` 112, -0.04em, line-height 0.9): the `# grimoire` title only, in pen, on one line, with its `#` marker at 480.
-- **Display Close** (800, `wdth` 108, -0.035em): the closing `Open the book.` line only.
-- **Entry Heading** (680, 1.75rem, -0.015em; 1.5rem under 760px): each entry's `##` heading, in pen, with the `##` marker in strong sage at 500.
-- **Lede** (clamp(1.25rem, 2.2vw, 1.625rem), line-height 1.4, max 30ch): the single line under the title. Entry body copy runs at 1.0625rem, line-height 1.7, max 62ch, in pen.
-- **Margin Note** (400, 0.9375rem, `wdth` 92): handwriting-voice asides in the right margin; see Components.
-
-**The Wide For Display Rule.** Display size comes from pushing Archivo past normal width (108 to 112) and weight (800 to 820), never from a second face. Use it twice per page at most: the title and the close.
+**The Named Panel Rule.** A small uppercase label names the panel or field it sits in (SANDBOX, VAULT, TERMINAL, SAVED). It lives inside a panel head or a status readout; it never floats above a headline as a kicker.
 
 ## Layout
 
-Every view is the same three-row grid: the cloth band (52px), an optional banner row, then the work area. Module heads are 36px with a 14px left inset; that inset recurs as the left edge of run rows, banners and sandbox messages.
+The app is a body-coloured frame: a 52px band across the top, then panels inset with a 10px gutter on all sides and between them. The study view splits source (about 52%) and notebook; the notebook stacks NOTES.md over the sandbox, which docks beneath and collapses to its 36px head. The reading list splits 58/42 between the list and the peek (peek at least 18rem). Splitters are the gutter itself with a 3×28px grip that brightens and stretches on hover; inside a panel a splitter is a 1px hairline. Collapsed panes become 36px rails with a vertical label.
 
-The study view is a resizable split: source left (about 52%), notebook right, joined by a 1px splitter with an 8px invisible hit area. In the notebook the NOTES.md module dominates and the sandbox docks beneath it, collapsed to its head by default, opening to editor plus run log. Either pane collapses to a 36px vertical rail with a sideways label. The reading list splits 58:42 between rows and the peek.
+Panel heads are 36px with a label, a mono path and the panel's own controls. Rows are 9px by 14px with a lamp, a kind icon and a title over meta. Peek and dialogs pad 20px.
 
-Notes carry a 4.5rem entry margin left of the text, where E-numbers sit opposite each `##` heading; the run log uses the same idea with R-numbers in a 2.5rem column and output indented to align past it.
+Below 760px the app stacks its panes vertically and drops meta, file names and button labels; the notebook is a container that tightens its toolbars at 720px and 480px of its own width.
 
-Spacing steps are small and tight (6, 8, 12, 14, 16, 20px), with 20px reserved for dialog and peek padding. Under 760px the split stacks vertically, metadata and button labels drop, and the entry numbers move inline. The notebook also responds to its own width through a container query, shedding labels at 720px and file names at 480px.
-
-### Landing page (Persuade surface)
-The page is one NOTES.md: the cloth band (52px), a sticky mono file bar (36px), then a 1200px column with a 40px gutter. Each entry is a three-column grid: a 6.5rem entry margin holding its `E-00` to `E-05` label, a text column up to 680px, and a right margin for the margin note. A full-height sage rule runs down the page just inside the entry margin, and a full-width rule opens every entry after the title. Entries breathe more than the app (44px above, 72px below). Under 1040px the margin note drops beneath the text; under 760px the gutter falls to 16px, the margin rule disappears and the E-number moves to the top right of its entry.
+The landing sits in a 1200px column with 48px gutters (16px below 900px). The hero is an 0.82:1.4 two-column grid (copy, then the device shot); later sections are claim beside instrument panel, alternating sides, separated by Key Edge rules and 88px of padding. The install guide is a 13rem heading column beside a 46rem body. Everything collapses to one column at 900px; the device shot drops its source pane there.
 
 ## Elevation & Depth
 
-The page is flat. Depth comes from tone (sunk heads, raised peek and dialogs, the desk under PDF pages) and from hairline rules. Shadows exist only on things that physically float over the page: dialogs, the notice toast, editor tooltips, and the paper of a PDF page lying on the desk.
+Depth is tonal first. Panels sit lighter than the body and are outlined by a 1px ring drawn as a shadow, not a border, so they read as plates set into the casing. Real shadows are small and physical: a 1px line under keys, a lift under things that float above the window, and on the landing a soft drop that presents panels as objects.
 
 ### Shadow Vocabulary
-- **Dialog lift** (`box-shadow: 0 4px 10px rgb(10 20 40 / 0.12), 0 24px 60px rgb(10 20 40 / 0.22)`): modal dialogs and the command palette, over a navy backdrop at 36%.
-- **Notice lift** (`box-shadow: 0 2px 4px rgb(10 20 40 / 0.2), 0 8px 24px rgb(10 20 40 / 0.18)`): the bottom-centered notice toast.
-- **Tooltip lift** (`box-shadow: 0 2px 4px rgb(10 20 40 / 0.08), 0 8px 20px rgb(10 20 40 / 0.1)`): CodeMirror lint tooltips.
-- **Paper on desk** (`box-shadow: 0 1px 2px rgb(20 30 40 / 0.18), 0 4px 14px rgb(20 30 40 / 0.1)`): PDF pages only.
+- **Panel ring** (`box-shadow: 0 0 0 1px var(--rule)`): every app panel, rail and inner device pane.
+- **Key shadow** (`box-shadow: 0 1px 0 rgb(0 0 0 / 0.06)`, dark 0.3): grey keys, inputs-as-keys, pressed segments, copy key. Removed on press.
+- **Primary key shadow** (`box-shadow: 0 1px 0 rgb(0 0 0 / 0.14)`): the orange key.
+- **Lift** (`box-shadow: 0 4px 10px rgb(20 20 18 / 0.1), 0 24px 60px rgb(20 20 18 / 0.2)`): dialogs, the palette, toasts and editor tooltips.
+- **Search inset** (`box-shadow: inset 0 1px 1px rgb(0 0 0 / 0.04)`): the search well, sunk into the band.
+- **Lamp halo** (`box-shadow: 0 0 0 2px color-mix(in oklab, <status> 18%, transparent)`): lit lamps only; off lamps have none.
+- **Site panel** (`box-shadow: 0 0 0 1px var(--rule-strong), 0 20px 40px -30px rgb(0 0 0 / 0.35)`): landing instrument panels.
+- **Device** (`box-shadow: 0 0 0 1px var(--rule-strong), 0 34px 70px -34px rgb(0 0 0 / 0.4)`): the landing's product shot.
 
 ### Named Rules
-**The No-Shadow Panes Rule.** Panes, modules, rows, the peek and the band never cast shadows. If it does not float above the page, it is separated by a rule or a tone, not a shadow.
+**The Inset Plate Rule.** In the app, panels never cast a drop shadow; they are separated from the body by tone and a hairline ring. Only floating layers (dialogs, toasts, tooltips) lift.
 
 ## Shapes
 
-Nearly square. Controls, inputs, tags, selects and the notice use a 3px corner; stamps and the focus ring a 2px corner; dialogs 4px. Panes, modules, rows and the band have no radius at all. Lines are 1px hairlines everywhere; the only heavier strokes are the 1.5px stamp border and the 1.5px correction strike. Dashed 1px borders mark a slot to fill (the PDF file picker). The one circle is the 6px save-state dot.
-
-**The Hairline Rule.** Every division is a single 1px sage line. No double borders, no boxed cards.
+Gently rounded, consistent corners that nest: 14px for the device casing, 12px for dialogs and landing panels, 8px for app panels and landing keys, 7px for wells, 6px for app keys, inputs and code blocks, 5px for segments inside a well, 3–4px for inline code. Tags are pills (13px). Lamps are 7px circles. Borders are 1px throughout; key and input edges use Key Edge, dividers use Hairline. Dashed borders appear only on placeholders that are not real content (the "Demo page" marker, the file drop target).
 
 ## Components
 
 ### Buttons
-Compact and plain: a form's buttons, not a marketing call to action.
-- **Shape:** 28px tall, slightly squared corners (3px), 15px Lucide line icons at 1.75 stroke, 6px gap.
-- **Primary:** pen fill with pen-on text at weight 600; hover mixes 12% ink into the pen. One per view at most (Open, Run, Save).
-- **Outline:** transparent with a strong-sage border; the default for secondary actions.
-- **Ghost:** transparent; hover is a 6% ink wash, active 10%. Toolbar and icon buttons (28px square).
-- **Danger:** correction-red text with a 55% red border (Stop). **Destroy:** solid correction fill with white text, only for deleting an item along with its folder.
-- **On the band:** text in cloth-ink, hover and pressed in cloth-raise; the Add action inverts to a cloth-ink fill with cloth text.
-- **Keyboard hints:** a mono 11px hint at 75% opacity inside the button (`⌘↵`, `↵`).
+Flat until they need to be keys.
+- **Shape:** 6px corners, 28px tall, 10px side padding, 13px weight 500, 15px stroke icons at 1.75.
+- **Ghost:** transparent; hover takes the selection tint. Used for icon tools and pane toggles (pressed toggles keep the tint).
+- **Key:** Key Face fill, Key Edge border, key shadow. Every text button in the top band is a key. Hover mixes a touch of ink into the face.
+- **Primary:** Braun Orange, Burnt Edge, white 600 label, stronger 1px shadow; hover Pressed Orange; disabled falls back to a well with faint ink. One per view.
+- **On (ink key):** ink fill, panel-coloured 600 label. A pressed secondary that still opens something (Open study).
+- **Danger:** Key Face with a red-tinted edge and red label; the confirming destroy key fills Fault Red.
+- **Press:** every key moves down 1px and loses its shadow (80ms).
+- **Landing keys:** same anatomy at 44px tall, 8px corners, 18px padding, 15px label; a small 26px/6px variant appears inside the device shot.
+
+### Status lights
+A 7px lamp, lit with a 2px halo of its own colour, beside a plain 12px weight 600 word in the same colour (Exit 0, Failed, Running). Running and saving blink (1s, two steps). The notes save state and the vault's In sync readout pair a lamp with an uppercase label. The Done checkbox in the list is itself a lamp: off grey while pending, green once studied. A failed run keeps its meta line and draws a single red strike across it (420ms).
 
 ### Chips
-- **Tag:** 26px, raised paper, strong-sage border, 3px corner; a mono count in faint ink after the name. Hover darkens the border to faint ink.
-- **Selected:** pen fill and border, pen-on text, count at 80% opacity.
-
-### Stamps (signature)
-Uppercase condensed (`wdth` 66, 700, 10px) inside a 1.5px border in the current color, 18px tall, 2px corner. Color comes from the state: pass (`Exit 0`, `Done`), correction (`Exit n`, `Timed out`), caution (`Stopped`, `<bin> not found`), pen (`Running`). States mark themselves on and stay.
+- **Style:** pill tags, 26px tall, well fill, muted ink 12.5px weight 500, a faint mono count.
+- **State:** hover adds a Key Edge border; active fills with ink and panel-coloured text. The tag bar scrolls and fades its far edge.
 
 ### Cards / Containers
-There are no cards. Containers are modules: a 36px sunk head with a hairline beneath, then content flush to the edges.
-- **Module head:** sunk paper, a condensed label or a mono file path (the file name bolded in ink), controls pushed right.
-- **Peek:** raised paper column; a head block with kind and domain meta, a 1.25rem title, mono source and tags, actions; then ruled Entries and Runs lists.
-- **Dialog:** raised paper, strong-sage border, 4px corner, dialog lift. Head and foot divided by hairlines; the foot sits on paper. Rises 6px over 200ms.
+- **Corner Style:** 8px (app), 12px (landing panel, dialog), 14px (device).
+- **Background:** Panel Grey on the body.
+- **Shadow Strategy:** panel ring in the app; site panel drop on the landing (see Elevation).
+- **Border:** the ring; internal dividers are 1px Hairline.
+- **Internal Padding:** heads 0 8px 0 14px at 36px (38px on the landing); bodies 14–20px.
 
 ### Inputs / Fields
-- **Style:** 32px, paper ground, strong-sage 1px border, 3px corner, 14px text. A condensed label sits above, a 12px muted hint below.
-- **Focus:** 2px focus-blue outline inset by 1px; the border goes transparent.
-- **Error / Disabled:** invalid fields take a correction border and a red hint; disabled fields drop to sunk paper and muted ink.
-- **Select:** 28px raised-paper well with a drawn chevron. **Segmented control:** a strong-sage outline with the pressed segment filled in ink on paper.
-- **Band search:** a 32px cloth-raise well with cloth-muted icon and placeholder; focus shows a cloth-muted border.
+- **Style:** Key Face fill, 1px Key Edge, 6px corners, 32px tall, 14px text. Selects carry a drawn chevron and the key shadow.
+- **Search well:** sunk into the band: well fill, Hairline border, inset shadow, 7px corners, 32px.
+- **Focus:** 2px Focus Blue outline (inputs draw it inset at -1px and hide the border); the search well turns its border and a 1px ring blue.
+- **Error / Disabled:** invalid fields take a red border with red hint text; disabled fields sink to the well with muted ink.
+
+### Segmented control
+A well trough (2px padding, 7px corners) holding 22px buttons; the pressed one becomes a key (face, edge, key shadow). Source/Preview in the notes head; a wider 30px version in dialogs.
 
 ### Navigation
-- **Cloth band:** wordmark (`grimoire`, lowercase, 700 at `wdth` 80), vault switcher, search, then tools right-aligned. In the study view: back to the reading list, a kind icon, title, condensed source domain and tags, Mark done, pane toggles. Group dividers are 1px cloth-rule lines inset 14px from the band edges.
-- **Reading list rows:** checkbox, condensed row number, kind icon, title over a meta line. Hairline at 60% rule between rows; hover is a 3% ink wash, selection the ink wash with the title in pen. Done rows mute their title. Section heads (`To study`, `Done`) are sticky condensed labels with a mono count.
-- **Command palette:** a 48px borderless input over a ruled list; the active item takes the ink wash and pen text.
+- **App:** the body-coloured band: back key, kind icon, title, mono origin and tags, then the band tools on the right. In the list view, the wordmark, vault name, search well, the orange Add key, and the vault's In sync lamp.
+- **Landing:** a 68px line (60px narrow): 18px weight 700 wordmark with the feather mark, then 14px weight 500 links in muted ink that turn ink on hover or when current. No bar, no fill.
 
-### Entry Margin (signature)
-Each `##` heading in NOTES.md opens a numbered entry: a full-width sage rule above it, and `E-01`, `E-02` in the condensed label voice in the 4.5rem left margin. The same numbering appears in the rendered preview and in the peek's Entries list, so an entry is findable everywhere by its number.
+### Peek spec plate
+The selected item's facts on disk as a two-column definition list (4.5rem term column, faint terms, 13px values, mono for paths), between the peek head and the notes excerpt. The landing's hero spec list is the same device: faint terms, muted values, a Key Edge rule above.
 
-### Run Log (signature)
-Every run is a ruled entry: `R-01` label, mono timestamp and file, the exit stamp, a right-aligned mono duration, a chevron. Under it a 3px bar draws the duration to scale against the timeout, in pen, or in correction when the run failed. A failed run's meta is struck through with a single 1.5px red line that draws left to right over 420ms and is never removed. A running bar pulses at 1.2s. Output sits in mono below, stderr in correction red. The peek repeats the log in miniature with a 2px bar.
+### Sandbox and run log
+The sandbox is a panel docked under the notes with a head holding the language select, file select, tools and the orange Run key. The run log sits on a half-well tint: a head with lamp, mono meta and right-aligned mono duration, a 2px scale bar drawn against the timeout (faint, amber while running, red on failure), then mono output with stderr in red.
 
-### Banners
-Full-width rows under the band on caution-soft with a 35% caution hairline and an ochre warning icon; plain-language text with mono file names, actions at the end.
-
-### Landing page (Persuade surface)
-The landing page uses the app's own stamps, modules, tags, entry margin and run log unchanged, with live product demos (INDEX.md, the split, the sandbox, the vault) built as real modules, not screenshots.
-- **Page button:** the primary button scaled for a page: 40px, 16px side padding, 15px text at 600, the same 3px corner. A spark star pops onto its top right corner on hover and focus. One action, View on GitHub, appears in the hero and the close.
-- **File bar:** a sticky 36px mono bar under the band naming the page `~/grimoire/NOTES.md`, a crumb of the entry in view (its E-number in pen), and the save dot with `Writing` or `Saved`. Paper at 92% with an 8px blur so text scrolling beneath stays legible; a hairline below.
-- **Margin note (signature):** a short aside in the pen, tilted -1.5deg, at most 24ch, with a hand-drawn SVG arrow above it (1.5px pen stroke, round caps and joins) pointing back at the text. One per entry at most, and only for a true aside: a caveat, a hint, a reassurance.
-- **Cast cell:** the sandbox module running its own story. R-01 fails, its meta is struck through in red and the traceback stays; the typo is rewritten in pen with a blinking caret; R-02 passes with `Exit 0` and a burst of five spark stars. The Cast button replays it; old runs keep their numbers.
-
-### Motion (landing page)
-Motion is writing, never decoration. Everything is visible by default; JavaScript opts the reveals in, and every reveal, write-in and burst is off under reduced motion.
-- **Quill write-in:** the title is clipped open left to right over 1500ms while the feather quill travels with it and scribbles, then lifts away; the spark star then lands and twinkles every few seconds.
-- **Rule draw-on:** each entry's top rule draws from the left over 900ms when the entry first enters view; its margin note's arrow draws on along its own path. The close line writes in the same way.
-- **Cast sequence:** strike-through (the app's 420ms correction strike), pen rewrite, pass, sparkle burst (760ms, staggered 40ms per star).
-
-**The Write-In Rule.** Things appear the way ink does: drawn left to right or along their path, once, the first time they are seen. Nothing fades up, slides in or bounces.
+### Shell block (landing)
+Commands in 13px mono with a faint, unselectable `$` prompt, wrapping with a hanging indent rather than scrolling, and a small Copy key pinned top right.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** keep red for failure: failed runs, error exits, timeouts, invalid input, and the Stop and delete-with-folder actions.
-- **Do** set the user's own writing in notebook ink blue and printed interface text in ink.
-- **Do** separate regions with 1px sage hairlines and sunk 36px module heads.
-- **Do** number things the person makes: E-numbers for note entries, R-numbers for runs, row numbers in the list, all in the condensed label voice.
-- **Do** set every path, timestamp, duration, count and output in JetBrains Mono with tabular numerals.
-- **Do** mark status with a bordered stamp that stays put rather than a transient toast or a filled pill.
-- **Do** strike a failed entry through with one red rule and leave it visible.
-- **Do** keep corners at 3px for controls, 2px for marks and 4px for dialogs.
-- **Do** show third-party content on its own white ground in its own type.
-- **Do** (landing page) keep spark violet to the four-point star: the wordmark, the title's end, the page button's hover, the pass burst.
+- **Do** give each view exactly one orange key, and make it the action the view exists for (Run, Add, Install).
+- **Do** show state with a 7px lamp and a plain word: green done or passed, amber in progress or warned, red failed.
+- **Do** set panels lighter than the body on an 8px radius with a 1px hairline ring, separated by the 10px body gutter.
+- **Do** make text buttons keys (face, 1px edge, 1px shadow, 1px press) and icon tools flat until hovered.
+- **Do** name panels with a small uppercase label inside the panel head.
+- **Do** use JetBrains Mono for paths, URLs, code, output, counts and timings, and Figtree for everything else.
+- **Do** keep selected and active states in ink, not colour.
+- **Do** let third-party content render in its own look on the white content ground.
 
 ### Don't:
-- **Don't** use correction red in syntax highlighting, decoration or emphasis.
-- **Don't** erase or hide a failed run; correct it in place.
-- **Don't** put shadows on panes, modules, rows, the peek or the band.
-- **Don't** wrap content in cards or rounded panels; use ruled modules.
-- **Don't** use a cream or warm paper ground, or pure white for grimoire's own surfaces.
-- **Don't** fall back to a dark neutral IDE split with tabs and a single purple accent.
-- **Don't** use the uppercase condensed label as a kicker or eyebrow above a heading.
-- **Don't** introduce a second sans or a display face; get hierarchy from Archivo's weight and width.
-- **Don't** use mono for prose or interface labels.
-- **Don't** (landing page) replace live product modules with screenshots or feature cards, or use spark violet as a text, link or control color.
+- **Don't** put orange on a second control in the same view, on icons, links, headings or panels.
+- **Don't** use green, red or amber as fills, panel colours or decoration.
+- **Don't** number items, sections or entries (no E-/R- codes, no section numerals).
+- **Don't** draw rubber-stamp badges or a coloured band across the top; the band is the body.
+- **Don't** set captions, notes, list prose or empty states in mono.
+- **Don't** add drop shadows to app panels; only floating layers lift.
+- **Don't** place uppercase labels above headlines as kickers.

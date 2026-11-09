@@ -87,7 +87,7 @@ export function ListView() {
   // Drop a PDF anywhere on the list to add it.
   useEffect(() => backend.on("drop://pdf", ({ paths }) => setDialog({ kind: "add", filePath: paths[0] })), []);
 
-  const row = (item: Item, n: number) => (
+  const row = (item: Item) => (
     <li key={item.id}>
       <div
         className="row"
@@ -107,7 +107,6 @@ export function ListView() {
           onChange={() => void toggleDone(item.id)}
           onClick={(e) => e.stopPropagation()}
         />
-        <span className="row-no">{String(n).padStart(2, "0")}</span>
         <span className="row-kind">
           <KindIcon kind={item.kind} />
         </span>
@@ -155,6 +154,13 @@ export function ListView() {
           <span className="kbd hide-narrow">⌘F</span>
         </label>
         <div className="band-tools">
+          <span
+            className="vault-state hide-narrow"
+            title={conflicted ? "INDEX.md has merge conflict markers" : "The list matches INDEX.md and updates when it changes on disk"}
+          >
+            <span className={conflicted ? "lamp amber" : "lamp"} aria-hidden="true" />
+            {conflicted ? "Conflict" : "In sync"}
+          </span>
           <button
             type="button"
             className="btn btn-icon hide-narrow"
@@ -247,7 +253,7 @@ export function ListView() {
                   <h2 className="section-head">
                     <span className="label">To study</span> <span className="count">{pending.length}</span>
                   </h2>
-                  <ol>{pending.map((i, n) => row(i, n + 1))}</ol>
+                  <ol>{pending.map((i) => row(i))}</ol>
                 </>
               )}
               {done.length > 0 && (
@@ -255,7 +261,7 @@ export function ListView() {
                   <h2 className="section-head">
                     <span className="label">Done</span> <span className="count">{done.length}</span>
                   </h2>
-                  <ol>{done.map((i, n) => row(i, pending.length + n + 1))}</ol>
+                  <ol>{done.map((i) => row(i))}</ol>
                 </>
               )}
               {filtering && (

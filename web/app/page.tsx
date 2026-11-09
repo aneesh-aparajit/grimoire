@@ -1,210 +1,198 @@
 import Link from "next/link";
-import { Entry, Path } from "@/components/Entry";
-import { FileBar } from "@/components/FileBar";
-import { IndexList } from "@/components/IndexList";
-import { Sandbox } from "@/components/Sandbox";
-import { GitHubIcon, Twinkle } from "@/components/Sprite";
-import { StudyDesk } from "@/components/StudyDesk";
+import { Shell } from "@/components/Shell";
+import { REPO, SiteFooter, SiteHeader } from "@/components/SiteHeader";
+import { GitHubIcon } from "@/components/Sprite";
 
-const REPO = "https://github.com/aneesh-aparajit/grimoire";
-
-function GitHubButton({ outline = false }: { outline?: boolean }) {
-  return (
-    <a className={outline ? "btn btn-outline" : "btn btn-pen"} href={REPO}>
-      <GitHubIcon />
-      View on GitHub
-      <Twinkle />
-    </a>
-  );
-}
+// What the sandbox looks for on PATH. The lamps show one example machine, not yours.
+const TOOLCHAINS = [
+  ["Python", "python3", true],
+  ["Rust", "rustc", true],
+  ["JavaScript", "node", true],
+  ["C", "cc", true],
+  ["Java", "java", true],
+  ["Go", "go", false],
+] as const;
 
 export default function Home() {
   return (
-    <>
-      <header className="band">
-        <a className="wordmark" href="/" aria-label="grimoire, home">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <use href="#feather" x="0" y="0" width="20" height="24" />
-            <use href="#star" x="15" y="14" width="8" height="8" style={{ color: "var(--spark)" }} />
-          </svg>
-          grimoire
-        </a>
-        <nav aria-label="Sections">
-          {[
-            ["gather", "Gather"],
-            ["study", "Study"],
-            ["cast", "Cast"],
-            ["keep", "Keep"],
-          ].map(([id, label]) => (
-            <a key={id} className="sec" href={`#${id}`}>
-              {label}
-            </a>
-          ))}
-          <span className="sep" aria-hidden="true" />
-          <Link href="/install">Install</Link>
-          <a href={REPO}>
-            <GitHubIcon size={15} />
-            GitHub
-          </a>
-        </nav>
-      </header>
+    <div className="wrap">
+      <SiteHeader />
 
-      <FileBar />
-
-      <main className="page" id="top">
-        <section className="entry hero" aria-labelledby="title">
-          <div className="body">
-            <h1 className="title" id="title">
-              <span className="ink">
-                <span className="md" aria-hidden="true">
-                  #
-                </span>
-                grimoire
-              </span>
-              <span className="quill" aria-hidden="true">
-                <svg viewBox="0 0 24 24">
-                  <use href="#feather" width="20" height="24" />
-                </svg>
-              </span>
-              <svg className="spark" aria-hidden="true">
-                <use href="#star" />
-              </svg>
-            </h1>
+      <main id="top">
+        <header className="hero">
+          <div>
+            <h1>A quiet place to study.</h1>
             <p className="lede">
-              A book of study for what you find on the internet. Read the source, write it down,{" "}
-              <strong>cast the code</strong>, all in one window.
+              The source on one side. Your notes and a code sandbox on the other. Everything saved as plain files in a
+              folder you own.
             </p>
             <div className="acts">
-              <Link className="btn btn-pen" href="/install">
+              <Link className="key go" href="/install">
                 Install for macOS
               </Link>
-              <GitHubButton outline />
-              <span className="facts">macOS 13+ · plain files · no account</span>
+              <a className="key" href={REPO}>
+                <GitHubIcon />
+                GitHub
+              </a>
             </div>
+            <dl className="spec">
+              <dt>Runs on</dt>
+              <dd>macOS 13 or later</dd>
+              <dt>Storage</dt>
+              <dd>Markdown and source files</dd>
+              <dt>Sync</dt>
+              <dd>git, yours</dd>
+              <dt>Account</dt>
+              <dd>none</dd>
+            </dl>
+          </div>
+
+          <figure className="device" aria-label="The study view: a paper on the left, notes and a run on the right. Example content.">
+            <div className="bar">
+              <span>Attention Is All You Need</span>
+              <span className="r" aria-hidden="true">
+                <span className="key sm on">Study</span>
+                <span className="key sm">Preview</span>
+              </span>
+            </div>
+            <div className="panes" aria-hidden="true">
+              <div className="pane src">
+                <h3>Attention Is All You Need</h3>
+                <p>
+                  The dominant sequence transduction models are based on complex recurrent or convolutional neural
+                  networks that include an encoder and a decoder. The best performing models also connect the encoder
+                  and decoder through an attention mechanism.
+                </p>
+                <p>
+                  We propose a new simple network architecture, the Transformer, based solely on attention mechanisms,
+                  dispensing with recurrence and convolutions entirely.
+                </p>
+              </div>
+              <div className="pane notes">
+                <h3>Attention, read slowly</h3>
+                <h4>Scaled dot-product</h4>
+                <p>
+                  Divide by √d<sub>k</sub> so softmax doesn&apos;t saturate when d<sub>k</sub> is large.
+                </p>
+                <h4>Why multi-head</h4>
+                <p>Each head attends in its own subspace, then the outputs are concatenated.</p>
+                <div className="run">
+                  softmax(q @ k.T / sqrt(d))
+                  <span>
+                    <i className="lamp" />
+                    exit 0 · 0.22 s
+                  </span>
+                </div>
+              </div>
+            </div>
+          </figure>
+        </header>
+
+        <section className="block" aria-labelledby="h-folder">
+          <div>
+            <h2 id="h-folder">Every item is a folder you could open in vim.</h2>
+            <p>
+              The reading list is <code>INDEX.md</code>, a Markdown task list. Each item gets a folder with its notes
+              and the code you ran.
+            </p>
+            <p>Edit any of it by hand. grimoire keeps every line it doesn&apos;t recognise.</p>
+          </div>
+          <div className="panel">
+            <div className="phead">
+              <span className="label">Vault</span>
+              <span className="mono">my-vault/</span>
+              <span className="r">
+                <i className="lamp" />
+                <span className="label">On disk</span>
+              </span>
+            </div>
+            <pre className="tree" aria-label="A vault folder">
+              {"my-vault/\n├── INDEX.md                  "}
+              <span className="c"># the reading list</span>
+              {"\n├── .grimoire/config.json     "}
+              <span className="c"># preferences, committed</span>
+              {"\n├── .grimoire/local/          "}
+              <span className="c"># this machine only</span>
+              {"\n├── attention-is-all-you-need/\n│   ├── NOTES.md\n│   └── sandbox/main.py\n└── crafting-interpreters/\n    ├── NOTES.md\n    └── crafting-interpreters.pdf"}
+            </pre>
           </div>
         </section>
 
-        <Entry
-          id="gather"
-          title="Gather your sources"
-        >
-          <p>
-            Blogs, talks and papers go into one reading list, by URL or as a PDF from disk. The list is{" "}
-            <Path>INDEX.md</Path>, a Markdown task list with <Path>#tags</Path>. Search it, filter it, tick things off.
-          </p>
-          <div className="module">
-            <div className="mhead mono">
-              <span>
-                my-vault/<b>INDEX.md</b>
-              </span>
-              <span className="right hide-sm">click a box</span>
-            </div>
-            <IndexList />
+        <section className="block flip" aria-labelledby="h-run">
+          <div>
+            <h2 id="h-run">Code runs on your machine, as you.</h2>
+            <p>
+              Each item has a sandbox for Python, Rust, Go, C, Java and JavaScript, using the toolchains you already
+              have. Output streams in with the exit code and time, and goes back into your notes with one key.
+            </p>
+            <p>
+              It isn&apos;t a security sandbox. Code runs with your permissions, so only run what you&apos;d run in a
+              terminal.
+            </p>
           </div>
-        </Entry>
-
-        <Entry
-          id="study"
-          title="Study beside the source"
-        >
-          <p>
-            Open an item and the article, video or PDF sits on the left, your notes on the right. Sites that refuse to
-            be framed still load, and PDFs get an outline, search and resume-where-you-left-off.
-          </p>
-          <StudyDesk />
-        </Entry>
-
-        <Entry
-          id="cast"
-          title="Cast the code"
-        >
-          <p>
-            Every item has a sandbox. Try the snippet you just read, watch the output stream in, and paste it back into
-            your notes. Runs are numbered and timed. The ones that fail are struck through, never erased. Code runs as
-            you, with the toolchains on your machine: it is not a security boundary, so only cast code you trust.
-          </p>
-          <Sandbox />
-          <div className="langs" aria-label="Languages">
-            {[
-              ["Python", "python3"],
-              ["Rust", "rustc"],
-              ["Go", "go"],
-              ["C", "cc"],
-              ["Java", "java"],
-              ["JavaScript", "node"],
-            ].map(([lang, bin]) => (
-              <span key={lang}>
-                {lang}
-                <span className="mono">{bin}</span>
-              </span>
-            ))}
-          </div>
-        </Entry>
-
-        <Entry
-          id="keep"
-          title="Keep the book"
-        >
-          <p>
-            There is no database and no account. Your vault is a folder: readable on GitHub, editable in any editor,
-            synced with git. Clone it on another machine and it opens as it was.
-          </p>
-          <div className="module">
-            <div className="mhead mono">
-              <span>
-                <b>my-vault/</b>
+          <div className="panel">
+            <div className="phead">
+              <span className="label">Toolchains</span>
+              <span className="r">
+                <span className="note">an example machine</span>
               </span>
             </div>
-            <pre className="tree" aria-label="Vault folder">
-              <span className="d">my-vault/</span>
-              {"\n├── INDEX.md                   "}
-              <span className="c"># the reading list</span>
-              {"\n├── .grimoire/\n│   ├── config.json            "}
-              <span className="c"># preferences, committed</span>
-              {"\n│   └── local/                 "}
-              <span className="c"># this machine only</span>
-              {"\n├── "}
-              <span className="d">attention-is-all-you-need/</span>
-              {"\n│   ├── NOTES.md\n│   └── sandbox/main.py\n└── "}
-              <span className="d">crafting-interpreters/</span>
-              {"\n    ├── NOTES.md\n    └── crafting-interpreters.pdf"}
-            </pre>
-            <pre className="shell" aria-label="Sync with git">
-              <span className="p">$ </span>
-              {'git add . && git commit -m "notes on attention"\n'}
-              <span className="p">$ </span>
-              {"git push"}
-            </pre>
+            <ul className="tools">
+              {TOOLCHAINS.map(([lang, bin, found]) => (
+                <li key={lang}>
+                  <i className={found ? "lamp" : "lamp off"} aria-hidden="true" />
+                  <span>{lang}</span>
+                  <span className="mono">
+                    {bin} · {found ? "found" : "not found, install to use"}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
-        </Entry>
+        </section>
 
-        <section className="entry close" aria-labelledby="h-close">
-          <div className="body">
-            <h2 id="h-close">Open the book.</h2>
+        <section className="block" aria-labelledby="h-git">
+          <div>
+            <h2 id="h-git">Sync is git. There&apos;s nothing to sign in to.</h2>
+            <p>
+              Commit and push the vault like any repo. Clone it on another machine and it opens as it was; pull, and the
+              open list picks up the change.
+            </p>
+            <p>No telemetry. Nothing leaves your computer except the pages you open.</p>
+          </div>
+          <div className="panel">
+            <div className="phead">
+              <span className="label">Terminal</span>
+              <span className="mono">my-vault/</span>
+            </div>
+            <Shell
+              label="Sync a vault with git"
+              commands={['git add . && git commit -m "notes on attention"', "git push"]}
+            />
+          </div>
+        </section>
+
+        <section className="close" aria-labelledby="h-close">
+          <div>
+            <h2 id="h-close">Start with one thing you meant to read.</h2>
             <p>
               grimoire is in early design. v1 targets macOS 13+, with Linux and Windows after. Read{" "}
               <a href={`${REPO}/blob/master/docs/PRD.md`}>the plan</a>, follow along, or lend a hand.
             </p>
-            <div className="acts">
-              <Link className="btn btn-pen" href="/install">
-                Install grimoire
-              </Link>
-              <GitHubButton outline />
-            </div>
+          </div>
+          <div className="acts">
+            <Link className="key go" href="/install">
+              Install grimoire
+            </Link>
+            <a className="key" href={REPO}>
+              <GitHubIcon />
+              GitHub
+            </a>
           </div>
         </section>
       </main>
 
-      <footer>
-        <div className="in">
-          <span className="mono">grimoire.aneesh-aparajit.in</span>
-          <span>Local-first. Plain files. No account.</span>
-          <span className="right">
-            <a href={REPO}>GitHub</a>
-            <a href={`${REPO}#readme`}>README</a>
-          </span>
-        </div>
-      </footer>
-    </>
+      <SiteFooter />
+    </div>
   );
 }

@@ -1,17 +1,11 @@
 import type { ReactNode } from "react";
 
-export function Entry({ id, title, children }: { id: string; title: string; children: ReactNode }) {
+/** A section of the install guide: its heading in the left column, the body on the right. */
+export function Doc({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
-    <section className="entry" id={id} data-title={title} aria-labelledby={`h-${id}`}>
-      <div className="body">
-        <h2 id={`h-${id}`}>
-          <span className="md" aria-hidden="true">
-            ##
-          </span>
-          {title}
-        </h2>
-        {children}
-      </div>
+    <section className="doc" id={id} aria-labelledby={`h-${id}`}>
+      <h2 id={`h-${id}`}>{title}</h2>
+      <div className="body">{children}</div>
     </section>
   );
 }
