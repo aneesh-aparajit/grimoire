@@ -156,7 +156,6 @@ a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; 
 }
 .band nav a:hover { background: var(--cloth-raise); color: var(--cloth-ink); }
 .band nav .sep { width: 1px; height: 20px; background: var(--cloth-rule); margin: 0 8px; }
-.band nav .num { font-family: var(--font-mono); font-size: 0.6875rem; opacity: 0.7; }
 
 /* File bar: the page is a NOTES.md */
 .filebar {
@@ -171,7 +170,6 @@ a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; 
 }
 .filebar b { color: var(--ink); font-weight: 500; }
 .filebar .crumb { color: var(--ink-faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.filebar .crumb span { color: var(--pen); }
 .filebar .state { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; }
 .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--pass); transition: background-color 240ms; }
 .dot.dirty { background: var(--caution); }
@@ -193,8 +191,7 @@ a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; 
   content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: var(--rule);
   transform-origin: left; transition: transform 900ms var(--ease-out);
 }
-.entry > .num { padding-top: 9px; color: var(--ink-faint); }
-.entry > .body { min-width: 0; }
+.entry > .body { grid-column: 2; min-width: 0; }
 
 h2 {
   font-size: 1.75rem; line-height: 1.2; font-weight: 680; letter-spacing: -0.015em;
@@ -211,7 +208,6 @@ code, .path { font-family: var(--font-mono); font-size: 0.86em; color: var(--ink
 /* Hero */
 .hero { padding: 88px 0 80px; }
 .hero::before { display: none; }
-.hero > .num { padding-top: 2.1rem; }
 .hero > .body { grid-column: 2 / 4; grid-row: 1; }
 .title {
   position: relative; display: inline-block;
@@ -245,7 +241,7 @@ code, .path { font-family: var(--font-mono); font-size: 0.86em; color: var(--ink
 .mhead .right { margin-left: auto; display: flex; align-items: center; gap: 10px; flex: none; }
 .mhead > .mono { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* E-01: INDEX.md */
+/* INDEX.md */
 .index { list-style: none; padding: 10px 0; margin: 0; font-family: var(--font-mono); font-size: 0.8125rem; }
 .index li { display: flex; align-items: baseline; gap: 0.6em; padding: 3px 14px; line-height: 1.75; }
 .index h3 { margin: 0 0 4px; padding: 6px 14px 4px; font: 600 0.8125rem var(--font-mono); color: var(--ink); }
@@ -263,7 +259,7 @@ code, .path { font-family: var(--font-mono); font-size: 0.86em; color: var(--ink
 @keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(1.35); } 100% { transform: scale(1); } }
 .index .keep { color: var(--ink-faint); font-style: normal; }
 
-/* E-02: the split */
+/* the split */
 .desk {
   --split: 52%;
   margin-top: 26px; border: 1px solid var(--rule); height: 300px;
@@ -296,7 +292,7 @@ code, .path { font-family: var(--font-mono); font-size: 0.86em; color: var(--ink
 .splitter:hover::before, .splitter.dragging::before { background: var(--rule-strong); }
 .splitter:focus-visible { outline-offset: -2px; }
 
-/* E-03: the sandbox */
+/* the sandbox */
 .code { margin: 0; padding: 14px 16px; font: 0.8125rem/1.7 var(--font-mono); color: var(--ink); overflow-x: auto; tab-size: 4; }
 .code .kw { color: var(--pen); font-weight: 600; }
 .code .num { color: var(--pass); }
@@ -345,7 +341,7 @@ code, .path { font-family: var(--font-mono); font-size: 0.86em; color: var(--ink
 }
 .langs span .mono { margin-left: 6px; color: var(--ink-faint); font-size: 0.6875rem; }
 
-/* E-04: the vault */
+/* the vault */
 .tree { margin: 0; padding: 14px 16px; font: 0.8125rem/1.75 var(--font-mono); color: var(--ink); overflow-x: auto; }
 .tree .c { color: var(--ink-faint); }
 .tree .d { color: var(--pen); }
@@ -406,10 +402,8 @@ footer a { color: var(--ink); }
   .filebar .crumb { display: none; }
   .entry { grid-template-columns: minmax(0, 1fr); padding: 36px 0 56px; }
   .page::before { display: none; }
-  .entry > .num { position: absolute; right: 0; top: 46px; padding: 0; }
-  .entry > .body h2 { padding-right: 3rem; }
+  .entry > .body { grid-column: 1; }
   .hero { padding: 48px 0 56px; }
-  .hero > .num { top: 48px; }
   .hero > .body { grid-column: 1; grid-row: auto; }
   h2 { font-size: 1.5rem; }
   .lede { margin-top: 24px; }
