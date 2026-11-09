@@ -22,7 +22,7 @@ export default function Home() {
   return (
     <>
       <header className="band">
-        <a className="wordmark" href="#top" aria-label="grimoire, back to top">
+        <a className="wordmark" href="/" aria-label="grimoire, home">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <use href="#feather" x="0" y="0" width="20" height="24" />
             <use href="#star" x="15" y="14" width="8" height="8" style={{ color: "var(--spark)" }} />
@@ -31,13 +31,12 @@ export default function Home() {
         </a>
         <nav aria-label="Sections">
           {[
-            ["gather", "E-01", "Gather"],
-            ["study", "E-02", "Study"],
-            ["cast", "E-03", "Cast"],
-            ["keep", "E-04", "Keep"],
-          ].map(([id, num, label]) => (
+            ["gather", "Gather"],
+            ["study", "Study"],
+            ["cast", "Cast"],
+            ["keep", "Keep"],
+          ].map(([id, label]) => (
             <a key={id} className="sec" href={`#${id}`}>
-              <span className="num">{num}</span>
               {label}
             </a>
           ))}
@@ -54,7 +53,6 @@ export default function Home() {
 
       <main className="page" id="top">
         <section className="entry hero" aria-labelledby="title">
-          <span className="num label">E-00</span>
           <div className="body">
             <h1 className="title" id="title">
               <span className="ink">
@@ -88,7 +86,6 @@ export default function Home() {
 
         <Entry
           id="gather"
-          num="E-01"
           title="Gather your sources"
         >
           <p>
@@ -108,7 +105,6 @@ export default function Home() {
 
         <Entry
           id="study"
-          num="E-02"
           title="Study beside the source"
         >
           <p>
@@ -120,7 +116,6 @@ export default function Home() {
 
         <Entry
           id="cast"
-          num="E-03"
           title="Cast the code"
         >
           <p>
@@ -148,7 +143,6 @@ export default function Home() {
 
         <Entry
           id="keep"
-          num="E-04"
           title="Keep the book"
         >
           <p>
@@ -185,9 +179,6 @@ export default function Home() {
         </Entry>
 
         <section className="entry close" aria-labelledby="h-close">
-          <span className="num label" aria-hidden="true">
-            E-05
-          </span>
           <div className="body">
             <h2 id="h-close">Open the book.</h2>
             <p>

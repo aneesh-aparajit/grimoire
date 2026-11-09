@@ -15,8 +15,8 @@ export const metadata: Metadata = {
 const APP = "/Applications/grimoire.app";
 
 const SECTIONS = [
-  ["install", "I-01", "Install"],
-  ["toolchains", "I-02", "Toolchains"],
+  ["install", "Install"],
+  ["toolchains", "Toolchains"],
 ] as const;
 
 const TOOLCHAINS = [
@@ -58,12 +58,11 @@ function Sub({ id, title, children }: { id: string; title: string; children: Rea
 export default function Install() {
   return (
     <>
-      <SiteHeader sections={SECTIONS} home="/" current="install" />
+      <SiteHeader sections={SECTIONS} current="install" />
       <FileBar file="INSTALL.md" />
 
       <main className="page" id="top">
         <section className="entry hero hero-sm" aria-labelledby="title">
-          <span className="num label">I-00</span>
           <div className="body">
             <h1 className="title" id="title">
               <span className="ink">
@@ -96,7 +95,7 @@ export default function Install() {
           </div>
         </section>
 
-        <Entry id="install" num="I-01" title="Build and install">
+        <Entry id="install" title="Build and install">
           <p>
             You build grimoire on your own Mac, and <code>make</code> copies the finished app into{" "}
             <Path>/Applications</Path>. The first build compiles the Rust backend and takes a few minutes; later ones
@@ -165,7 +164,7 @@ export default function Install() {
           </Sub>
         </Entry>
 
-        <Entry id="toolchains" num="I-02" title="Add toolchains for the sandbox">
+        <Entry id="toolchains" title="Add toolchains for the sandbox">
           <p>
             The sandbox runs code with the compilers and interpreters already on your Mac. Install only the languages
             you want to use; missing ones are reported in the app and the rest keep working. With{" "}
@@ -201,9 +200,6 @@ export default function Install() {
         </Entry>
 
         <section className="entry close" aria-labelledby="h-close">
-          <span className="num label" aria-hidden="true">
-            I-03
-          </span>
           <div className="body">
             <h2 id="h-close">Now open a vault.</h2>
             <p>

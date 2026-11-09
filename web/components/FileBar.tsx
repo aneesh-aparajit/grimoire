@@ -10,7 +10,7 @@ import { observeReplay } from "./replay";
  */
 export function FileBar({ file = "NOTES.md" }: { file?: string }) {
   const [saved, setSaved] = useState(true);
-  const [crumb, setCrumb] = useState<{ num: string; title: string } | null>(null);
+  const [crumb, setCrumb] = useState<string | null>(null);
 
   useEffect(() => {
     document.documentElement.classList.add("js");
@@ -38,8 +38,7 @@ export function FileBar({ file = "NOTES.md" }: { file?: string }) {
         for (const e of list) {
           if (!e.isIntersecting) continue;
           const el = e.target as HTMLElement;
-          const num = el.querySelector(".num")?.textContent ?? "";
-          setCrumb(el.dataset.title ? { num, title: el.dataset.title } : null);
+          setCrumb(el.dataset.title ?? null);
         }
       },
       { rootMargin: "-45% 0px -50% 0px" },
@@ -59,11 +58,7 @@ export function FileBar({ file = "NOTES.md" }: { file?: string }) {
           ~/grimoire/<b>{file}</b>
         </span>
         <span className="crumb">
-          {crumb && (
-            <>
-              › <span>{crumb.num}</span> {crumb.title}
-            </>
-          )}
+          {crumb && <>› {crumb}</>}
         </span>
         <span className="state">
           <span className={saved ? "dot" : "dot dirty"} />
