@@ -187,34 +187,109 @@ pub struct Bounds {
     pub height: f64,
 }
 
+/// The origin the video wrapper page loads under. YouTube's embedded player
+/// refuses to play (error 153, "video player configuration error") without a
+/// Referer, and a top-level load of the embed URL sends none. Native apps are
+/// told to identify themselves with an https URL built from the app id.
+#[cfg(target_os = "macos")]
+const EMBED_BASE_URL: &str = "https://app.grimoire.desktop/";
+
+/// A page that fills the webview with the player, so the player is loaded as
+/// an iframe and receives the wrapper's origin as its Referer.
+#[cfg_attr(not(target_os = "macos"), allow(dead_code))]
+fn embed_page(player_url: &str) -> String {
+    let src = player_url
+        .replace('&', "&amp;")
+        .replace('"', "&quot;")
+        .replace('<', "&lt;");
+    format!(
+        r#"<!doctype html><html><head><meta charset="utf-8"><meta name="referrer" content="strict-origin-when-cross-origin"><style>html,body{{margin:0;height:100%;background:#000;overflow:hidden}}iframe{{display:block;width:100%;height:100%;border:0}}</style></head><body><iframe src="{src}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></body></html>"#
+    )
+}
+
+#[cfg(target_os = "macos")]
+fn load_embed(wv: &tauri::Webview, player_url: &str) -> Result<()> {
+    let html = embed_page(player_url);
+    wv.with_webview(move |pw| {
+        use objc2_foundation::{NSString, NSURL};
+        use objc2_web_kit::WKWebView;
+        // SAFETY: on macOS the platform webview is a live WKWebView, and
+        // `with_webview` runs this closure on the main thread.
+        unsafe {
+            let view: &WKWebView = &*pw.inner().cast::<WKWebView>();
+            let base = NSURL::URLWithString(&NSString::from_str(EMBED_BASE_URL));
+            view.loadHTMLString_baseURL(&NSString::from_str(&html), base.as_deref());
+        }
+    })?;
+    Ok(())
+}
+
+/// Where the webview should go for `source`.
+enum Target {
+    Url(String),
+    /// A YouTube player URL, shown through the wrapper page.
+    #[cfg_attr(not(target_os = "macos"), allow(dead_code))]
+    Embed(String),
+}
+
+fn target(source: &str) -> Target {
+    match youtube_id(source) {
+        #[cfg(target_os = "macos")]
+        Some(_) => Target::Embed(render_url(source)),
+        // Without a way to set the Referer, the watch page is the one that plays.
+        #[cfg(not(target_os = "macos"))]
+        Some(id) => Target::Url(format!("https://www.youtube.com/watch?v={id}")),
+        None => Target::Url(render_url(source)),
+    }
+}
+
 /// Shows `source` in the content webview, creating it on first use. One
 /// webview is reused across items so its cookie store persists.
 pub fn webview_show(app: &AppHandle, source: &str, b: Bounds) -> Result<()> {
-    let url: url::Url = render_url(source)
-        .parse()
-        .map_err(|_| AppError::InvalidPath(format!("{source} is not a URL")))?;
-    if let Some(wv) = app.get_webview(CONTENT_LABEL) {
-        wv.navigate(url)?;
+    let target = target(source);
+    let url: url::Url = match &target {
+        Target::Url(u) => u.as_str(),
+        Target::Embed(_) => "about:blank",
+    }
+    .parse()
+    .map_err(|_| AppError::InvalidPath(format!("{source} is not a URL")))?;
+    let wv = if let Some(wv) = app.get_webview(CONTENT_LABEL) {
+        if matches!(target, Target::Url(_)) {
+            wv.navigate(url)?;
+        }
         wv.set_position(LogicalPosition::new(b.x, b.y))?;
         wv.set_size(LogicalSize::new(b.width, b.height))?;
         wv.show()?;
-        return Ok(());
+        wv
+    } else {
+        let window = app
+            .get_window("main")
+            .ok_or_else(|| AppError::NotFound("main window".into()))?;
+        let handle = app.clone();
+        let builder = WebviewBuilder::new(CONTENT_LABEL, WebviewUrl::External(url)).on_page_load(move |wv, payload| {
+            use tauri::Emitter;
+            let state = match payload.event() {
+                tauri::webview::PageLoadEvent::Started => "started",
+                tauri::webview::PageLoadEvent::Finished => "finished",
+            };
+            let _ = handle.emit_to(
+                "main",
+                "content://load",
+                serde_json::json!({ "state": state, "url": payload.url().as_str(), "label": wv.label() }),
+            );
+        });
+        window.add_child(
+            builder,
+            LogicalPosition::new(b.x, b.y),
+            LogicalSize::new(b.width, b.height),
+        )?
+    };
+    #[cfg(target_os = "macos")]
+    if let Target::Embed(player) = &target {
+        load_embed(&wv, player)?;
     }
-    let window = app.get_window("main").ok_or_else(|| AppError::NotFound("main window".into()))?;
-    let handle = app.clone();
-    let builder = WebviewBuilder::new(CONTENT_LABEL, WebviewUrl::External(url)).on_page_load(move |wv, payload| {
-        use tauri::Emitter;
-        let state = match payload.event() {
-            tauri::webview::PageLoadEvent::Started => "started",
-            tauri::webview::PageLoadEvent::Finished => "finished",
-        };
-        let _ = handle.emit_to(
-            "main",
-            "content://load",
-            serde_json::json!({ "state": state, "url": payload.url().as_str(), "label": wv.label() }),
-        );
-    });
-    window.add_child(builder, LogicalPosition::new(b.x, b.y), LogicalSize::new(b.width, b.height))?;
+    #[cfg(not(target_os = "macos"))]
+    let _ = wv;
     Ok(())
 }
 
@@ -254,5 +329,13 @@ mod tests {
         assert_eq!(classify("book/book.pdf"), ContentKind::Pdf);
         assert_eq!(classify("https://go.dev/ref/mem"), ContentKind::Article);
         assert_eq!(render_url("https://youtu.be/abc?t=42"), "https://www.youtube-nocookie.com/embed/abc?start=42");
+    }
+
+    #[test]
+    fn embed_page_escapes_the_player_url() {
+        let page = embed_page("https://www.youtube-nocookie.com/embed/abc?start=1&x=\"<");
+        assert!(page.contains(
+            r#"src="https://www.youtube-nocookie.com/embed/abc?start=1&amp;x=&quot;&lt;""#
+        ));
     }
 }
