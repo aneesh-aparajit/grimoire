@@ -8,7 +8,7 @@ import { observeReplay } from "./replay";
  * entries replay their reveals (`.seen`) on every visit, and the crumb follows the
  * entry in the middle of the screen.
  */
-export function FileBar() {
+export function FileBar({ file = "NOTES.md" }: { file?: string }) {
   const [saved, setSaved] = useState(true);
   const [crumb, setCrumb] = useState<{ num: string; title: string } | null>(null);
 
@@ -56,7 +56,7 @@ export function FileBar() {
     <div className="filebar" aria-hidden="true">
       <div className="in mono">
         <span>
-          ~/grimoire/<b>NOTES.md</b>
+          ~/grimoire/<b>{file}</b>
         </span>
         <span className="crumb">
           {crumb && (
