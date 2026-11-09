@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Shell } from "@/components/Shell";
+import { StudyDevice } from "@/components/StudyDevice";
 import { REPO, SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { GitHubIcon } from "@/components/Sprite";
 
@@ -47,45 +48,7 @@ export default function Home() {
             </dl>
           </div>
 
-          <figure className="device" aria-label="The study view: a paper on the left, notes and a run on the right. Example content.">
-            <div className="bar">
-              <span>Attention Is All You Need</span>
-              <span className="r" aria-hidden="true">
-                <span className="key sm on">Study</span>
-                <span className="key sm">Preview</span>
-              </span>
-            </div>
-            <div className="panes" aria-hidden="true">
-              <div className="pane src">
-                <h3>Attention Is All You Need</h3>
-                <p>
-                  The dominant sequence transduction models are based on complex recurrent or convolutional neural
-                  networks that include an encoder and a decoder. The best performing models also connect the encoder
-                  and decoder through an attention mechanism.
-                </p>
-                <p>
-                  We propose a new simple network architecture, the Transformer, based solely on attention mechanisms,
-                  dispensing with recurrence and convolutions entirely.
-                </p>
-              </div>
-              <div className="pane notes">
-                <h3>Attention, read slowly</h3>
-                <h4>Scaled dot-product</h4>
-                <p>
-                  Divide by √d<sub>k</sub> so softmax doesn&apos;t saturate when d<sub>k</sub> is large.
-                </p>
-                <h4>Why multi-head</h4>
-                <p>Each head attends in its own subspace, then the outputs are concatenated.</p>
-                <div className="run">
-                  softmax(q @ k.T / sqrt(d))
-                  <span>
-                    <i className="lamp" />
-                    exit 0 · 0.22 s
-                  </span>
-                </div>
-              </div>
-            </div>
-          </figure>
+          <StudyDevice />
         </header>
 
         <section className="block" aria-labelledby="h-folder">
