@@ -485,3 +485,12 @@ footer a { color: var(--ink); }
   .tools thead th:nth-child(2), .tools td:nth-child(2) { display: none; }
   .tools th, .tools td { padding: 8px 10px; }
 }
+.sub { margin-top: 40px; padding-top: 28px; border-top: 1px dashed var(--rule); }
+.sub > h3 { font-size: 1.25rem; line-height: 1.25; font-weight: 660; letter-spacing: -0.01em; color: var(--pen); }
+.sub > h3 .md { font-size: 0.9em; }
+.sub > p { margin-top: 10px; max-width: 62ch; font-size: 1.0625rem; line-height: 1.7; color: var(--pen); }
+.sub > p + p { margin-top: 10px; }
+.sub > p a { color: var(--pen); }
+.sub > p b { font-weight: 640; }
+.sub > .module { margin-top: 18px; }
+.sub > .steps { margin-top: 12px; }

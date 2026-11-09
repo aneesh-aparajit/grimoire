@@ -8,7 +8,7 @@ import { REPO, SiteHeader } from "@/components/SiteHeader";
 export const metadata: Metadata = {
   title: "Install grimoire",
   description:
-    "Install grimoire on macOS 13+: a one-line install script, the DMG by hand, getting past Gatekeeper on first launch, sandbox toolchains, and building from source.",
+    "Install grimoire on macOS 13+: a one-line install script, the DMG by hand or a build from source, getting past Gatekeeper on first launch, sandbox toolchains, and updating or uninstalling.",
   alternates: { canonical: "/install" },
 };
 
@@ -17,10 +17,9 @@ const RELEASES = `${REPO}/releases`;
 const APP = "/Applications/grimoire.app";
 
 const SECTIONS = [
-  ["script", "I-01", "Script"],
-  ["dmg", "I-02", "DMG"],
-  ["first-launch", "I-03", "First launch"],
-  ["source", "I-05", "Source"],
+  ["install", "I-01", "Install"],
+  ["first-launch", "I-02", "First launch"],
+  ["toolchains", "I-03", "Toolchains"],
 ] as const;
 
 const TOOLCHAINS = [
@@ -39,6 +38,21 @@ function Module({ file, children, right }: { file: string; children: React.React
         <span>{file}</span>
         {right && <span className="right hide-sm">{right}</span>}
       </div>
+      {children}
+    </div>
+  );
+}
+
+/** A `###` subsection inside an entry. */
+function Sub({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
+  return (
+    <div className="sub" id={id}>
+      <h3>
+        <span className="md" aria-hidden="true">
+          ###
+        </span>
+        {title}
+      </h3>
       {children}
     </div>
   );
@@ -71,12 +85,18 @@ export default function Install() {
             </p>
             <ul className="checks">
               <li>
-                <span className="stamp pass">Need</span> A Mac on macOS 13+, and permission to write to{" "}
-                <Path>/Applications</Path> (or it falls back to <Path>~/Applications</Path>).
+                <span className="stamp pass">Need</span>
+                <span>
+                  A Mac on macOS 13+, and permission to write to <Path>/Applications</Path> (or it falls back to{" "}
+                  <Path>~/Applications</Path>).
+                </span>
               </li>
               <li>
-                <span className="stamp wait">Early</span> grimoire is in early design. If{" "}
-                <a href={RELEASES}>Releases</a> is still empty, <a href="#source">build it from source</a>.
+                <span className="stamp wait">Early</span>
+                <span>
+                  grimoire is in early design. If <a href={RELEASES}>Releases</a> is still empty,{" "}
+                  <a href="#source">build it from source</a>.
+                </span>
               </li>
             </ul>
           </div>
@@ -84,9 +104,9 @@ export default function Install() {
         </section>
 
         <Entry
-          id="script"
+          id="install"
           num="I-01"
-          title="Install with one command"
+          title="Install"
           note={
             <Note arrow="downLeft">
               Piping a script into bash means trusting it. <a href={`${REPO}/blob/master/scripts/install.sh`}>Read it
@@ -95,61 +115,115 @@ export default function Install() {
           }
         >
           <p>
-            The quickest way. The install script downloads the latest DMG from GitHub Releases, copies the app into{" "}
-            <Path>/Applications</Path>, and clears the quarantine flag so it opens without a Gatekeeper warning.
+            Three ways in: the install script, the DMG by hand, or a build from source. They all end with the same
+            universal app in <Path>/Applications</Path>, native on both Apple silicon and Intel.
           </p>
-          <Module file="Terminal" right="copies grimoire.app">
-            <Shell label="Install grimoire" commands={[`curl -fsSL ${RAW} | bash`]} />
-          </Module>
-          <p>Pass options after <code>bash -s --</code>. For example, install for just yourself and launch it:</p>
-          <Module file="Terminal">
-            <Shell label="Install to ~/Applications and open" commands={[`curl -fsSL ${RAW} | bash -s -- --dest ~/Applications --open`]} />
-          </Module>
-          <dl className="opts">
-            <dt>
-              <code>--dest DIR</code>
-            </dt>
-            <dd>Install into DIR instead of /Applications.</dd>
-            <dt>
-              <code>--open</code>
-            </dt>
-            <dd>Launch grimoire when it&apos;s done.</dd>
-            <dt>
-              <code>path/to/grimoire.dmg</code>
-            </dt>
-            <dd>Install from a DMG you already have, instead of downloading one.</dd>
-          </dl>
-          <p>
-            If you have the GitHub CLI signed in, the script downloads with <code>gh</code>; otherwise it uses{" "}
-            <code>curl</code> and the public API.
-          </p>
-        </Entry>
 
-        <Entry
-          id="dmg"
-          num="I-02"
-          title="Or install the DMG by hand"
-          note={<Note arrow="swoop">The same DMG runs natively on both Apple silicon and Intel.</Note>}
-        >
-          <ol className="steps">
-            <li>
-              Open <a href={`${RELEASES}/latest`}>the latest release</a> and download{" "}
-              <Path>grimoire_&lt;version&gt;_universal.dmg</Path>.
-            </li>
-            <li>Double-click the DMG to mount it.</li>
-            <li>
-              Drag <b>grimoire</b> onto the <b>Applications</b> folder, then eject the DMG.
-            </li>
-            <li>
-              Open grimoire from Launchpad or Spotlight. The first time, macOS will stop you: see{" "}
-              <a href="#first-launch">first launch</a>.
-            </li>
-          </ol>
+          <Sub id="script" title="With one command">
+            <p>
+              The quickest way. The script downloads the latest DMG from GitHub Releases, copies the app into{" "}
+              <Path>/Applications</Path>, and clears the quarantine flag so it opens without a Gatekeeper warning.
+            </p>
+            <Module file="Terminal" right="copies grimoire.app">
+              <Shell label="Install grimoire" commands={[`curl -fsSL ${RAW} | bash`]} />
+            </Module>
+            <p>Pass options after <code>bash -s --</code>. For example, install for just yourself and launch it:</p>
+            <Module file="Terminal">
+              <Shell
+                label="Install to ~/Applications and open"
+                commands={[`curl -fsSL ${RAW} | bash -s -- --dest ~/Applications --open`]}
+              />
+            </Module>
+            <dl className="opts">
+              <dt>
+                <code>--dest DIR</code>
+              </dt>
+              <dd>Install into DIR instead of /Applications.</dd>
+              <dt>
+                <code>--open</code>
+              </dt>
+              <dd>Launch grimoire when it&apos;s done.</dd>
+              <dt>
+                <code>path/to/grimoire.dmg</code>
+              </dt>
+              <dd>Install from a DMG you already have, instead of downloading one.</dd>
+            </dl>
+            <p>
+              If you have the GitHub CLI signed in, the script downloads with <code>gh</code>; otherwise it uses{" "}
+              <code>curl</code> and the public API.
+            </p>
+          </Sub>
+
+          <Sub id="dmg" title="From the DMG">
+            <ol className="steps">
+              <li>
+                Open <a href={`${RELEASES}/latest`}>the latest release</a> and download{" "}
+                <Path>grimoire_&lt;version&gt;_universal.dmg</Path>.
+              </li>
+              <li>Double-click the DMG to mount it.</li>
+              <li>
+                Drag <b>grimoire</b> onto the <b>Applications</b> folder, then eject the DMG.
+              </li>
+              <li>
+                Open grimoire from Launchpad or Spotlight. The first time, macOS will stop you: see{" "}
+                <a href="#first-launch">first launch</a>.
+              </li>
+            </ol>
+          </Sub>
+
+          <Sub id="source" title="From source">
+            <p>
+              You&apos;ll need the Xcode Command Line Tools, Rust (stable, via rustup), Node.js 22+ and pnpm. Then clone
+              the repo and let <code>make</code> build a DMG and install it. Local builds are unsigned, but{" "}
+              <code>make install-app</code> clears the quarantine flag too.
+            </p>
+            <Module file="Terminal" right="one command at a time">
+              <Shell
+                label="Install build prerequisites"
+                commands={["xcode-select --install", "curl https://sh.rustup.rs -sSf | sh", "brew install node pnpm"]}
+              />
+            </Module>
+            <Module file="Terminal">
+              <Shell label="Clone, build and install" commands={[`git clone ${REPO}.git`, "cd grimoire", "make install-app"]} />
+            </Module>
+            <dl className="opts">
+              <dt>
+                <code>make dev</code>
+              </dt>
+              <dd>Run the app in development mode, with hot reload.</dd>
+              <dt>
+                <code>make build</code>
+              </dt>
+              <dd>Build a DMG for this Mac&apos;s architecture, without installing it.</dd>
+              <dt>
+                <code>make build-universal</code>
+              </dt>
+              <dd>Build the universal DMG, as CI does for releases.</dd>
+            </dl>
+          </Sub>
+
+          <Sub id="update" title="Update or uninstall">
+            <p>
+              <b>To update</b>, install again the same way: rerun the script, drag a newer DMG over the old app, or{" "}
+              <code>git pull</code> and <code>make install-app</code>. The script and the Makefile quit a running copy
+              before replacing it.
+            </p>
+            <p>
+              <b>To uninstall</b>, drag <Path>grimoire.app</Path> to the Bin. Your vaults are plain folders and stay
+              exactly where they are. The only file grimoire keeps elsewhere is the list of recent vaults:
+            </p>
+            <Module file="Terminal" right="optional">
+              <Shell
+                label="Remove grimoire and its recent-vaults list"
+                commands={[`rm -rf ${APP}`, 'rm -rf "$HOME/Library/Application Support/app.grimoire.desktop"']}
+              />
+            </Module>
+          </Sub>
         </Entry>
 
         <Entry
           id="first-launch"
-          num="I-03"
+          num="I-02"
           title="Get past Gatekeeper, once"
           note={
             <Note arrow="downLeft">
@@ -182,7 +256,7 @@ export default function Install() {
 
         <Entry
           id="toolchains"
-          num="I-04"
+          num="I-03"
           title="Add toolchains for the sandbox"
           note={
             <Note arrow="swoop">
@@ -223,64 +297,9 @@ export default function Install() {
           </p>
         </Entry>
 
-        <Entry
-          id="source"
-          num="I-05"
-          title="Build from source"
-          note={<Note arrow="downLeft">Local builds are unsigned. The Makefile&apos;s install step clears the flag too.</Note>}
-        >
-          <p>
-            You&apos;ll need the Xcode Command Line Tools, Rust (stable, via rustup), Node.js 22+ and pnpm. Then clone
-            the repo and let <code>make</code> build a DMG and install it:
-          </p>
-          <Module file="Terminal" right="one command at a time">
-            <Shell
-              label="Install build prerequisites"
-              commands={["xcode-select --install", "curl https://sh.rustup.rs -sSf | sh", "brew install node pnpm"]}
-            />
-          </Module>
-          <Module file="Terminal">
-            <Shell
-              label="Clone, build and install"
-              commands={[`git clone ${REPO}.git`, "cd grimoire", "make install-app"]}
-            />
-          </Module>
-          <dl className="opts">
-            <dt>
-              <code>make dev</code>
-            </dt>
-            <dd>Run the app in development mode, with hot reload.</dd>
-            <dt>
-              <code>make build</code>
-            </dt>
-            <dd>Build a DMG for this Mac&apos;s architecture, without installing it.</dd>
-            <dt>
-              <code>make build-universal</code>
-            </dt>
-            <dd>Build the universal DMG, as CI does for releases.</dd>
-          </dl>
-        </Entry>
-
-        <Entry id="update" num="I-06" title="Update or uninstall">
-          <p>
-            <b>To update</b>, run the install script again (or drag a newer DMG over the old app). The script quits a
-            running copy before replacing it.
-          </p>
-          <p>
-            <b>To uninstall</b>, drag <Path>grimoire.app</Path> to the Bin. Your vaults are plain folders and stay
-            exactly where they are. The only file grimoire keeps elsewhere is the list of recent vaults:
-          </p>
-          <Module file="Terminal" right="optional">
-            <Shell
-              label="Remove grimoire and its recent-vaults list"
-              commands={[`rm -rf ${APP}`, 'rm -rf "$HOME/Library/Application Support/app.grimoire.desktop"']}
-            />
-          </Module>
-        </Entry>
-
         <section className="entry close" aria-labelledby="h-close">
           <span className="num label" aria-hidden="true">
-            I-07
+            I-04
           </span>
           <div className="body">
             <h2 id="h-close">Now open a vault.</h2>
