@@ -2,27 +2,27 @@
 version: 1
 slug: "app-src-study-studyview-tsx"
 primary_target: "app/src/study/StudyView.tsx"
-related_targets: []
+related_targets: ["app/src/list/ListView.tsx"]
 ---
 
 # Study view
 
-Scope: the study view in `app/` (content left, NOTES.md + sandbox right). Mode: Operate.
+Scope: the desktop app in `app/`: reading list, study view (content left, NOTES.md + sandbox right), dialogs and vault picker. Mode: Operate.
 
 Task: hours-long study of one item. Writing notes dominates; the sandbox opens occasionally for a snippet, and its output is pasted back into notes. States in scope: article, PDF and video items; page refused to load; toolchain missing; run timed out; INDEX.md merge-conflict banner; either pane collapsed.
 
-Constraints: real React + TypeScript frontend with CodeMirror 6 and mock vault data, runnable in a browser; Tauri wiring is M0 work. Light and dark from the system. No telemetry, no invented vault data shown as real.
+Constraints: React + TypeScript with CodeMirror 6, Tauri webview, mock vault for the browser. Light and dark from the system. No telemetry, no invented vault data shown as real.
 
 ## Direction contract
 
-THESIS: Study as experiment. Each item is a bound lab notebook: notes are numbered entries, every sandbox run is a logged, timed entry, and mistakes are struck through in red, never erased. Refuses the default dark neutral IDE split with tabs and one purple accent.
+THESIS: grimoire is a quiet instrument: a calm device for long study, in the tradition of Braun product graphics. Panes are panels set into a warm-grey body, controls are soft physical keys, and state is shown by small status lights. Refuses the default IDE split of tabs, chrome bars and an accent colour sprayed everywhere.
 
-OWN-WORLD: Cool paper ground (never cream), notebook-cloth navy for the shell band, ink-blue for the user's own writing, correction red only for failure, sage for rules and quiet structure. Archivo for UI with its condensed width as the printed-form label voice; JetBrains Mono only for code, output and measurements. Hairline ruled modules with small tab heads; no cards, no shadows on panes.
+OWN-WORLD: Warm-grey body (#e9e9e6 light, #1d1e20 dark) with lighter inset panels on an 8px radius; keys with a 1px edge and a 1px bottom shadow; one orange (#c4520f) reserved for the single primary action of each view; green, red and amber only as status lights and their labels. Figtree for all UI and notes; JetBrains Mono only for code, output, paths and measurements. Small uppercase labels name panels. No numbering systems, no stamps, no cloth band.
 
-STORY: The learner sees the source and their notebook together, knows where every entry and run lives, and trusts that nothing they wrote or ran is lost.
+STORY: The learner sees the source and their notes side by side in a calm frame, knows what is saved and what ran from a glance at the lights, and is never shown more chrome than the moment needs.
 
-FIRST VIEWPORT: Cloth header band: back to reading list, item title, source domain, type, tags, pane toggles. Below, paper work band: content pane left (~52%) with its own nav/URL/open-in-browser row; notebook right: NOTES.md module dominant with the entry margin (E-numbers per `##` heading) and autosave state, sandbox module docked under it, collapsed to its head by default, opening to editor plus run log. Signature move: the entry margin and the run log — runs numbered, timestamped, duration drawn to scale, failed runs struck with a single red rule and stamped with their exit.
+FIRST VIEWPORT: Body-coloured top band: back key, item title, source domain, tags, Done key and pane toggles. Below, two inset panels with a 10px gutter: source left (~52%), notebook right with NOTES.md dominant and the sandbox docked beneath, collapsed to its head by default. Signature move: the orange Run key and the status lights (saved, running blink, exit 0 green, failure red with the output struck through).
 
-FORM: Engineer's lab notebook, my ranked #1 (shown as the pick); seed key 07b4eb0f.
+FORM: Quiet Instrument (Braun product graphics), shown as the pick in a minimal-steered round 3; seed key 2dc2f830 (reroll 2).
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance

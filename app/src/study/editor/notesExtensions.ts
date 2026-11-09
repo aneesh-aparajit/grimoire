@@ -5,13 +5,11 @@ import {
   Decoration,
   type DecorationSet,
   type EditorView,
-  GutterMarker,
-  gutter,
   ViewPlugin,
   type ViewUpdate,
 } from "@codemirror/view";
 
-/* ---------- entries: each `##` heading is a numbered notebook entry ---------- */
+/* ---------- entries: each `##` heading gets breathing room; fenced code gets a well ---------- */
 
 type Structure = { entries: Map<number, number>; fences: { from: number; to: number }[] };
 // Keyed by syntax tree, not document: an incomplete parse must not be cached as final.
@@ -40,32 +38,6 @@ function structure(state: EditorState): Structure {
   cache.set(tree, s);
   return s;
 }
-
-class EntryMarker extends GutterMarker {
-  constructor(readonly n: number) {
-    super();
-  }
-  override eq(other: EntryMarker) {
-    return other.n === this.n;
-  }
-  override toDOM() {
-    const el = document.createElement("div");
-    el.className = "cm-entry-no";
-    el.textContent = `E-${String(this.n).padStart(2, "0")}`;
-    el.setAttribute("aria-label", `Entry ${this.n}`);
-    return el;
-  }
-}
-
-const entryGutter = gutter({
-  class: "cm-entries",
-  lineMarker(view, line) {
-    const n = structure(view.state).entries.get(line.from);
-    return n ? new EntryMarker(n) : null;
-  },
-  lineMarkerChange: (u) => u.docChanged || syntaxTree(u.startState) !== syntaxTree(u.state),
-  initialSpacer: () => new EntryMarker(88),
-});
 
 function buildLines(view: EditorView): DecorationSet {
   const { entries, fences } = structure(view.state);
@@ -103,7 +75,7 @@ const entryLines = ViewPlugin.fromClass(
   { decorations: (v) => v.decorations },
 );
 
-export const entries = [entryGutter, entryLines];
+export const entries = [entryLines];
 
 /* ---------- lint hints (stand-in for markdownlint until the IPC layer lands) ---------- */
 

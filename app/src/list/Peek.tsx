@@ -53,7 +53,7 @@ export function Peek({ item }: { item: Item | null }) {
         </p>
         {item.tags.length > 0 && <p className="peek-tags">{item.tags.map((t) => `#${t}`).join("  ")}</p>}
         <div className="peek-actions">
-          <button type="button" className="btn btn-primary" onClick={() => void openItem(item.id)}>
+          <button type="button" className="btn btn-on" onClick={() => void openItem(item.id)}>
             Open <ArrowRight />
             <span className="kbd">↵</span>
           </button>
@@ -102,42 +102,52 @@ export function Peek({ item }: { item: Item | null }) {
         </div>
       </div>
 
-      <section className="peek-block" aria-label="Notebook entries">
-        <h3 className="peek-label">
-          <span className="label">Entries</span>
-          {summary && (
-            <span className="peek-aside">
-              {summary.words} words{summary.modified ? ` · edited ${relativeTime(summary.modified)}` : ""}
-            </span>
+      <dl className="peek-spec" aria-label="On disk">
+        <dt>Folder</dt>
+        <dd className="mono">{item.id}/</dd>
+        <dt>Notes</dt>
+        <dd>
+          <span className={summary && summary.words > 0 ? "lamp" : "lamp off"} aria-hidden="true" />
+          {!summary
+            ? "…"
+            : summary.words === 0
+              ? "Empty"
+              : `${summary.words} words${summary.modified ? ` · edited ${relativeTime(summary.modified)}` : ""}`}
+        </dd>
+        <dt>Sandbox</dt>
+        <dd>
+          {!summary ? (
+            "…"
+          ) : summary.snippets.length === 0 ? (
+            "Nothing saved yet"
+          ) : (
+            <span className="mono">{summary.snippets.map((f) => `sandbox/${f}`).join(", ")}</span>
           )}
+        </dd>
+      </dl>
+
+      <section className="peek-block" aria-label="Note headings">
+        <h3 className="peek-label">
+          <span className="label">Headings</span>
         </h3>
         {!summary ? (
           <p className="peek-quiet">…</p>
         ) : summary.entries.length === 0 ? (
           <p className="peek-quiet">
-            No entries yet. Each <code>##</code> heading in NOTES.md becomes a numbered entry.
+            No headings yet. Each <code>##</code> heading in NOTES.md is listed here.
           </p>
         ) : (
           <ol className="entries">
             {summary.entries.map((e, i) => (
               // biome-ignore lint/suspicious/noArrayIndexKey: headings can repeat.
               <li key={i}>
-                <span className="entry-no">E-{String(i + 1).padStart(2, "0")}</span>
-                <span>{e}</span>
+                {e}
               </li>
             ))}
           </ol>
         )}
       </section>
 
-      {summary && summary.snippets.length > 0 && (
-        <section className="peek-block" aria-label="Saved snippets">
-          <h3 className="peek-label">
-            <span className="label">Sandbox</span>
-            <span className="peek-aside mono">sandbox/{summary.snippets.join(", ")}</span>
-          </h3>
-        </section>
-      )}
     </aside>
   );
 }

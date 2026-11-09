@@ -19,11 +19,10 @@ export function Shell({ commands, label }: { commands: string[]; label: string }
   return (
     <div className="shell-wrap">
       <pre className="shell" aria-label={label}>
-        {commands.map((c, i) => (
-          <span key={c}>
+        {commands.map((c) => (
+          <span key={c} className="cmd">
             <span className="p">$ </span>
             {c}
-            {i < commands.length - 1 ? "\n" : ""}
           </span>
         ))}
       </pre>

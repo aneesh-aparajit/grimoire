@@ -96,7 +96,7 @@ export function SandboxModule({ style }: { style?: React.CSSProperties }) {
               {!isSaved && <option value="">{lang?.file} · unsaved</option>}
               {saved.map((f) => (
                 <option key={f} value={f}>
-                  sandbox/{f}
+                  {f}
                 </option>
               ))}
             </select>
@@ -134,7 +134,7 @@ export function SandboxModule({ style }: { style?: React.CSSProperties }) {
               aria-label="Insert into notes"
             >
               <CornerDownLeft />
-              <span className="btn-label">Insert</span>
+              <span className="btn-label">Insert into notes</span>
             </button>
             <button
               type="button"
@@ -162,7 +162,7 @@ export function SandboxModule({ style }: { style?: React.CSSProperties }) {
             title={available ? "Run (⌘↵)" : `${lang?.bin} not found`}
           >
             <Play />
-            Run <span className="kbd btn-label">⌘↵</span>
+            Run <span className="kbd">⌘↵</span>
           </button>
         )}
         <button

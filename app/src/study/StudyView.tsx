@@ -120,7 +120,7 @@ export function StudyView({ id }: { id: string }) {
             onClick={() => void toggleDone(item.id)}
             title={item.done ? "Mark as not done" : "Mark as done"}
           >
-            {item.done ? <span className="stamp">Done</span> : <span className="hide-narrow">Mark done</span>}
+            {item.done ? <span className="stamp stamp-pass">Done</span> : <span className="hide-narrow">Mark done</span>}
           </button>
           <button
             type="button"

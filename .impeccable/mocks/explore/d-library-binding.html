@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Library Binding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Schibsted+Grotesk:wght@400;500;600;700&family=Fragment+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --page:#f3f4f1; --page-2:#e9ebe7; --page-3:#fafbf9; --site:#fff;
+  --ink:#1b1d22; --ink-2:#4a4f58; --ink-3:#6a707a; --rule:#d2d5cf;
+  --gilt:#d9b864; --gilt-2:#a8873c;
+  --teal:#145b63; --oxblood:#6e1f2a; --bottle:#1e4d3a; --navy:#1d2c55; --mustard:#a87a22; --plum:#4d2a4f; --slate:#3b4650;
+  --cloth:var(--teal);
+  --pass:#2f6b4a; --fail:#b3342a;
+  --weave:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px),repeating-linear-gradient(90deg,rgba(0,0,0,.09) 0 1px,transparent 1px 3px);
+  --stamp:"Barlow Condensed",sans-serif; --sans:"Schibsted Grotesk",system-ui,sans-serif; --mono:"Fragment Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0}
+::selection{background:color-mix(in oklab,var(--cloth) 22%,transparent)}
+body{background:#cfd2cd;color:var(--ink);font:14px/1.5 var(--sans);padding:40px 24px 80px}
+.sheet{max-width:1280px;margin:0 auto 56px}
+.caption{font:600 13px/1.4 var(--sans);margin:0 0 12px;display:flex;justify-content:space-between}
+.caption span{font-weight:400;color:var(--ink-3)}
+.frame{border-radius:10px;overflow:hidden;box-shadow:0 18px 50px -20px rgba(20,25,30,.5),0 2px 6px rgba(20,25,30,.12);background:var(--page)}
+.chrome{height:30px;background:#0e3c42;display:flex;align-items:center;gap:7px;padding:0 12px}
+.chrome i{width:11px;height:11px;border-radius:50%;background:#2c5f65;display:block}
+.cloth{background-color:var(--cloth);background-image:var(--weave)}
+.stamp{font:700 13px/1 var(--stamp);letter-spacing:.12em;text-transform:uppercase;color:var(--gilt);text-shadow:0 1px 0 rgba(0,0,0,.35)}
+.mono{font:400 11.5px/1.5 var(--mono);font-variant-numeric:tabular-nums}
+
+/* APP */
+.app{height:800px;display:grid;grid-template-rows:56px 1fr}
+.band{display:flex;align-items:center;gap:20px;padding:0 18px;color:var(--gilt)}
+.band a{color:#e8efe9;text-decoration:none;font:500 13px var(--sans)}
+.band a:hover{color:var(--gilt)}
+.band .t{font:700 20px/1 var(--stamp);letter-spacing:.06em;text-transform:uppercase;color:var(--gilt);text-shadow:0 1px 0 rgba(0,0,0,.35)}
+.band .rule{width:1px;height:26px;background:var(--gilt-2);opacity:.6}
+.band .m{color:#bcd0cf}
+.band nav{margin-left:auto;display:flex;gap:6px}
+.band nav a{padding:6px 10px;border-radius:2px}
+.band nav a.on{box-shadow:inset 0 0 0 1px var(--gilt-2);color:var(--gilt)}
+.work{display:grid;grid-template-columns:1fr 30px 1fr;min-height:0}
+.source{display:grid;grid-template-rows:34px 1fr;min-height:0}
+.phead{display:flex;align-items:center;gap:12px;padding:0 14px;background:var(--page-2);border-bottom:1px solid var(--rule);color:var(--ink-3)}
+.phead b{font:700 12px/1 var(--stamp);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.phead .r{margin-left:auto}
+.site{background:var(--site);overflow:hidden;padding:30px 44px;color:#222;font:16px/1.65 Georgia,serif}
+.site h1{font:700 28px/1.2 system-ui;margin-bottom:14px;color:#111}
+.site p{margin-bottom:12px;max-width:62ch}
+.site pre{background:#f6f7f6;border:1px solid #e3e3e3;padding:12px 14px;font:13px/1.5 ui-monospace,monospace;margin:10px 0}
+.site code{font:14px ui-monospace,monospace}
+
+/* the spine: splitter as signature */
+.spine{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:14px 0;cursor:col-resize;box-shadow:inset 3px 0 4px -2px rgba(0,0,0,.4),inset -3px 0 4px -2px rgba(0,0,0,.4)}
+.spine .bands{display:grid;gap:3px;width:18px}
+.spine .bands i{display:block;height:1.5px;background:var(--gilt)}
+.spine .title{writing-mode:vertical-rl;transform:rotate(180deg);font:700 14px/1 var(--stamp);letter-spacing:.16em;text-transform:uppercase;color:var(--gilt);text-shadow:0 1px 0 rgba(0,0,0,.35);white-space:nowrap}
+.spine .call{writing-mode:vertical-rl;transform:rotate(180deg);font:600 11px var(--stamp);letter-spacing:.12em;color:#bcd0cf}
+
+.book{display:grid;grid-template-rows:1fr auto;min-height:0;background:var(--page)}
+.notes{display:grid;grid-template-rows:34px 1fr;min-height:0;position:relative}
+.ribbon{position:absolute;right:40px;top:34px;width:14px;height:226px;background:var(--cloth);filter:saturate(1.3) brightness(1.15);clip-path:polygon(0 0,100% 0,100% 100%,50% calc(100% - 8px),0 100%)}
+.notes .body{padding:26px 70px 0 36px;font:15.5px/1.7 var(--sans);max-width:76ch}
+.notes h1{font:700 30px/1.15 var(--sans);letter-spacing:-.015em;margin-bottom:4px}
+.notes .src{display:block;color:var(--ink-3);margin-bottom:18px}
+.notes h2{font:600 18px/1.3 var(--sans);margin:22px 0 6px}
+.notes h2 .h{color:var(--ink-3);font-weight:400;margin-right:6px}
+.notes ul{padding-left:18px}
+.notes li{margin-bottom:3px}
+.notes code{font:12.5px var(--mono);background:var(--page-2);padding:1px 4px;border-radius:2px}
+.notes s{color:var(--ink-3);text-decoration-color:var(--fail)}
+.caret{display:inline-block;width:2px;height:1.1em;background:var(--cloth);vertical-align:-3px}
+.sandbox{display:grid;grid-template-columns:1fr 1fr;height:290px;border-top:1px solid var(--rule);background:var(--page-3)}
+.sandbox .head{grid-column:1/-1;height:38px;display:flex;align-items:center;gap:14px;padding:0 14px}
+.lang{font:600 12px var(--stamp);letter-spacing:.1em;text-transform:uppercase;color:var(--gilt);box-shadow:inset 0 0 0 1px var(--gilt-2);padding:4px 8px;border-radius:2px}
+.runb{margin-left:auto;font:600 12.5px var(--sans);height:26px;padding:0 12px;border:0;border-radius:2px;background:var(--gilt);color:#1d2a26}
+.runb:hover{background:#e7cb80}
+.ghost{background:none;border:0;color:#e8efe9;font:500 12.5px var(--sans)}
+.editor{padding:12px 14px;font:12.5px/1.65 var(--mono);white-space:pre;overflow:hidden;border-right:1px solid var(--rule)}
+.editor .k{color:var(--teal);font-weight:600} .editor .s{color:var(--pass)} .editor .c{color:var(--ink-3)}
+.log table{width:100%;border-collapse:collapse;font:12px/1.5 var(--mono);font-variant-numeric:tabular-nums}
+.log th{font:700 11px var(--stamp);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);text-align:left;padding:8px 10px 6px;border-bottom:1px solid var(--rule)}
+.log td{padding:7px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+.log td{white-space:nowrap}
+.log td.out{white-space:normal}
+.log td.n{text-align:right}
+.sp.light .ti{color:#1d1a14;text-shadow:0 1px 0 rgba(255,255,255,.18)}
+.sp.light .bands i{background:#1d1a14}
+.sp.light .cn{color:rgba(0,0,0,.65)}
+.log .ok{color:var(--pass);font-weight:600}
+.log .bad{color:var(--fail);font-weight:600}
+.log tr.f .out{text-decoration:line-through;text-decoration-color:var(--fail);color:var(--ink-3)}
+
+/* LANDING */
+.web{height:780px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);background:var(--page);overflow:hidden}
+.left{padding:24px 56px 40px 48px;display:grid;grid-template-rows:auto 1fr auto}
+.topnav{display:flex;gap:26px;align-items:center}
+.topnav a{color:var(--ink);text-decoration:none;font:500 14px var(--sans)}
+.topnav .wm{font:700 20px var(--stamp);letter-spacing:.14em;text-transform:uppercase;margin-right:8px}
+.hero{align-self:center}
+.hero h1{font:700 64px/1.02 var(--sans);letter-spacing:-.03em;max-width:12ch;margin-bottom:22px}
+.hero p{font:400 19px/1.55 var(--sans);color:var(--ink-2);max-width:40ch;margin-bottom:28px}
+.cta{display:flex;gap:20px;align-items:center}
+.dl{font:600 16px var(--sans);text-decoration:none;color:var(--gilt);padding:14px 20px;border-radius:2px;box-shadow:inset 0 0 0 1px var(--gilt-2),0 2px 0 rgba(0,0,0,.15)}
+.dl:hover{filter:brightness(1.12)}
+.alt{color:var(--ink);font:500 15px var(--sans);text-decoration:underline;text-underline-offset:4px}
+.left .fine{color:var(--ink-3)}
+.shelf{background:#20262b;position:relative;display:flex;align-items:flex-end;gap:4px;padding:0 28px 46px;overflow:hidden}
+.shelf::after{content:"";position:absolute;left:0;right:0;bottom:0;height:46px;background:#14181b;border-top:1px solid #2f373d}
+.shelf .lbl{position:absolute;left:28px;bottom:14px;z-index:2;color:#9aa5ad}
+.sp{position:relative;z-index:1;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:16px 0 14px;border-radius:2px 2px 0 0;transition:transform .35s cubic-bezier(.2,.8,.2,1);box-shadow:inset 3px 0 5px -2px rgba(255,255,255,.12),inset -4px 0 6px -2px rgba(0,0,0,.45);background-image:var(--weave);cursor:pointer}
+.sp:hover,.sp:focus-visible{transform:translateY(-26px);outline:none}
+.sp .bands{display:grid;gap:3px;width:60%}
+.sp .bands i{display:block;height:1.5px;background:var(--gilt)}
+.sp .ti{writing-mode:vertical-rl;transform:rotate(180deg);font:700 15px/1.05 var(--stamp);letter-spacing:.1em;text-transform:uppercase;color:var(--gilt);text-shadow:0 1px 0 rgba(0,0,0,.4);max-height:72%;overflow:hidden;text-align:left}
+.sp .cn{font:600 11px/1.15 var(--stamp);letter-spacing:.08em;color:rgba(255,255,255,.7);text-align:center}
+.sp.cur{transform:translateY(-26px)}
+.bigword{position:absolute;left:28px;right:28px;top:26px;z-index:2;display:flex;justify-content:space-between;color:#9aa5ad}
+</style>
+</head>
+<body>
+
+<section class="sheet">
+  <p class="caption">Desktop app: study view <span>1280 × 830 · light · each item keeps its own cloth · synthetic content</span></p>
+  <div class="frame">
+    <div class="chrome"><i></i><i></i><i></i></div>
+    <div class="app">
+      <header class="band cloth">
+        <a href="#">← Shelf</a>
+        <span class="rule"></span>
+        <span class="t">Async Rust, chapter 3</span>
+        <span class="mono m">rust-lang.github.io · #rust #async</span>
+        <nav><a class="on" href="#">Study</a><a href="#">Preview</a><a href="#">Open in browser</a></nav>
+      </header>
+      <div class="work">
+        <section class="source">
+          <div class="phead"><b>Source</b><span class="mono">rust-lang.github.io/async-book/03_async_await/01_chapter.html</span><span class="r mono">web</span></div>
+          <article class="site">
+            <h1>async/.await</h1>
+            <p><code>async</code>/<code>.await</code> are special pieces of Rust syntax that make it possible to yield control of the current thread rather than blocking, allowing other code to make progress while waiting on an operation to complete.</p>
+            <p>There are two main ways to use <code>async</code>: <code>async fn</code> and <code>async</code> blocks. Each returns a value that implements the <code>Future</code> trait.</p>
+            <pre>// `foo()` returns a type that implements `Future&lt;Output = u8&gt;`.
+async fn foo() -&gt; u8 { 5 }</pre>
+            <p>Async bodies and other futures are lazy: they do nothing until they are run. The most common way to run a <code>Future</code> is to <code>.await</code> it.</p>
+            <p>Unlike traditional functions, <code>async fn</code>s which take references or other non-<code>'static</code> arguments return a <code>Future</code> which is bounded by the lifetime of the arguments.</p>
+          </article>
+        </section>
+        <div class="spine cloth" role="separator" aria-label="Resize panes">
+          <span class="bands"><i></i><i></i></span>
+          <span class="title">Async Rust · ch. 3</span>
+          <span class="call">RUST 14</span>
+          <span class="bands"><i></i><i></i></span>
+        </div>
+        <section class="book">
+          <div class="notes">
+            <div class="phead"><b>Notes.md</b><span class="mono">async-rust-ch3/NOTES.md</span><span class="r mono">saved 14:02</span></div>
+            <span class="ribbon" aria-hidden="true"></span>
+            <div class="body">
+              <h1>Async Rust, chapter 3</h1>
+              <span class="src mono">&lt;https://rust-lang.github.io/async-book/03_async_await/01_chapter.html&gt;</span>
+              <h2><span class="h">##</span>async fn returns a future</h2>
+              <ul>
+                <li><code>async fn</code> doesn't run anything when called. It returns a value that implements <code>Future</code>, and nothing happens until something polls it.</li>
+                <li><code>.await</code> is where the current future yields if the inner one is <code>Pending</code>.</li>
+                <li><s>Futures start running as soon as they're created.</s> They don't; see above.</li>
+              </ul>
+              <h2><span class="h">##</span>Lifetimes and async</h2>
+              <p>An <code>async fn</code> that borrows its arguments returns a future that borrows them too, so the future can't outlive them.<span class="caret"></span></p>
+            </div>
+          </div>
+          <div class="sandbox">
+            <div class="head cloth"><span class="stamp">Sandbox</span><span class="lang">Rust</span><span class="mono" style="color:#bcd0cf">sandbox/main.rs</span><button class="runb">Run ⌘↵</button><button class="ghost">Insert into notes</button></div>
+            <div class="editor"><span class="k">fn</span> good() -&gt; <span class="k">impl</span> Future&lt;Output = u8&gt; {
+    <span class="k">async move</span> {
+        <span class="k">let</span> x = 5;
+        borrow_x(&amp;x).<span class="k">await</span>
+    }
+}
+<span class="c">// expect 5</span>
+println!(<span class="s">"{}"</span>, block_on(good()));</div>
+            <div class="log"><table>
+              <thead><tr><th>Run</th><th>Exit</th><th>Output</th><th style="text-align:right">Time</th></tr></thead>
+              <tbody>
+                <tr><td>R-03</td><td class="ok">0</td><td class="out">5</td><td class="n">0.41 s</td></tr>
+                <tr class="f"><td>R-02</td><td class="bad">101</td><td class="out">error[E0597]: `x` does not live long enough</td><td class="n">1.12 s</td></tr>
+                <tr><td>R-01</td><td class="ok">0</td><td class="out">hello from async</td><td class="n">0.38 s</td></tr>
+              </tbody>
+            </table></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sheet">
+  <p class="caption">Web: landing, first viewport <span>1280 × 780 · persuade · hover the spines</span></p>
+  <div class="frame">
+    <div class="web">
+      <div class="left">
+        <nav class="topnav"><span class="wm">grimoire</span><a href="#">Install</a><a href="#">Docs</a><a href="#" style="margin-left:auto">GitHub</a></nav>
+        <div class="hero">
+          <h1>Bind what you're learning.</h1>
+          <p>Every article, talk and paper you study becomes its own volume: the source, your Markdown notes and the code you ran, in one folder of plain files.</p>
+          <div class="cta"><a class="dl cloth" href="#">Download for macOS</a><a class="alt" href="#">Read the source</a></div>
+        </div>
+        <span class="mono fine">macOS 13+ · plain files · no account · no telemetry</span>
+      </div>
+      <div class="shelf">
+        <div class="bigword mono"><span>INDEX.md</span><span>12 of 64 items</span></div>
+        <a class="sp" tabindex="0" style="width:54px;height:470px;background-color:var(--oxblood)"><span class="bands"><i></i><i></i></span><span class="ti">Attention Is All You Need</span><span class="cn">ML<br>02</span></a>
+        <a class="sp" tabindex="0" style="width:44px;height:420px;background-color:var(--navy)"><span class="bands"><i></i><i></i></span><span class="ti">Crafting Interpreters</span><span class="cn">CMP<br>07</span></a>
+        <a class="sp cur" tabindex="0" style="width:48px;height:500px;background-color:var(--teal)"><span class="bands"><i></i><i></i></span><span class="ti">Async Rust, chapter 3</span><span class="cn">RUST<br>14</span></a>
+        <a class="sp light" tabindex="0" style="width:38px;height:380px;background-color:var(--mustard)"><span class="bands"><i></i><i></i></span><span class="ti">Raft, visualised</span><span class="cn">SYS<br>03</span></a>
+        <a class="sp" tabindex="0" style="width:58px;height:540px;background-color:var(--bottle)"><span class="bands"><i></i><i></i></span><span class="ti">What every programmer should know about memory</span><span class="cn">SYS<br>01</span></a>
+        <a class="sp" tabindex="0" style="width:40px;height:440px;background-color:var(--plum)"><span class="bands"><i></i><i></i></span><span class="ti">Let's build GPT, talk</span><span class="cn">ML<br>05</span></a>
+        <a class="sp" tabindex="0" style="width:46px;height:400px;background-color:var(--slate)"><span class="bands"><i></i><i></i></span><span class="ti">A tour of LLVM IR</span><span class="cn">CMP<br>09</span></a>
+        <a class="sp" tabindex="0" style="width:36px;height:460px;background-color:var(--oxblood)"><span class="bands"><i></i><i></i></span><span class="ti">Pin and suffering</span><span class="cn">RUST<br>11</span></a>
+        <a class="sp" tabindex="0" style="width:52px;height:510px;background-color:var(--navy)"><span class="bands"><i></i><i></i></span><span class="ti">Designing data-intensive apps, ch. 5</span><span class="cn">SYS<br>06</span></a>
+        <a class="sp light" tabindex="0" style="width:42px;height:410px;background-color:var(--mustard)"><span class="bands"><i></i><i></i></span><span class="ti">FlashAttention</span><span class="cn">ML<br>08</span></a>
+        <a class="sp" tabindex="0" style="width:44px;height:480px;background-color:var(--teal)"><span class="bands"><i></i><i></i></span><span class="ti">Writing a Pratt parser</span><span class="cn">CMP<br>12</span></a>
+        <a class="sp" tabindex="0" style="width:40px;height:430px;background-color:var(--bottle)"><span class="bands"><i></i><i></i></span><span class="ti">Rust atomics and locks</span><span class="cn">RUST<br>04</span></a>
+        <span class="lbl mono">a synthetic vault · each item keeps its cloth</span>
+      </div>
+    </div>
+  </div>
+</section>
+</body>
+</html>

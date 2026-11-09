@@ -1,234 +1,658 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-09T12:00:00Z",
+  "generatedAt": "2026-11-09T09:21:36+00:00",
   "title": "Design System: grimoire",
   "extensions": {
     "colorMeta": {
-      "pen": { "role": "primary", "displayName": "Notebook Ink Blue", "canonical": "oklch(35.7% 0.096 266)", "dark": "#a8c0f2", "tonalRamp": ["#050a19", "#19243d", "#304166", "#4a6093", "#6981b7", "#91a5d1", "#bac9eb", "#e4efff"] },
-      "pen-soft": { "role": "primary", "displayName": "Ink Wash", "canonical": "color-mix(in oklab, var(--pen) 12%, transparent)" },
-      "pen-on": { "role": "primary", "displayName": "Text on Ink", "dark": "#101828" },
-      "cloth": { "role": "secondary", "displayName": "Notebook Cloth Navy", "canonical": "oklch(31.0% 0.051 262)", "dark": "#1d2a42", "tonalRamp": ["#070b12", "#1e2532", "#384256", "#53627c", "#73839f", "#99a6bc", "#c0cadb", "#e8effa"] },
-      "cloth-raise": { "role": "secondary", "displayName": "Cloth Raise", "dark": "#27375a" },
-      "cloth-ink": { "role": "secondary", "displayName": "Cloth Ink", "dark": "#e9ede6" },
-      "cloth-muted": { "role": "secondary", "displayName": "Cloth Muted", "dark": "#a5b1c4" },
-      "cloth-rule": { "role": "secondary", "displayName": "Cloth Rule", "dark": "#33435f" },
-      "correction": { "role": "tertiary", "displayName": "Correction Red", "canonical": "oklch(52.8% 0.167 30)", "dark": "#ff8473", "tonalRamp": ["#1d0101", "#470d08", "#742017", "#a63528", "#cd5949", "#e68778", "#fdb4a8", "#ffe1d9"] },
-      "correction-soft": { "role": "tertiary", "displayName": "Correction Wash", "canonical": "color-mix(in oklab, var(--correction) 9%, transparent)" },
-      "pass": { "role": "tertiary", "displayName": "Pass Green", "canonical": "oklch(47.8% 0.083 157)", "dark": "#8fd0a8", "tonalRamp": ["#020f07", "#112b1c", "#244b35", "#396e50", "#5b9070", "#87b196", "#b3d2be", "#e0f4e7"] },
-      "caution": { "role": "tertiary", "displayName": "Caution Ochre", "canonical": "oklch(50.8% 0.108 73)", "dark": "#e8b75a", "tonalRamp": ["#140800", "#352000", "#5a3b05", "#825711", "#a6793a", "#c39e6e", "#e0c4a1", "#feebd5"] },
-      "caution-soft": { "role": "tertiary", "displayName": "Caution Wash", "dark": "#2b2416" },
-      "focus": { "role": "tertiary", "displayName": "Focus Blue", "canonical": "oklch(52.1% 0.160 265)", "dark": "#8fb0ff", "tonalRamp": ["#030921", "#10224d", "#233d7e", "#375bb2", "#567ed8", "#81a3ed", "#aec9ff", "#ddefff"] },
-      "paper": { "role": "neutral", "displayName": "Cool Paper", "canonical": "oklch(96.8% 0.006 129)", "dark": "#141a25", "tonalRamp": ["#0b0b0a", "#252524", "#414240", "#60625f", "#818380", "#a4a5a3", "#c8c9c7", "#eeefed"] },
-      "paper-sunk": { "role": "neutral", "displayName": "Sunk Paper", "dark": "#10151f" },
-      "paper-raise": { "role": "neutral", "displayName": "Raised Paper", "dark": "#182030" },
-      "desk": { "role": "neutral", "displayName": "Desk", "dark": "#0d121b" },
-      "rule": { "role": "neutral", "displayName": "Sage Rule", "dark": "#263145" },
-      "rule-strong": { "role": "neutral", "displayName": "Strong Sage Rule", "canonical": "oklch(74.6% 0.034 148)", "dark": "#3d5160", "tonalRamp": ["#080c09", "#1f2820", "#3a463b", "#566658", "#768878", "#9ba99d", "#c2ccc3", "#eaf1ea"] },
-      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "oklch(25.3% 0.028 266)", "dark": "#e2e6de", "tonalRamp": ["#090b0f", "#22252c", "#3d424d", "#5b6170", "#7b8292", "#9fa5b2", "#c5c9d3", "#ebeef5"] },
-      "ink-muted": { "role": "neutral", "displayName": "Muted Ink", "dark": "#a3adba" },
-      "ink-faint": { "role": "neutral", "displayName": "Faint Ink", "dark": "#8792a1" },
-      "site-ground": { "role": "neutral", "displayName": "Site Ground" },
-      "spark": { "role": "tertiary", "displayName": "Spark Violet", "dark": "#b8a4ff", "scope": "landing page", "purpose": "The four-point star only: wordmark star, title spark, page-button twinkle, pass burst. Never text, links, fills, borders or controls." }
+      "body": {
+        "role": "neutral",
+        "displayName": "Warm-Grey Body",
+        "canonical": "oklch(93.3% 0.004 106.5)",
+        "tonalRamp": [
+          "oklch(15% 0.004 106.5)",
+          "oklch(27% 0.004 106.5)",
+          "oklch(39% 0.004 106.5)",
+          "oklch(51% 0.004 106.5)",
+          "oklch(63% 0.004 106.5)",
+          "oklch(75% 0.004 106.5)",
+          "oklch(86% 0.004 106.5)",
+          "oklch(95% 0.004 106.5)"
+        ],
+        "dark": "#1d1e20"
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "Panel Grey",
+        "canonical": "oklch(97.0% 0.003 106.4)",
+        "tonalRamp": [
+          "oklch(15% 0.003 106.4)",
+          "oklch(27% 0.003 106.4)",
+          "oklch(39% 0.003 106.4)",
+          "oklch(51% 0.003 106.4)",
+          "oklch(63% 0.003 106.4)",
+          "oklch(75% 0.003 106.4)",
+          "oklch(86% 0.003 106.4)",
+          "oklch(95% 0.003 106.4)"
+        ],
+        "dark": "#26272a"
+      },
+      "raise": {
+        "role": "neutral",
+        "displayName": "Key Face",
+        "canonical": "oklch(98.8% 0.001 106.4)",
+        "tonalRamp": [
+          "oklch(15% 0.001 106.4)",
+          "oklch(27% 0.001 106.4)",
+          "oklch(39% 0.001 106.4)",
+          "oklch(51% 0.001 106.4)",
+          "oklch(63% 0.001 106.4)",
+          "oklch(75% 0.001 106.4)",
+          "oklch(86% 0.001 106.4)",
+          "oklch(95% 0.001 106.4)"
+        ],
+        "dark": "#323337"
+      },
+      "well": {
+        "role": "neutral",
+        "displayName": "Sunk Well",
+        "canonical": "oklch(93.9% 0.005 106.5)",
+        "tonalRamp": [
+          "oklch(15% 0.005 106.5)",
+          "oklch(27% 0.005 106.5)",
+          "oklch(39% 0.005 106.5)",
+          "oklch(51% 0.005 106.5)",
+          "oklch(63% 0.005 106.5)",
+          "oklch(75% 0.005 106.5)",
+          "oklch(86% 0.005 106.5)",
+          "oklch(95% 0.005 106.5)"
+        ],
+        "dark": "#2e2f33"
+      },
+      "desk": {
+        "role": "neutral",
+        "displayName": "Desk Grey",
+        "canonical": "oklch(89.3% 0.005 106.5)",
+        "tonalRamp": [
+          "oklch(15% 0.005 106.5)",
+          "oklch(27% 0.005 106.5)",
+          "oklch(39% 0.005 106.5)",
+          "oklch(51% 0.005 106.5)",
+          "oklch(63% 0.005 106.5)",
+          "oklch(75% 0.005 106.5)",
+          "oklch(86% 0.005 106.5)",
+          "oklch(95% 0.005 106.5)"
+        ],
+        "dark": "#151618"
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "oklch(88.1% 0.005 106.5)",
+        "tonalRamp": [
+          "oklch(15% 0.005 106.5)",
+          "oklch(27% 0.005 106.5)",
+          "oklch(39% 0.005 106.5)",
+          "oklch(51% 0.005 106.5)",
+          "oklch(63% 0.005 106.5)",
+          "oklch(75% 0.005 106.5)",
+          "oklch(86% 0.005 106.5)",
+          "oklch(95% 0.005 106.5)"
+        ],
+        "dark": "#38393d"
+      },
+      "rule-strong": {
+        "role": "neutral",
+        "displayName": "Key Edge",
+        "canonical": "oklch(81.9% 0.007 106.6)",
+        "tonalRamp": [
+          "oklch(15% 0.007 106.6)",
+          "oklch(27% 0.007 106.6)",
+          "oklch(39% 0.007 106.6)",
+          "oklch(51% 0.007 106.6)",
+          "oklch(63% 0.007 106.6)",
+          "oklch(75% 0.007 106.6)",
+          "oklch(86% 0.007 106.6)",
+          "oklch(95% 0.007 106.6)"
+        ],
+        "dark": "#4c4d52"
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "oklch(28.9% 0.004 264.5)",
+        "tonalRamp": [
+          "oklch(15% 0.004 264.5)",
+          "oklch(27% 0.004 264.5)",
+          "oklch(39% 0.004 264.5)",
+          "oklch(51% 0.004 264.5)",
+          "oklch(63% 0.004 264.5)",
+          "oklch(75% 0.004 264.5)",
+          "oklch(86% 0.004 264.5)",
+          "oklch(95% 0.004 264.5)"
+        ],
+        "dark": "#e7e7e4"
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Muted Ink",
+        "canonical": "oklch(46.0% 0.007 264.5)",
+        "tonalRamp": [
+          "oklch(15% 0.007 264.5)",
+          "oklch(27% 0.007 264.5)",
+          "oklch(39% 0.007 264.5)",
+          "oklch(51% 0.007 264.5)",
+          "oklch(63% 0.007 264.5)",
+          "oklch(75% 0.007 264.5)",
+          "oklch(86% 0.007 264.5)",
+          "oklch(95% 0.007 264.5)"
+        ],
+        "dark": "#b6b7b4"
+      },
+      "ink-faint": {
+        "role": "neutral",
+        "displayName": "Faint Ink",
+        "canonical": "oklch(53.5% 0.008 268.5)",
+        "tonalRamp": [
+          "oklch(15% 0.008 268.5)",
+          "oklch(27% 0.008 268.5)",
+          "oklch(39% 0.008 268.5)",
+          "oklch(51% 0.008 268.5)",
+          "oklch(63% 0.008 268.5)",
+          "oklch(75% 0.008 268.5)",
+          "oklch(86% 0.008 268.5)",
+          "oklch(95% 0.008 268.5)"
+        ],
+        "dark": "#9a9ca1"
+      },
+      "select-soft": {
+        "role": "neutral",
+        "displayName": "Selection Tint",
+        "tonalRamp": [
+          "oklch(15% 0.004 264.5)",
+          "oklch(27% 0.004 264.5)",
+          "oklch(39% 0.004 264.5)",
+          "oklch(51% 0.004 264.5)",
+          "oklch(63% 0.004 264.5)",
+          "oklch(75% 0.004 264.5)",
+          "oklch(86% 0.004 264.5)",
+          "oklch(95% 0.004 264.5)"
+        ],
+        "dark": "color-mix(in oklab, #e7e7e4 9%, transparent)"
+      },
+      "signal": {
+        "role": "primary",
+        "displayName": "Braun Orange",
+        "canonical": "oklch(57.9% 0.161 44.3)",
+        "tonalRamp": [
+          "oklch(15% 0.161 44.3)",
+          "oklch(27% 0.161 44.3)",
+          "oklch(39% 0.161 44.3)",
+          "oklch(51% 0.161 44.3)",
+          "oklch(63% 0.161 44.3)",
+          "oklch(75% 0.161 44.3)",
+          "oklch(86% 0.161 44.3)",
+          "oklch(95% 0.161 44.3)"
+        ]
+      },
+      "signal-hover": {
+        "role": "primary",
+        "displayName": "Pressed Orange",
+        "canonical": "oklch(53.4% 0.149 44.4)",
+        "tonalRamp": [
+          "oklch(15% 0.149 44.4)",
+          "oklch(27% 0.149 44.4)",
+          "oklch(39% 0.149 44.4)",
+          "oklch(51% 0.149 44.4)",
+          "oklch(63% 0.149 44.4)",
+          "oklch(75% 0.149 44.4)",
+          "oklch(86% 0.149 44.4)",
+          "oklch(95% 0.149 44.4)"
+        ]
+      },
+      "signal-edge": {
+        "role": "primary",
+        "displayName": "Burnt Edge",
+        "canonical": "oklch(50.6% 0.140 44.8)",
+        "tonalRamp": [
+          "oklch(15% 0.140 44.8)",
+          "oklch(27% 0.140 44.8)",
+          "oklch(39% 0.140 44.8)",
+          "oklch(51% 0.140 44.8)",
+          "oklch(63% 0.140 44.8)",
+          "oklch(75% 0.140 44.8)",
+          "oklch(86% 0.140 44.8)",
+          "oklch(95% 0.140 44.8)"
+        ]
+      },
+      "signal-ink": {
+        "role": "primary",
+        "displayName": "Orange Key Label",
+        "canonical": "oklch(100.0% 0.000 89.9)",
+        "tonalRamp": [
+          "oklch(15% 0.000 89.9)",
+          "oklch(27% 0.000 89.9)",
+          "oklch(39% 0.000 89.9)",
+          "oklch(51% 0.000 89.9)",
+          "oklch(63% 0.000 89.9)",
+          "oklch(75% 0.000 89.9)",
+          "oklch(86% 0.000 89.9)",
+          "oklch(95% 0.000 89.9)"
+        ]
+      },
+      "pass": {
+        "role": "tertiary",
+        "displayName": "Lamp Green",
+        "canonical": "oklch(52.6% 0.123 147.3)",
+        "tonalRamp": [
+          "oklch(15% 0.123 147.3)",
+          "oklch(27% 0.123 147.3)",
+          "oklch(39% 0.123 147.3)",
+          "oklch(51% 0.123 147.3)",
+          "oklch(63% 0.123 147.3)",
+          "oklch(75% 0.123 147.3)",
+          "oklch(86% 0.123 147.3)",
+          "oklch(95% 0.123 147.3)"
+        ],
+        "dark": "#5cbf6c"
+      },
+      "fail": {
+        "role": "tertiary",
+        "displayName": "Fault Red",
+        "canonical": "oklch(54.8% 0.180 29.4)",
+        "tonalRamp": [
+          "oklch(15% 0.180 29.4)",
+          "oklch(27% 0.180 29.4)",
+          "oklch(39% 0.180 29.4)",
+          "oklch(51% 0.180 29.4)",
+          "oklch(63% 0.180 29.4)",
+          "oklch(75% 0.180 29.4)",
+          "oklch(86% 0.180 29.4)",
+          "oklch(95% 0.180 29.4)"
+        ],
+        "dark": "#ef6a5c"
+      },
+      "fail-soft": {
+        "role": "tertiary",
+        "displayName": "Fault Halo",
+        "tonalRamp": [
+          "oklch(15% 0.180 29.4)",
+          "oklch(27% 0.180 29.4)",
+          "oklch(39% 0.180 29.4)",
+          "oklch(51% 0.180 29.4)",
+          "oklch(63% 0.180 29.4)",
+          "oklch(75% 0.180 29.4)",
+          "oklch(86% 0.180 29.4)",
+          "oklch(95% 0.180 29.4)"
+        ],
+        "dark": "color-mix(in oklab, #ef6a5c 9%, transparent)"
+      },
+      "caution": {
+        "role": "tertiary",
+        "displayName": "Caution Amber",
+        "canonical": "oklch(55.2% 0.117 74.2)",
+        "tonalRamp": [
+          "oklch(15% 0.117 74.2)",
+          "oklch(27% 0.117 74.2)",
+          "oklch(39% 0.117 74.2)",
+          "oklch(51% 0.117 74.2)",
+          "oklch(63% 0.117 74.2)",
+          "oklch(75% 0.117 74.2)",
+          "oklch(86% 0.117 74.2)",
+          "oklch(95% 0.117 74.2)"
+        ],
+        "dark": "#e0a634"
+      },
+      "caution-soft": {
+        "role": "tertiary",
+        "displayName": "Caution Banner",
+        "canonical": "oklch(94.2% 0.033 88.1)",
+        "tonalRamp": [
+          "oklch(15% 0.033 88.1)",
+          "oklch(27% 0.033 88.1)",
+          "oklch(39% 0.033 88.1)",
+          "oklch(51% 0.033 88.1)",
+          "oklch(63% 0.033 88.1)",
+          "oklch(75% 0.033 88.1)",
+          "oklch(86% 0.033 88.1)",
+          "oklch(95% 0.033 88.1)"
+        ],
+        "dark": "#3a3122"
+      },
+      "focus": {
+        "role": "neutral",
+        "displayName": "Focus Blue",
+        "canonical": "oklch(55.7% 0.172 259.7)",
+        "tonalRamp": [
+          "oklch(15% 0.172 259.7)",
+          "oklch(27% 0.172 259.7)",
+          "oklch(39% 0.172 259.7)",
+          "oklch(51% 0.172 259.7)",
+          "oklch(63% 0.172 259.7)",
+          "oklch(75% 0.172 259.7)",
+          "oklch(86% 0.172 259.7)",
+          "oklch(95% 0.172 259.7)"
+        ],
+        "dark": "#6f9ff0"
+      },
+      "site-ground": {
+        "role": "neutral",
+        "displayName": "Site White",
+        "canonical": "oklch(100.0% 0.000 89.9)",
+        "tonalRamp": [
+          "oklch(15% 0.000 89.9)",
+          "oklch(27% 0.000 89.9)",
+          "oklch(39% 0.000 89.9)",
+          "oklch(51% 0.000 89.9)",
+          "oklch(63% 0.000 89.9)",
+          "oklch(75% 0.000 89.9)",
+          "oklch(86% 0.000 89.9)",
+          "oklch(95% 0.000 89.9)"
+        ]
+      },
+      "site-ink": {
+        "role": "neutral",
+        "displayName": "Site Ink",
+        "canonical": "oklch(26.9% 0.000 89.9)",
+        "tonalRamp": [
+          "oklch(15% 0.000 89.9)",
+          "oklch(27% 0.000 89.9)",
+          "oklch(39% 0.000 89.9)",
+          "oklch(51% 0.000 89.9)",
+          "oklch(63% 0.000 89.9)",
+          "oklch(75% 0.000 89.9)",
+          "oklch(86% 0.000 89.9)",
+          "oklch(95% 0.000 89.9)"
+        ]
+      }
     },
     "typographyMeta": {
-      "headline": { "displayName": "Headline", "purpose": "Note H1; peek title and vault picker heading sit at this level." },
-      "title": { "displayName": "Title", "purpose": "Band item title, dialog titles, note H2 entries." },
-      "body": { "displayName": "Body", "purpose": "Notes in source and preview, max 68ch, set in notebook ink blue." },
-      "ui": { "displayName": "UI", "purpose": "Controls, rows, dialogs; the base size of the app." },
-      "label": { "displayName": "Form Label", "purpose": "Uppercase condensed field, module and section names; E- and R-numbers. Never a kicker." },
-      "stamp": { "displayName": "Stamp", "purpose": "Status stamps only." },
-      "mono": { "displayName": "Measurement", "purpose": "Paths, URLs, timestamps, durations, counts, page numbers, run output; tabular numerals." },
-      "code": { "displayName": "Code", "purpose": "Sandbox editor and fenced code." },
-      "display": { "displayName": "Display (landing)", "purpose": "The # grimoire title only, in pen, one line." },
-      "display-close": { "displayName": "Display Close (landing)", "purpose": "The closing 'Open the book.' line only." },
-      "entry-heading": { "displayName": "Entry Heading (landing)", "purpose": "Each entry's ## heading in pen; 1.5rem under 760px." },
-      "margin-note": { "displayName": "Margin Note (landing)", "purpose": "Pen asides in the right margin, tilted -1.5deg, max 24ch." }
+      "display": {
+        "displayName": "Display",
+        "purpose": "Landing and install headline only."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Landing section claims; install sections step down to 1.375rem."
+      },
+      "title-notes": {
+        "displayName": "Notes Title",
+        "purpose": "First heading of a NOTES.md in editor and preview."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Selected item in the peek."
+      },
+      "title-band": {
+        "displayName": "Band Title",
+        "purpose": "Item title in the top band; dialog titles."
+      },
+      "body-notes": {
+        "displayName": "Notes Body",
+        "purpose": "Notes editor and preview, 68ch max."
+      },
+      "body-site": {
+        "displayName": "Site Body",
+        "purpose": "Landing prose, 44-52ch."
+      },
+      "ui": {
+        "displayName": "UI",
+        "purpose": "Buttons, meta, most interface text."
+      },
+      "label": {
+        "displayName": "Panel Label",
+        "purpose": "Uppercase, names a panel or field from inside its head. 11px on the landing."
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "Code, output, paths, URLs, counts, timings. Never captions or prose."
+      }
     },
     "shadows": [
-      { "name": "dialog-lift", "value": "0 4px 10px rgb(10 20 40 / 0.12), 0 24px 60px rgb(10 20 40 / 0.22)", "purpose": "Modal dialogs and the command palette." },
-      { "name": "notice-lift", "value": "0 2px 4px rgb(10 20 40 / 0.2), 0 8px 24px rgb(10 20 40 / 0.18)", "purpose": "Bottom-centered notice toast." },
-      { "name": "tooltip-lift", "value": "0 2px 4px rgb(10 20 40 / 0.08), 0 8px 20px rgb(10 20 40 / 0.1)", "purpose": "CodeMirror lint tooltips." },
-      { "name": "paper-on-desk", "value": "0 1px 2px rgb(20 30 40 / 0.18), 0 4px 14px rgb(20 30 40 / 0.1)", "purpose": "PDF pages lying on the desk; never on grimoire panes." }
+      {
+        "name": "panel-ring",
+        "value": "0 0 0 1px var(--rule)",
+        "purpose": "Every app panel, rail and inner device pane."
+      },
+      {
+        "name": "key",
+        "value": "0 1px 0 rgb(0 0 0 / 0.06)",
+        "purpose": "Grey keys, pressed segments, selects, copy key. Dark: 0.3 alpha. Removed on press."
+      },
+      {
+        "name": "key-primary",
+        "value": "0 1px 0 rgb(0 0 0 / 0.14)",
+        "purpose": "The orange key."
+      },
+      {
+        "name": "lift",
+        "value": "0 4px 10px rgb(20 20 18 / 0.1), 0 24px 60px rgb(20 20 18 / 0.2)",
+        "purpose": "Dialogs, palette, toasts, editor tooltips. Dark: 0.3 / 0.45 black."
+      },
+      {
+        "name": "search-inset",
+        "value": "inset 0 1px 1px rgb(0 0 0 / 0.04)",
+        "purpose": "The search well in the band."
+      },
+      {
+        "name": "lamp-halo",
+        "value": "0 0 0 2px color-mix(in oklab, currentColor 18%, transparent)",
+        "purpose": "Lit status lamps only."
+      },
+      {
+        "name": "site-panel",
+        "value": "0 0 0 1px var(--rule-strong), 0 20px 40px -30px rgb(0 0 0 / 0.35)",
+        "purpose": "Landing instrument panels."
+      },
+      {
+        "name": "device",
+        "value": "0 0 0 1px var(--rule-strong), 0 34px 70px -34px rgb(0 0 0 / 0.4)",
+        "purpose": "Landing product shot. Dark: -30px, 0.7 alpha."
+      }
     ],
     "motion": [
-      { "name": "ease-out", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Default easing for every state transition." },
-      { "name": "control-state", "value": "120ms", "purpose": "Button background and border changes." },
-      { "name": "chevron-turn", "value": "160ms", "purpose": "Run row disclosure chevron." },
-      { "name": "modal-in", "value": "200ms; translateY(6px) scale(0.99) to rest", "purpose": "Dialog entrance." },
-      { "name": "notice-rise", "value": "260ms; 6px rise with fade", "purpose": "Notice toast entrance." },
-      { "name": "strike", "value": "420ms; scaleX 0 to 1 from the left", "purpose": "Correction strike drawn through a failed run." },
-      { "name": "running-pulse", "value": "1.2s ease-in-out infinite; opacity to 0.45", "purpose": "Duration bar of a run in progress." },
-      { "name": "reduced-motion", "value": "0.01ms", "purpose": "All animation and transition durations under prefers-reduced-motion." },
-      { "name": "landing-control", "value": "160ms", "purpose": "Landing page button, band link and splitter state changes." },
-      { "name": "write-in", "value": "1500ms cubic-bezier(0.45, 0.05, 0.3, 1), 250ms delay; clip-path inset from the right", "purpose": "Landing title written in left to right, with the quill travelling alongside (190ms scribble) and lifting away over 600ms." },
-      { "name": "spark-in", "value": "700ms ease-out; then twinkle 4.8s infinite", "purpose": "The title's spark star landing after the write-in." },
-      { "name": "rule-draw", "value": "900ms ease-out; scaleX 0 to 1 from the left", "purpose": "Landing entry rule drawn on first view." },
-      { "name": "arrow-draw", "value": "900ms ease-out, 250ms delay; stroke-dashoffset to 0", "purpose": "Margin-note arrows drawn along their path on first view." },
-      { "name": "close-write-in", "value": "1300ms cubic-bezier(0.45, 0.05, 0.3, 1), 200ms delay", "purpose": "The closing line written in on first view." },
-      { "name": "sparkle-burst", "value": "760ms ease-out, 40ms stagger, five stars", "purpose": "Spark stars thrown from a passing Exit 0 stamp in the landing cast cell." },
-      { "name": "twinkle-hover", "value": "320ms ease-out; scale 0 rotate -45deg to rest", "purpose": "Spark star on the page button's corner on hover and focus." },
-      { "name": "landing-reduced-motion", "value": "reveals, write-ins and bursts off; content visible by default", "purpose": "Landing page under prefers-reduced-motion; JS opts reveals in only under no-preference." }
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "All state transitions."
+      },
+      {
+        "name": "press",
+        "value": "80ms",
+        "purpose": "Key press: translateY(1px), shadow removed."
+      },
+      {
+        "name": "state",
+        "value": "120-160ms",
+        "purpose": "Background, border, lamp and splitter grip changes."
+      },
+      {
+        "name": "modal-in",
+        "value": "200ms",
+        "purpose": "Dialogs rise 6px and scale from 0.99."
+      },
+      {
+        "name": "toast-rise",
+        "value": "260ms",
+        "purpose": "Toast rises 6px into place."
+      },
+      {
+        "name": "strike",
+        "value": "420ms",
+        "purpose": "Red strike drawn across a failed run's meta line."
+      },
+      {
+        "name": "blink",
+        "value": "1s steps(2, start) infinite",
+        "purpose": "Running and saving lamps."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "0.01ms",
+        "purpose": "All animation and transition collapsed under prefers-reduced-motion."
+      }
     ],
     "breakpoints": [
-      { "name": "narrow-window", "value": "760px" },
-      { "name": "notebook-compact (container)", "value": "720px" },
-      { "name": "notebook-tight (container)", "value": "480px" },
-      { "name": "landing-aside-drop", "value": "1040px" }
+      {
+        "name": "app-narrow",
+        "value": "760px"
+      },
+      {
+        "name": "notebook-container-md",
+        "value": "720px"
+      },
+      {
+        "name": "notebook-container-sm",
+        "value": "480px"
+      },
+      {
+        "name": "site-narrow",
+        "value": "900px"
+      }
     ]
   },
   "components": [
     {
-      "name": "Primary Button",
+      "name": "Key",
+      "kind": "button",
+      "refersTo": "button-key",
+      "description": "The default text button: a soft physical key. Every text button in the top band.",
+      "html": "<button class=\"ds-key\">Mark done</button>",
+      "css": ".ds-key{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border:1px solid var(--rule-strong);border-radius:6px;background:var(--raise);color:var(--ink);box-shadow:0 1px 0 rgb(0 0 0 / 0.06);font:500 13px/1 var(--font-ui);cursor:pointer;transition:background-color 120ms cubic-bezier(0.16,1,0.3,1),transform 80ms cubic-bezier(0.16,1,0.3,1)}.ds-key:hover{background:color-mix(in oklab,var(--raise) 85%,var(--ink) 4%)}.ds-key:active{transform:translateY(1px);box-shadow:none}.ds-key:focus-visible{outline:2px solid var(--focus);outline-offset:2px}"
+    },
+    {
+      "name": "Primary Key",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "The one primary action per view: Open, Run, Save.",
-      "html": "<button class=\"ds-btn ds-btn-primary\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polygon points=\"6 3 20 12 6 21 6 3\"/></svg>Run <span class=\"ds-kbd\">⌘↵</span></button>",
-      "css": ".ds-btn { display: inline-flex; align-items: center; gap: 0.375rem; height: 1.75rem; padding: 0 0.625rem; border: 1px solid transparent; border-radius: 3px; background: transparent; color: var(--ink); font-family: var(--font-ui); font-size: 0.8125rem; font-weight: 500; cursor: pointer; transition: background-color 120ms cubic-bezier(0.16, 1, 0.3, 1), border-color 120ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn svg { width: 0.9375rem; height: 0.9375rem; } .ds-btn-primary { background: var(--pen); color: var(--pen-on); font-weight: 600; } .ds-btn-primary:hover { background: color-mix(in oklab, var(--pen) 88%, var(--ink)); } .ds-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; } .ds-kbd { font-family: var(--font-mono); font-size: 0.6875rem; opacity: 0.75; }"
+      "description": "The one orange key per view: Run, Add, Install.",
+      "html": "<button class=\"ds-key-go\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polygon points=\"6 3 20 12 6 21 6 3\"/></svg>Run</button>",
+      "css": ".ds-key-go{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border:1px solid var(--signal-edge);border-radius:6px;background:var(--signal);color:var(--signal-ink);box-shadow:0 1px 0 rgb(0 0 0 / 0.14);font:600 13px/1 var(--font-ui);cursor:pointer;transition:background-color 120ms cubic-bezier(0.16,1,0.3,1),transform 80ms cubic-bezier(0.16,1,0.3,1)}.ds-key-go:hover{background:var(--signal-hover)}.ds-key-go:active{transform:translateY(1px);box-shadow:none}.ds-key-go:focus-visible{outline:2px solid var(--focus);outline-offset:2px}"
     },
     {
-      "name": "Outline Button",
+      "name": "Ink Key",
       "kind": "button",
-      "refersTo": "button-outline",
-      "description": "Default secondary action: Mark done, Cancel, Retry.",
-      "html": "<button class=\"ds-btn-outline\">Mark done</button>",
-      "css": ".ds-btn-outline { display: inline-flex; align-items: center; height: 1.75rem; padding: 0 0.625rem; border: 1px solid var(--rule-strong); border-radius: 3px; background: transparent; color: var(--ink); font-family: var(--font-ui); font-size: 0.8125rem; font-weight: 500; cursor: pointer; transition: background-color 120ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn-outline:hover { background: color-mix(in oklab, var(--ink) 6%, transparent); } .ds-btn-outline:active { background: color-mix(in oklab, var(--ink) 10%, transparent); } .ds-btn-outline:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }"
+      "refersTo": "button-on",
+      "description": "A pressed-in ink key for a secondary that still opens something.",
+      "html": "<button class=\"ds-key-on\">Open study</button>",
+      "css": ".ds-key-on{display:inline-flex;align-items:center;height:28px;padding:0 10px;border:1px solid var(--ink);border-radius:6px;background:var(--ink);color:var(--panel);box-shadow:0 1px 0 rgb(0 0 0 / 0.06);font:600 13px/1 var(--font-ui);cursor:pointer}.ds-key-on:hover{background:color-mix(in oklab,var(--ink) 88%,var(--panel))}.ds-key-on:active{transform:translateY(1px);box-shadow:none}.ds-key-on:focus-visible{outline:2px solid var(--focus);outline-offset:2px}"
     },
     {
-      "name": "Danger Button",
+      "name": "Ghost Tool",
       "kind": "button",
-      "refersTo": "button-danger",
-      "description": "Ends something in progress: Stop a run.",
-      "html": "<button class=\"ds-btn-danger\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\"><rect x=\"5\" y=\"5\" width=\"14\" height=\"14\" rx=\"1\"/></svg>Stop</button>",
-      "css": ".ds-btn-danger { display: inline-flex; align-items: center; gap: 0.375rem; height: 1.75rem; padding: 0 0.625rem; border: 1px solid color-mix(in oklab, var(--correction) 55%, transparent); border-radius: 3px; background: transparent; color: var(--correction); font-family: var(--font-ui); font-size: 0.8125rem; font-weight: 500; cursor: pointer; } .ds-btn-danger svg { width: 0.9375rem; height: 0.9375rem; } .ds-btn-danger:hover { background: color-mix(in oklab, var(--ink) 6%, transparent); } .ds-btn-danger:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }"
+      "refersTo": "button-ghost",
+      "description": "Icon tools and pane toggles: flat until hovered or pressed.",
+      "html": "<button class=\"ds-ghost\" aria-label=\"Toggle source pane\" aria-pressed=\"true\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M9 3v18\"/></svg></button>",
+      "css": ".ds-ghost{display:inline-grid;place-items:center;width:28px;height:28px;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--ink);cursor:pointer;transition:background-color 120ms cubic-bezier(0.16,1,0.3,1)}.ds-ghost:hover,.ds-ghost[aria-pressed=true]{background:var(--select-soft)}.ds-ghost:focus-visible{outline:2px solid var(--focus);outline-offset:2px}"
+    },
+    {
+      "name": "Status Light",
+      "kind": "custom",
+      "refersTo": "pass",
+      "description": "A 7px lamp with a halo beside a plain word. Green passed, amber running (blinks), red failed.",
+      "html": "<span class=\"ds-light ds-pass\">Exit 0</span> <span class=\"ds-light ds-live\">Running</span> <span class=\"ds-light ds-fail\">Failed</span>",
+      "css": ".ds-light{display:inline-flex;align-items:center;gap:7px;margin-right:14px;font:600 12px var(--font-ui)}.ds-light::before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 0 2px color-mix(in oklab,currentColor 18%,transparent)}.ds-pass{color:var(--pass)}.ds-fail{color:var(--fail)}.ds-live{color:var(--caution)}.ds-live::before{animation:ds-blink 1s steps(2,start) infinite}@keyframes ds-blink{50%{opacity:.25}}"
+    },
+    {
+      "name": "Inset Panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "A panel set into the body: lighter grey, 8px, hairline ring, a 36px head with a label and a mono path.",
+      "html": "<section class=\"ds-panel\"><header class=\"ds-head\"><span class=\"ds-label\">Notes</span><span class=\"ds-path\">attention/<b>NOTES.md</b></span></header><p class=\"ds-body\">Divide by the square root of d so softmax doesn't saturate.</p></section>",
+      "css": ".ds-panel{background:var(--panel);border-radius:8px;box-shadow:0 0 0 1px var(--rule);overflow:hidden;max-width:420px}.ds-head{display:flex;align-items:center;gap:8px;height:36px;padding:0 8px 0 14px;border-bottom:1px solid var(--rule)}.ds-label{font:600 10.5px var(--font-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint)}.ds-path{font:11.5px var(--font-mono);color:var(--ink-faint)}.ds-path b{color:var(--ink);font-weight:500}.ds-body{margin:0;padding:16px 20px;font:15.5px/1.7 var(--font-ui);color:var(--ink)}"
     },
     {
       "name": "Text Field",
       "kind": "input",
-      "refersTo": "input-field",
-      "description": "Dialog field with a condensed label above and a hint below.",
-      "html": "<label class=\"ds-field\"><span class=\"ds-label\">Title</span><input class=\"ds-input\" placeholder=\"Fetched from the page if left empty\"><span class=\"ds-hint\">Leave empty to use the page title.</span></label>",
-      "css": ".ds-field { display: flex; flex-direction: column; gap: 0.375rem; font-family: var(--font-ui); } .ds-label { font-size: 0.6875rem; font-weight: 640; font-variation-settings: 'wdth' 72; letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-muted); } .ds-input { height: 2rem; padding: 0 0.625rem; border: 1px solid var(--rule-strong); border-radius: 3px; background: var(--paper); color: var(--ink); font: inherit; font-size: 0.875rem; } .ds-input:focus { outline: 2px solid var(--focus); outline-offset: -1px; border-color: transparent; } .ds-input[aria-invalid='true'] { border-color: var(--correction); } .ds-hint { font-size: 0.75rem; color: var(--ink-muted); line-height: 1.45; }"
+      "refersTo": "input",
+      "description": "Inputs are keys you type into: face, edge, 6px corners; blue focus outline drawn inset.",
+      "html": "<input class=\"ds-input\" placeholder=\"https://\" />",
+      "css": ".ds-input{height:32px;padding:0 10px;border:1px solid var(--rule-strong);border-radius:6px;background:var(--raise);color:var(--ink);font:14px var(--font-ui)}.ds-input::placeholder{color:var(--ink-faint)}.ds-input:focus{outline:2px solid var(--focus);outline-offset:-1px;border-color:transparent}"
     },
     {
-      "name": "Cloth Band",
-      "kind": "nav",
-      "refersTo": "band",
-      "description": "The navy shell band across the top of every view.",
-      "html": "<header class=\"ds-band\"><span class=\"ds-wordmark\">grimoire</span><span class=\"ds-band-rule\"></span><div class=\"ds-band-search\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"m20 20-3.5-3.5\"/></svg><input placeholder=\"Search, or filter with #tag and is:done\"></div><button class=\"ds-band-add\">Add</button></header>",
-      "css": ".ds-band { display: flex; align-items: center; gap: 0.75rem; height: 3.25rem; padding: 0 0.75rem 0 0.5rem; background: var(--cloth); color: var(--cloth-ink); font-family: var(--font-ui); } .ds-wordmark { padding: 0 0.25rem 0 0.5rem; font-size: 0.9375rem; font-weight: 700; font-variation-settings: 'wdth' 80; } .ds-band-rule { width: 1px; align-self: stretch; margin: 0.875rem 0; background: var(--cloth-rule); } .ds-band-search { flex: 1; max-width: 34rem; display: flex; align-items: center; gap: 0.5rem; height: 2rem; padding: 0 0.5rem 0 0.625rem; border: 1px solid transparent; border-radius: 3px; background: var(--cloth-raise); color: var(--cloth-muted); } .ds-band-search:focus-within { border-color: var(--cloth-muted); } .ds-band-search svg { width: 0.9375rem; height: 0.9375rem; } .ds-band-search input { flex: 1; border: 0; background: transparent; color: var(--cloth-ink); outline: none; font: inherit; font-size: 0.8125rem; } .ds-band-search input::placeholder { color: var(--cloth-muted); } .ds-band-add { margin-left: auto; height: 1.75rem; padding: 0 0.625rem; border: 0; border-radius: 3px; background: var(--cloth-ink); color: var(--cloth); font: inherit; font-size: 0.8125rem; font-weight: 600; cursor: pointer; } .ds-band-add:hover { background: #ffffff; } .ds-band-add:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }"
+      "name": "Segmented Control",
+      "kind": "custom",
+      "refersTo": "segmented",
+      "description": "A well trough holding keys; the pressed one rises.",
+      "html": "<div class=\"ds-seg\"><button aria-pressed=\"true\">Source</button><button aria-pressed=\"false\">Preview</button></div>",
+      "css": ".ds-seg{display:inline-flex;gap:2px;padding:2px;background:var(--well);border-radius:7px}.ds-seg button{height:22px;padding:0 8px;border:1px solid transparent;border-radius:5px;background:transparent;color:var(--ink-muted);font:500 12px var(--font-ui);cursor:pointer}.ds-seg button:hover{color:var(--ink)}.ds-seg button[aria-pressed=true]{background:var(--raise);border-color:var(--rule-strong);box-shadow:0 1px 0 rgb(0 0 0 / 0.06);color:var(--ink)}.ds-seg button:focus-visible{outline:2px solid var(--focus);outline-offset:2px}"
     },
     {
-      "name": "Tag Filter",
+      "name": "Tag",
       "kind": "chip",
       "refersTo": "tag",
-      "description": "Tag filter with a mono count; pressed state fills with ink blue.",
-      "html": "<button class=\"ds-tag\">#papers <span>2</span></button><button class=\"ds-tag\" aria-pressed=\"true\">#rust <span>1</span></button>",
-      "css": ".ds-tag { display: inline-flex; align-items: baseline; gap: 0.375rem; height: 1.625rem; padding: 0 0.5rem; margin-right: 0.375rem; border: 1px solid var(--rule-strong); border-radius: 3px; background: var(--paper-raise); color: var(--ink); font-family: var(--font-ui); font-size: 0.78125rem; line-height: 1.5rem; cursor: pointer; } .ds-tag span { color: var(--ink-faint); font-family: var(--font-mono); font-size: 0.6875rem; } .ds-tag:hover { border-color: var(--ink-faint); } .ds-tag[aria-pressed='true'] { background: var(--pen); border-color: var(--pen); color: var(--pen-on); } .ds-tag[aria-pressed='true'] span { color: inherit; opacity: 0.8; } .ds-tag:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }"
+      "description": "Pill filter in the tag bar with a faint mono count; active fills with ink.",
+      "html": "<button class=\"ds-tag\">rust <span>12</span></button> <button class=\"ds-tag\" aria-pressed=\"true\">async <span>4</span></button>",
+      "css": ".ds-tag{display:inline-flex;align-items:baseline;gap:6px;height:26px;padding:0 10px;border:1px solid transparent;border-radius:13px;background:var(--well);color:var(--ink-muted);font:500 12.5px/24px var(--font-ui);cursor:pointer}.ds-tag span{font:11px var(--font-mono);color:var(--ink-faint)}.ds-tag:hover{color:var(--ink);border-color:var(--rule-strong)}.ds-tag[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:var(--panel)}.ds-tag[aria-pressed=true] span{color:inherit;opacity:.8}.ds-tag:focus-visible{outline:2px solid var(--focus);outline-offset:2px}"
     },
     {
-      "name": "Stamps",
-      "kind": "custom",
-      "refersTo": "stamp-pass",
-      "description": "Bordered status stamps that mark a state and stay.",
-      "html": "<span class=\"ds-stamp ds-pass\">Exit 0</span> <span class=\"ds-stamp ds-fail\">Exit 1</span> <span class=\"ds-stamp ds-caution\">Stopped</span> <span class=\"ds-stamp ds-live\">Running</span>",
-      "css": ".ds-stamp { display: inline-flex; align-items: center; height: 1.125rem; padding: 0 0.375rem; border: 1.5px solid currentColor; border-radius: 2px; font-family: var(--font-ui); font-size: 0.625rem; font-weight: 700; font-variation-settings: 'wdth' 66; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; } .ds-pass { color: var(--pass); } .ds-fail { color: var(--correction); } .ds-caution { color: var(--caution); } .ds-live { color: var(--pen); }"
-    },
-    {
-      "name": "Module Head",
-      "kind": "custom",
-      "refersTo": "module-head",
-      "description": "The small tab head on every notebook module: label or mono file path, state, controls.",
-      "html": "<div class=\"ds-head\"><span class=\"ds-head-file\">rust-async-book-ch-3/<b>NOTES.md</b></span><span class=\"ds-spacer\"></span><span class=\"ds-save\">Saved</span></div>",
-      "css": ".ds-head { display: flex; align-items: center; gap: 0.5rem; height: 2.25rem; padding: 0 0.5rem 0 0.875rem; background: var(--paper-sunk); border-bottom: 1px solid var(--rule); font-family: var(--font-ui); } .ds-head-file { font-family: var(--font-mono); font-size: 0.75rem; color: var(--ink-muted); } .ds-head-file b { color: var(--ink); font-weight: 600; } .ds-spacer { flex: 1; } .ds-save { display: inline-flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; color: var(--ink-muted); } .ds-save::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--pass); }"
-    },
-    {
-      "name": "Run Log Entry",
-      "kind": "custom",
-      "refersTo": "stamp-fail",
-      "description": "A numbered, timed run; failed runs are struck with one red rule and their duration drawn to scale.",
-      "html": "<div class=\"ds-run\" data-failed=\"true\"><div class=\"ds-run-head\"><span class=\"ds-run-no\">R-03</span><span class=\"ds-run-meta\">00:27:41  main.rs</span><span class=\"ds-stamp-fail\">Exit 101</span><span class=\"ds-run-dur\">0.84 s</span></div><div class=\"ds-run-scale\"><i style=\"transform: scaleX(0.28)\"></i></div></div><div class=\"ds-run\"><div class=\"ds-run-head\"><span class=\"ds-run-no\">R-04</span><span class=\"ds-run-meta\">00:29:15  main.rs</span><span class=\"ds-stamp-pass\">Exit 0</span><span class=\"ds-run-dur\">1.02 s</span></div><div class=\"ds-run-scale\"><i style=\"transform: scaleX(0.34)\"></i></div></div>",
-      "css": ".ds-run { border-bottom: 1px solid var(--rule); background: var(--paper); font-family: var(--font-ui); } .ds-run-head { display: grid; grid-template-columns: 2.5rem auto 1fr auto; align-items: center; gap: 0.75rem; padding: 0.5rem 0.75rem 0.375rem 0.875rem; color: var(--ink); } .ds-run-head:hover { background: color-mix(in oklab, var(--ink) 3%, transparent); } .ds-run-no { font-size: 0.6875rem; font-weight: 680; font-variation-settings: 'wdth' 72; letter-spacing: 0.06em; color: var(--ink-muted); } .ds-run-meta { position: relative; font-family: var(--font-mono); font-size: 0.71875rem; color: var(--ink-muted); white-space: pre; font-variant-numeric: tabular-nums; } .ds-run[data-failed='true'] .ds-run-meta::after { content: ''; position: absolute; left: -0.25rem; right: -0.25rem; top: 52%; height: 1.5px; background: var(--correction); transform-origin: left center; animation: ds-strike 420ms cubic-bezier(0.16, 1, 0.3, 1) both; } @keyframes ds-strike { from { transform: scaleX(0); } } .ds-stamp-fail, .ds-stamp-pass { justify-self: start; display: inline-flex; align-items: center; height: 1.125rem; padding: 0 0.375rem; border: 1.5px solid currentColor; border-radius: 2px; font-size: 0.625rem; font-weight: 700; font-variation-settings: 'wdth' 66; letter-spacing: 0.08em; text-transform: uppercase; } .ds-stamp-fail { color: var(--correction); } .ds-stamp-pass { color: var(--pass); } .ds-run-dur { font-family: var(--font-mono); font-size: 0.71875rem; font-variant-numeric: tabular-nums; text-align: right; min-width: 4.5rem; } .ds-run-scale { position: relative; height: 3px; margin: 0 0.875rem 0.5rem 4.125rem; background: var(--rule); } .ds-run-scale i { position: absolute; inset: 0; background: var(--pen); transform-origin: left center; } .ds-run[data-failed='true'] .ds-run-scale i { background: var(--correction); }"
-    },
-    {
-      "name": "Reading List Row",
-      "kind": "card",
-      "refersTo": "tag",
-      "description": "A ruled list row: checkbox, condensed number, kind icon, title over meta. Selection is the ink wash.",
-      "html": "<div class=\"ds-row\"><input type=\"checkbox\"><span class=\"ds-row-no\">01</span><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18\"/></svg><div class=\"ds-row-main\"><span class=\"ds-row-title\">Async Rust, chapter 3</span><span class=\"ds-row-meta\">rust-lang.github.io <span>#rust #async</span></span></div></div><div class=\"ds-row\" aria-selected=\"true\"><input type=\"checkbox\"><span class=\"ds-row-no\">02</span><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\"><path d=\"M14 3H6v18h12V7z\"/><path d=\"M14 3v4h4M9 13h6M9 17h6\"/></svg><div class=\"ds-row-main\"><span class=\"ds-row-title\">Attention Is All You Need</span><span class=\"ds-row-meta\">local PDF <span>#ml #papers</span></span></div></div>",
-      "css": ".ds-row { display: grid; grid-template-columns: auto 1.75rem 1rem minmax(0, 1fr); align-items: center; gap: 0.625rem; padding: 0.5rem 1rem; border-bottom: 1px solid color-mix(in oklab, var(--rule) 60%, transparent); background: var(--paper); font-family: var(--font-ui); } .ds-row:hover { background: color-mix(in oklab, var(--ink) 3%, var(--paper)); } .ds-row[aria-selected='true'] { background: color-mix(in oklab, var(--pen) 12%, var(--paper)); } .ds-row input { width: 0.9375rem; height: 0.9375rem; margin: 0; accent-color: var(--pen); } .ds-row-no { font-size: 0.6875rem; font-weight: 640; font-variation-settings: 'wdth' 72; letter-spacing: 0.06em; color: var(--ink-faint); font-variant-numeric: tabular-nums; } .ds-row svg { width: 1rem; height: 1rem; color: var(--ink-muted); } .ds-row-main { display: flex; flex-direction: column; gap: 0.0625rem; min-width: 0; } .ds-row-title { font-size: 0.875rem; font-weight: 560; color: var(--ink); } .ds-row[aria-selected='true'] .ds-row-title { color: var(--pen); } .ds-row-meta { display: flex; gap: 0.75rem; font-size: 0.75rem; font-variation-settings: 'wdth' 86; color: var(--ink-muted); } .ds-row-meta span { color: var(--ink-faint); }"
-    },
-    {
-      "name": "Page Button",
-      "kind": "button",
-      "refersTo": "button-page",
-      "description": "Landing page primary action (View on GitHub) with a spark star on hover.",
-      "html": "<a class=\"ds-pbtn\" href=\"#\">View on GitHub<svg class=\"ds-tw\" viewBox=\"0 0 24 24\"><path fill=\"currentColor\" d=\"M12 0C12.9 7.2 16.8 11.1 24 12 16.8 12.9 12.9 16.8 12 24 11.1 16.8 7.2 12.9 0 12 7.2 11.1 11.1 7.2 12 0Z\"/></svg></a>",
-      "css": ".ds-pbtn{position:relative;display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:3px;background:#24396e;color:#f5f7fb;font:600 0.9375rem/1 'Archivo Variable',Archivo,system-ui,sans-serif;text-decoration:none;transition:background-color 160ms cubic-bezier(0.16,1,0.3,1)}.ds-pbtn:hover{background:color-mix(in oklab,#24396e 88%,#1c2230)}.ds-tw{position:absolute;top:-7px;right:-7px;width:14px;height:14px;color:#7b5ce8;transform:scale(0) rotate(-45deg);transition:transform 320ms cubic-bezier(0.16,1,0.3,1)}.ds-pbtn:hover .ds-tw,.ds-pbtn:focus-visible .ds-tw{transform:scale(1) rotate(0)}"
-    },
-    {
-      "name": "File Bar",
+      "name": "Site Nav",
       "kind": "nav",
-      "refersTo": "file-bar",
-      "description": "Landing page sticky mono bar naming the page NOTES.md, the entry in view and the save state.",
-      "html": "<div class=\"ds-fb\"><span>~/grimoire/<b>NOTES.md</b></span><span class=\"ds-cr\">› <i>E-02</i> Study beside the source</span><span class=\"ds-st\"><span class=\"ds-dot\"></span>Saved</span></div>",
-      "css": ".ds-fb{display:flex;align-items:center;gap:10px;height:36px;padding:0 16px;background:color-mix(in oklab,#f3f5f1 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid #cdd6cb;color:#535e6c;font:0.8125rem 'JetBrains Mono Variable',ui-monospace,monospace}.ds-fb b{color:#1c2230;font-weight:500}.ds-cr{color:#5d6876}.ds-cr i{font-style:normal;color:#24396e}.ds-st{margin-left:auto;display:inline-flex;align-items:center;gap:8px}.ds-dot{width:6px;height:6px;border-radius:50%;background:#2f6b4a}"
-    },
-    {
-      "name": "Margin Note",
-      "kind": "custom",
-      "refersTo": "margin-note",
-      "description": "Landing page aside in the pen with a hand-drawn arrow back to the text.",
-      "html": "<p class=\"ds-note\"><svg width=\"70\" height=\"34\" viewBox=\"0 0 70 34\"><path d=\"M66 30C48 32 22 26 8 6M8 6l1 11M8 6l10 4\"/></svg>Every page in it is a plain file you could open in vim.</p>",
-      "css": ".ds-note{color:#24396e;font:400 0.9375rem/1.45 'Archivo Variable',Archivo,system-ui,sans-serif;font-stretch:92%;max-width:24ch;transform:rotate(-1.5deg);transform-origin:left top;margin:0}.ds-note svg{display:block;margin:0 0 6px -6px;overflow:visible}.ds-note path{fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}"
+      "refersTo": "key-site",
+      "description": "Landing top line: bold wordmark, quiet muted links, no bar.",
+      "html": "<nav class=\"ds-top\"><a class=\"ds-wm\" href=\"#\">grimoire</a><a href=\"#\" aria-current=\"page\">Install</a><a href=\"#\">README</a><a class=\"ds-push\" href=\"#\">GitHub</a></nav>",
+      "css": ".ds-top{display:flex;align-items:center;gap:26px;height:68px;font-family:var(--font-ui)}.ds-top a{color:var(--ink-muted);font-size:14px;font-weight:500;text-decoration:none}.ds-top a:hover,.ds-top a[aria-current=page]{color:var(--ink)}.ds-top .ds-wm{color:var(--ink);font-size:18px;font-weight:700;letter-spacing:-.01em}.ds-push{margin-left:auto}.ds-top a:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:4px}"
     }
   ],
   "narrative": {
-    "northStar": "The Engineer's Lab Notebook",
-    "overview": "Every item you study is a bound lab notebook. Notes are numbered entries in a ruled margin, every sandbox run is a logged and timed entry, and failures are struck through with a single red line rather than erased. The app is the notebook's binding: a navy cloth band across the top, cool ruled paper below, and the source material laid on the desk beside it.\n\nThe system is dense and quiet, built for sessions that last hours. Structure comes from hairline rules and small tabbed module heads, not from cards, panels or shadows. Color carries meaning, not decoration: blue ink is what you wrote, red is a correction, green is a pass, ochre is a caution, and sage is the ruling on the page. Type follows a printed form. Archivo at normal width does the reading and writing; its condensed cut, uppercase and letterspaced, is the voice of a form's field names; JetBrains Mono records code, output and measurements.\n\nThe world rejects the default dark neutral IDE split with tabs and a single purple accent, and it rejects cream \"paper\": the ground is a cool, faintly green-gray stock.",
+    "northStar": "The Quiet Instrument",
+    "overview": "grimoire is drawn the way Braun drew its products: a warm-grey body with lighter panels set into it, soft physical keys, and small lights that tell you the state of things. The source and the notebook sit side by side as two inset panels separated only by a 10px gutter of body colour. Nothing is chrome for its own sake. The window shows what the moment needs, and the rest stays at rest.\n\nDensity is that of a tool used for hours: 13px UI type, 28px keys, 36px panel heads, a 52px top band that is the body itself rather than a coloured bar. Prose (notes, the landing's claims) opens up to 15.5–16px with generous leading. Colour is almost absent. The grey family carries structure, ink carries meaning, one orange marks the single primary action, and green, red and amber appear as lights. Light and dark follow the system; dark keeps the same structure with a charcoal body and lifted panels.\n\nThe landing site is the same instrument presented as a product: the study view as an object on a plain ground, a short spec list, and each claim paired with an instrument panel (file tree, toolchain lights, terminal). It shares the app's tokens and is scaled up for reading at a distance: 44px keys, 12px panel corners, a soft drop under panels and the device shot.",
     "keyCharacteristics": [
-      "Cool ruled paper ground with a notebook-cloth navy band as the only heavy surface.",
-      "Ink-blue for the user's own writing; correction red reserved for failure.",
-      "Hairline modules with small tab heads; panes never cast shadows.",
-      "Condensed uppercase form labels, numbered entries (E-01) and numbered runs (R-01).",
-      "Status marks itself with bordered stamps that stay on the page.",
-      "Light and dark follow the system; dark is night ink on navy paper, not inverted gray."
+      "Warm-grey body, lighter inset panels on an 8px radius with a 1px hairline ring.",
+      "Soft keys: raised fill, 1px edge, 1px bottom shadow, a 1px press.",
+      "One orange key per view; green, red and amber as 7px status lamps with a word beside them.",
+      "Figtree for all UI and prose; JetBrains Mono only for code, paths, URLs and measurements.",
+      "Small uppercase labels name panels and fields from inside their heads.",
+      "No numbering systems, no rubber stamps, no coloured band."
     ],
     "rules": [
-      { "name": "The Correction Rule", "body": "Red means something failed or is about to be destroyed. It never appears in syntax highlighting, decoration, badges or emphasis.", "section": "colors" },
-      { "name": "The Ink Is Yours Rule", "body": "Notebook ink blue is the color of what the person wrote. Printed interface text stays in ink; the pen also marks selection and the one primary action per view, never ornament.", "section": "colors" },
-      { "name": "The Cool Paper Rule", "body": "The ground is cool green-gray paper. Never cream, never pure white for grimoire's own surfaces; white belongs to third-party content only.", "section": "colors" },
-      { "name": "The Printed Form Rule", "body": "Uppercase condensed labels name a field, a module or a list section, sitting in a head or beside the thing they name. They are never a kicker above a heading.", "section": "typography" },
-      { "name": "The Measurement Rule", "body": "If it is code, output, a path or a number someone might compare (time, duration, count, page), set it in JetBrains Mono with tabular numerals. Nothing else is mono.", "section": "typography" },
-      { "name": "The Width Axis Rule", "body": "Hierarchy comes from width and weight on one family (100 for prose, 84 to 86 for metadata, 72 for labels, 66 for stamps), not from adding faces.", "section": "typography" },
-      { "name": "The No-Shadow Panes Rule", "body": "Panes, modules, rows, the peek and the band never cast shadows. If it does not float above the page, it is separated by a rule or a tone, not a shadow.", "section": "elevation" },
-      { "name": "The Hairline Rule", "body": "Every division is a single 1px sage line. No double borders, no boxed cards.", "section": "shapes" },
-      { "name": "The Spark Rule", "body": "Violet is the sparkle and nothing else: only ever the four-point star, never text, a link, a fill, a border, a focus ring or a control accent. Landing page only.", "section": "colors" },
-      { "name": "The Wide For Display Rule", "body": "Landing display size comes from Archivo past normal width (108 to 112) and weight (800 to 820), never a second face; the title and the close only.", "section": "typography" },
-      { "name": "The Write-In Rule", "body": "On the landing page things appear the way ink does: drawn left to right or along their path, once, on first view. Nothing fades up, slides in or bounces; all of it off under reduced motion.", "section": "motion" }
+      {
+        "name": "The One Orange Rule",
+        "body": "Each view has exactly one orange key. Everything else is a grey key, an ink key, or a flat button. Orange elsewhere is limited to the text caret and the selection tint.",
+        "section": "colors"
+      },
+      {
+        "name": "The Lights Are State Rule",
+        "body": "Green, red and amber mean state. In the interface they appear as a 7px lamp with a 2px halo of their own colour, beside a plain word; never as fills, panels or decoration. The one exception the build ships is code syntax, where strings take Lamp Green and numbers take Caution Amber at text weight; orange and red are kept out of syntax on purpose.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ink Select Rule",
+        "body": "Selection and \"on\" states are ink, not colour: an active tag or pressed segment fills with ink (on light) and a selected row takes a 7% ink tint.",
+        "section": "colors"
+      },
+      {
+        "name": "The Mono Is Measurement Rule",
+        "body": "JetBrains Mono is for things a machine produced or would accept: code, output, paths, URLs, counts and timings. Captions, notes, list prose and empty-state copy are Figtree.",
+        "section": "typography"
+      },
+      {
+        "name": "The Named Panel Rule",
+        "body": "A small uppercase label names the panel or field it sits in (SANDBOX, VAULT, TERMINAL, SAVED). It lives inside a panel head or a status readout; it never floats above a headline as a kicker.",
+        "section": "typography"
+      },
+      {
+        "name": "The Inset Plate Rule",
+        "body": "In the app, panels never cast a drop shadow; they are separated from the body by tone and a hairline ring. Only floating layers (dialogs, toasts, tooltips) lift.",
+        "section": "elevation"
+      }
     ],
     "dos": [
-      "**Do** keep red for failure: failed runs, error exits, timeouts, invalid input, and the Stop and delete-with-folder actions.",
-      "**Do** set the user's own writing in notebook ink blue and printed interface text in ink.",
-      "**Do** separate regions with 1px sage hairlines and sunk 36px module heads.",
-      "**Do** number things the person makes: E-numbers for note entries, R-numbers for runs, row numbers in the list, all in the condensed label voice.",
-      "**Do** set every path, timestamp, duration, count and output in JetBrains Mono with tabular numerals.",
-      "**Do** mark status with a bordered stamp that stays put rather than a transient toast or a filled pill.",
-      "**Do** strike a failed entry through with one red rule and leave it visible.",
-      "**Do** keep corners at 3px for controls, 2px for marks and 4px for dialogs.",
-      "**Do** show third-party content on its own white ground in its own type.",
-      "**Do** (landing page) keep spark violet to the four-point star: the wordmark, the title's end, the page button's hover, the pass burst."
+      "**Do** give each view exactly one orange key, and make it the action the view exists for (Run, Add, Install).",
+      "**Do** show state with a 7px lamp and a plain word: green done or passed, amber in progress or warned, red failed.",
+      "**Do** set panels lighter than the body on an 8px radius with a 1px hairline ring, separated by the 10px body gutter.",
+      "**Do** make text buttons keys (face, 1px edge, 1px shadow, 1px press) and icon tools flat until hovered.",
+      "**Do** name panels with a small uppercase label inside the panel head.",
+      "**Do** use JetBrains Mono for paths, URLs, code, output, counts and timings, and Figtree for everything else.",
+      "**Do** keep selected and active states in ink, not colour.",
+      "**Do** let third-party content render in its own look on the white content ground."
     ],
     "donts": [
-      "**Don't** use correction red in syntax highlighting, decoration or emphasis.",
-      "**Don't** erase or hide a failed run; correct it in place.",
-      "**Don't** put shadows on panes, modules, rows, the peek or the band.",
-      "**Don't** wrap content in cards or rounded panels; use ruled modules.",
-      "**Don't** use a cream or warm paper ground, or pure white for grimoire's own surfaces.",
-      "**Don't** fall back to a dark neutral IDE split with tabs and a single purple accent.",
-      "**Don't** use the uppercase condensed label as a kicker or eyebrow above a heading.",
-      "**Don't** introduce a second sans or a display face; get hierarchy from Archivo's weight and width.",
-      "**Don't** use mono for prose or interface labels.",
-      "**Don't** (landing page) replace live product modules with screenshots or feature cards, or use spark violet as a text, link or control color."
+      "**Don't** put orange on a second control in the same view, on icons, links, headings or panels.",
+      "**Don't** use green, red or amber as fills, panel colours or decoration.",
+      "**Don't** number items, sections or entries (no E-/R- codes, no section numerals).",
+      "**Don't** draw rubber-stamp badges or a coloured band across the top; the band is the body.",
+      "**Don't** set captions, notes, list prose or empty states in mono.",
+      "**Don't** add drop shadows to app panels; only floating layers lift.",
+      "**Don't** place uppercase labels above headlines as kickers."
     ]
   }
 }

@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Entry, Path } from "@/components/Entry";
-import { FileBar } from "@/components/FileBar";
+import { Doc, Path } from "@/components/Entry";
 import { Shell } from "@/components/Shell";
-import { REPO, SiteHeader } from "@/components/SiteHeader";
+import { REPO, SiteFooter, SiteHeader } from "@/components/SiteHeader";
 
 export const metadata: Metadata = {
   title: "Install grimoire",
@@ -14,11 +13,6 @@ export const metadata: Metadata = {
 
 const APP = "/Applications/grimoire.app";
 
-const SECTIONS = [
-  ["install", "Install"],
-  ["toolchains", "Toolchains"],
-] as const;
-
 const TOOLCHAINS = [
   ["Python", "python3", "Comes with the Command Line Tools", "xcode-select --install"],
   ["C", "cc", "clang, from the Command Line Tools", "xcode-select --install"],
@@ -28,28 +22,28 @@ const TOOLCHAINS = [
   ["Rust", "rustc", "Through rustup", "curl https://sh.rustup.rs -sSf | sh"],
 ] as const;
 
+/** An instrument panel holding a shell or table, with a label and an optional note on the right. */
 function Module({ file, children, right }: { file: string; children: React.ReactNode; right?: string }) {
   return (
-    <div className="module">
-      <div className="mhead mono">
-        <span>{file}</span>
-        {right && <span className="right hide-sm">{right}</span>}
+    <div className="panel">
+      <div className="phead">
+        <span className="label">{file}</span>
+        {right && (
+          <span className="r hide-sm">
+            <span className="note">{right}</span>
+          </span>
+        )}
       </div>
       {children}
     </div>
   );
 }
 
-/** A `###` subsection inside an entry. */
+/** A subsection inside a section. */
 function Sub({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
     <div className="sub" id={id}>
-      <h3>
-        <span className="md" aria-hidden="true">
-          ###
-        </span>
-        {title}
-      </h3>
+      <h3>{title}</h3>
       {children}
     </div>
   );
@@ -57,45 +51,38 @@ function Sub({ id, title, children }: { id: string; title: string; children: Rea
 
 export default function Install() {
   return (
-    <>
-      <SiteHeader sections={SECTIONS} current="install" />
-      <FileBar file="INSTALL.md" />
+    <div className="wrap">
+      <SiteHeader current="install" />
 
-      <main className="page" id="top">
-        <section className="entry hero hero-sm" aria-labelledby="title">
-          <div className="body">
-            <h1 className="title" id="title">
-              <span className="ink">
-                <span className="md" aria-hidden="true">
-                  #
-                </span>
-                install
+      <main id="top">
+        <header className="doc-hero">
+          <h1>Install grimoire</h1>
+          <p className="lede">
+            grimoire runs on macOS 13 Ventura or later, on Apple silicon and Intel. You install it by building it from
+            source.
+          </p>
+          <ul className="checks">
+            <li>
+              <span className="state">
+                <i className="lamp off" aria-hidden="true" />
+                Need
               </span>
-              <svg className="spark" aria-hidden="true">
-                <use href="#star" />
-              </svg>
-            </h1>
-            <p className="lede">
-              grimoire runs on <strong>macOS 13 Ventura or later</strong>, on Apple silicon and Intel. You install it
-              by building it from source.
-            </p>
-            <ul className="checks">
-              <li>
-                <span className="stamp pass">Need</span>
-                <span>
-                  A Mac on macOS 13+, and permission to write to <Path>/Applications</Path> (or it falls back to{" "}
-                  <Path>~/Applications</Path>).
-                </span>
-              </li>
-              <li>
-                <span className="stamp wait">Early</span>
-                <span>grimoire is in early design. There are no prebuilt downloads.</span>
-              </li>
-            </ul>
-          </div>
-        </section>
+              <span>
+                A Mac on macOS 13+, and permission to write to <Path>/Applications</Path> (or it falls back to{" "}
+                <Path>~/Applications</Path>).
+              </span>
+            </li>
+            <li>
+              <span className="state">
+                <i className="lamp amber" aria-hidden="true" />
+                Early
+              </span>
+              <span>grimoire is in early design. There are no prebuilt downloads.</span>
+            </li>
+          </ul>
+        </header>
 
-        <Entry id="install" title="Build and install">
+        <Doc id="install" title="Build and install">
           <p>
             You build grimoire on your own Mac, and <code>make</code> copies the finished app into{" "}
             <Path>/Applications</Path>. The first build compiles the Rust backend and takes a few minutes; later ones
@@ -162,17 +149,17 @@ export default function Install() {
               />
             </Module>
           </Sub>
-        </Entry>
+        </Doc>
 
-        <Entry id="toolchains" title="Add toolchains for the sandbox">
+        <Doc id="toolchains" title="Toolchains for the sandbox">
           <p>
             The sandbox runs code with the compilers and interpreters already on your Mac. Install only the languages
             you want to use; missing ones are reported in the app and the rest keep working. With{" "}
             <a href="https://brew.sh">Homebrew</a>:
           </p>
-          <div className="module">
-            <table className="tools">
-              <thead className="mono">
+          <div className="panel">
+            <table className="table">
+              <thead>
                 <tr>
                   <th scope="col">Language</th>
                   <th scope="col">Looks for</th>
@@ -197,34 +184,25 @@ export default function Install() {
             If a toolchain lives somewhere unusual, point grimoire at it per machine in{" "}
             <Path>.grimoire/local/settings.json</Path> inside your vault.
           </p>
-        </Entry>
+        </Doc>
 
-        <section className="entry close" aria-labelledby="h-close">
-          <div className="body">
+        <section className="close" aria-labelledby="h-close">
+          <div>
             <h2 id="h-close">Now open a vault.</h2>
             <p>
               Create a new vault from the app, or open one you&apos;ve cloned from git. Stuck on a step? Open{" "}
               <a href={`${REPO}/issues`}>an issue</a>.
             </p>
-            <div className="acts">
-              <Link className="btn btn-outline" href="/">
-                Back to the tour
-              </Link>
-            </div>
+          </div>
+          <div className="acts">
+            <Link className="key" href="/">
+              Back to the overview
+            </Link>
           </div>
         </section>
       </main>
 
-      <footer>
-        <div className="in">
-          <span className="mono">grimoire.aneesh-aparajit.in/install</span>
-          <span>Local-first. Plain files. No account.</span>
-          <span className="right">
-            <a href={REPO}>GitHub</a>
-            <a href={`${REPO}#readme`}>README</a>
-          </span>
-        </div>
-      </footer>
-    </>
+      <SiteFooter path="/install" />
+    </div>
   );
 }
