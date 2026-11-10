@@ -19,8 +19,25 @@ pub struct Item {
     pub kind: ContentKind,
     /// Host for URLs, "local PDF" for files inside the item folder.
     pub origin: String,
-    /// Whether the line carries a `[notes](<id>/NOTES.md)` link yet.
+    /// Whether the line carries its notes (or playlist) link yet.
     pub linked: bool,
+    /// For a video inside a playlist: the playlist's folder.
+    pub playlist: Option<String>,
+    /// How the line links to its notes.
+    #[serde(skip)]
+    pub style: LinkStyle,
+}
+
+/// What an item line links to.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum LinkStyle {
+    /// `[notes](<id>/NOTES.md)`: an item with its own folder.
+    #[default]
+    Folder,
+    /// `[notes](<id>.md)`: a video inside a playlist folder.
+    File,
+    /// `[playlist](<id>/INDEX.md)`: a playlist folder in the root index.
+    Playlist,
 }
 
 #[derive(Debug, Clone)]
@@ -102,7 +119,7 @@ fn take_link(s: &str) -> Option<(String, String, &str)> {
     Some((text.replace("\\]", "]").replace("\\[", "["), target, &s[consumed..]))
 }
 
-fn parse_item(line: &str) -> Option<(Item, Vec<String>)> {
+fn parse_item(line: &str, flat: bool) -> Option<(Item, Vec<String>)> {
     let t = line.trim_end();
     let rest = t.strip_prefix("- [").or_else(|| t.strip_prefix("* ["))?;
     let mut chars = rest.chars();
@@ -124,6 +141,7 @@ fn parse_item(line: &str) -> Option<(Item, Vec<String>)> {
     let mut tags = Vec::new();
     let mut extra = Vec::new();
     let mut id = None;
+    let mut style = if flat { LinkStyle::File } else { LinkStyle::Folder };
     loop {
         rest = rest.trim_start();
         if rest.is_empty() {
@@ -131,12 +149,19 @@ fn parse_item(line: &str) -> Option<(Item, Vec<String>)> {
         }
         if rest.starts_with('[') {
             if let Some((text, target, r)) = take_link(rest) {
-                if text == "notes" {
-                    if let Some(slug) = target.strip_suffix("/NOTES.md") {
-                        id = Some(slug.to_string());
-                        rest = r;
-                        continue;
+                let slug = match (text.as_str(), flat) {
+                    ("notes", false) => target.strip_suffix("/NOTES.md").filter(|s| !s.contains('/')),
+                    ("notes", true) => target.strip_suffix(".md").filter(|s| !s.contains('/')),
+                    ("playlist", false) => target.strip_suffix("/INDEX.md").filter(|s| !s.contains('/')),
+                    _ => None,
+                };
+                if let Some(slug) = slug.filter(|_| id.is_none()) {
+                    if text == "playlist" {
+                        style = LinkStyle::Playlist;
                     }
+                    id = Some(slug.to_string());
+                    rest = r;
+                    continue;
                 }
                 extra.push(format!("[{text}]({target})"));
                 rest = r;
@@ -167,6 +192,8 @@ fn parse_item(line: &str) -> Option<(Item, Vec<String>)> {
             tags,
             done,
             linked,
+            playlist: None,
+            style,
         },
         extra,
     ))
@@ -184,7 +211,11 @@ pub fn serialize_item(item: &Item, extra: &[String]) -> String {
         s.push_str(e);
     }
     if item.linked {
-        s.push_str(&format!(" · [notes]({}/NOTES.md)", item.id));
+        match item.style {
+            LinkStyle::Folder => s.push_str(&format!(" · [notes]({}/NOTES.md)", item.id)),
+            LinkStyle::File => s.push_str(&format!(" · [notes]({}.md)", item.id)),
+            LinkStyle::Playlist => s.push_str(&format!(" · [playlist]({}/INDEX.md)", item.id)),
+        }
     }
     s
 }
@@ -197,6 +228,15 @@ impl Index {
     /// Parses the file. `taken` holds folder names already present in the vault,
     /// used to give unlinked items an id that won't collide.
     pub fn parse(text: &str, taken: &HashSet<String>) -> Index {
+        Self::parse_as(text, taken, false)
+    }
+
+    /// Parses a playlist's own `INDEX.md`, whose items link `[notes](<id>.md)`.
+    pub fn parse_playlist(text: &str, taken: &HashSet<String>) -> Index {
+        Self::parse_as(text, taken, true)
+    }
+
+    fn parse_as(text: &str, taken: &HashSet<String>, flat: bool) -> Index {
         let mut lines = Vec::new();
         let mut conflicted = false;
         let mut used: HashSet<String> = taken.clone();
@@ -205,7 +245,7 @@ impl Index {
             if is_conflict_marker(raw) {
                 conflicted = true;
             }
-            match parse_item(raw) {
+            match parse_item(raw, flat) {
                 Some((item, extra)) => {
                     if item.linked {
                         used.insert(item.id.clone());
@@ -406,8 +446,33 @@ mod tests {
             kind: ContentKind::Article,
             origin: "a.dev".into(),
             linked: true,
+            playlist: None,
+            style: LinkStyle::Folder,
         });
         assert_eq!(idx.serialize(), "# G\n\n- [ ] [A](https://a.dev) #x · [notes](a/NOTES.md)\n");
+    }
+
+    #[test]
+    fn playlist_lines_round_trip() {
+        let root = "# G\n\n- [ ] [Distributed Systems](https://www.youtube.com/playlist?list=PLx) #ds · [playlist](distributed-systems/INDEX.md)\n";
+        let idx = Index::parse(root, &HashSet::new());
+        let p = &idx.items()[0];
+        assert_eq!(p.id, "distributed-systems");
+        assert_eq!(p.style, LinkStyle::Playlist);
+        assert_eq!(idx.serialize(), root);
+        let mut idx = idx;
+        idx.get_mut("distributed-systems").unwrap().done = true;
+        assert!(idx.serialize().contains("- [x] [Distributed Systems](https://www.youtube.com/playlist?list=PLx) #ds · [playlist](distributed-systems/INDEX.md)"));
+
+        let inner = "# Distributed Systems\n\n- [ ] [Lecture 1](https://www.youtube.com/watch?v=a) · [notes](01-lecture-1.md)\n- [ ] [Hand added](https://www.youtube.com/watch?v=b)\n";
+        let mut pl = Index::parse_playlist(inner, &HashSet::new());
+        assert_eq!(pl.serialize(), inner);
+        let items = pl.items();
+        assert_eq!(items[0].id, "01-lecture-1");
+        assert_eq!(items[0].style, LinkStyle::File);
+        assert_eq!(items[1].id, "hand-added");
+        pl.get_mut("01-lecture-1").unwrap().done = true;
+        assert!(pl.serialize().contains("- [x] [Lecture 1](https://www.youtube.com/watch?v=a) · [notes](01-lecture-1.md)"));
     }
 
     #[test]

@@ -8,6 +8,7 @@ import { CodeMirror } from "./editor/CodeMirror";
 import { entries, lintMarkdown, notesLint } from "./editor/notesExtensions";
 import { notesTheme, syntax } from "./editor/theme";
 import { useApp } from "../app/store";
+import { notesPath } from "../lib/paths";
 import { useStudy } from "./store";
 
 const BASE = [markdown({ base: markdownLanguage, codeLanguages: languages }), entries, syntax, notesTheme];
@@ -19,6 +20,8 @@ const SAVE_LABEL = { saved: "Saved", saving: "Saving…", dirty: "Edited", error
 
 export function NotesModule({ style }: { style?: React.CSSProperties }) {
   const id = useStudy((s) => s.item?.id ?? "");
+  const file = useStudy((s) => (s.item ? notesPath(s.item) : ""));
+  const slash = file.lastIndexOf("/");
   const loading = useStudy((s) => s.loading);
   const diskConflict = useStudy((s) => s.diskConflict);
   const resolveConflict = useStudy((s) => s.resolveConflict);
@@ -34,8 +37,9 @@ export function NotesModule({ style }: { style?: React.CSSProperties }) {
   return (
     <section className="notes" id="notes-module" aria-label="Notes" style={style}>
       <div className="head">
-        <span className="head-file" title={`${id}/NOTES.md`}>
-          {id}/<b>NOTES.md</b>
+        <span className="head-file" title={file}>
+          {file.slice(0, slash + 1)}
+          <b>{file.slice(slash + 1)}</b>
         </span>
         <span className="spacer" />
         {hints > 0 && !preview && (

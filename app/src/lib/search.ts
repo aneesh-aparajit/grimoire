@@ -1,4 +1,4 @@
-import type { Item } from "../ipc/schemas";
+import type { Item, Playlist } from "../ipc/schemas";
 
 export type Query = { tags: string[]; words: string[]; state: "all" | "done" | "pending" };
 
@@ -16,11 +16,13 @@ export function parseQuery(q: string): Query {
   return out;
 }
 
-export function matches(item: Item, q: Query): boolean {
+/** A playlist's videos also match on the playlist's title and tags. */
+export function matches(item: Item, q: Query, playlist?: Playlist): boolean {
   if (q.state === "done" && !item.done) return false;
   if (q.state === "pending" && item.done) return false;
-  if (!q.tags.every((t) => item.tags.includes(t))) return false;
-  const hay = `${item.title} ${item.origin} ${item.source} ${item.tags.join(" ")}`.toLowerCase();
+  const tags = playlist ? [...item.tags, ...playlist.tags] : item.tags;
+  if (!q.tags.every((t) => tags.includes(t))) return false;
+  const hay = `${item.title} ${item.origin} ${item.source} ${tags.join(" ")} ${playlist?.title ?? ""}`.toLowerCase();
   return q.words.every((w) => hay.includes(w));
 }
 
@@ -31,7 +33,7 @@ export function toggleTag(query: string, tag: string): string {
   return (has ? parts.filter((p) => p.toLowerCase() !== token) : [...parts, token]).join(" ") + (has ? "" : " ");
 }
 
-export function tagCounts(items: Item[]): [string, number][] {
+export function tagCounts(items: { tags: string[] }[]): [string, number][] {
   const m = new Map<string, number>();
   for (const i of items) for (const t of i.tags) m.set(t, (m.get(t) ?? 0) + 1);
   return [...m.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));

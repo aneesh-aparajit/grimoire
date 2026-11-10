@@ -1,15 +1,16 @@
-import { Command, FolderOpen, Plus, Search, Settings, TriangleAlert, X } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { ChevronRight, Command, ExternalLink, FolderOpen, Plus, Search, Settings, Trash2, TriangleAlert, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useApp } from "../app/store";
 import { KindIcon } from "../components/KindIcon";
 import { backend } from "../ipc";
-import type { Item } from "../ipc/schemas";
+import type { Item, Playlist } from "../ipc/schemas";
 import { matches, parseQuery, tagCounts, toggleTag } from "../lib/search";
 import { Peek } from "./Peek";
 
 export function ListView() {
   const vault = useApp((s) => s.vault);
   const items = useApp((s) => s.items);
+  const playlists = useApp((s) => s.playlists);
   const conflicted = useApp((s) => s.conflicted);
   const query = useApp((s) => s.query);
   const setQuery = useApp((s) => s.setQuery);
@@ -20,20 +21,37 @@ export function ListView() {
   const setDialog = useApp((s) => s.setDialog);
   const search = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
 
   const q = parseQuery(query);
-  const visible = items.filter((i) => matches(i, q));
-  const pending = visible.filter((i) => !i.done);
-  const done = visible.filter((i) => i.done);
-  const ordered = [...pending, ...done];
+  const playlistOf = new Map(playlists.map((p) => [p.id, p]));
+  const visible = items.filter((i) => matches(i, q, i.playlist ? playlistOf.get(i.playlist) : undefined));
+  const loose = visible.filter((i) => !i.playlist);
+  const pending = loose.filter((i) => !i.done);
+  const done = loose.filter((i) => i.done);
+  // Each playlist is its own group; finished ones sit with the done items.
+  const groups = playlists
+    .map((p) => ({ playlist: p, videos: visible.filter((i) => i.playlist === p.id) }))
+    .filter((g) => g.videos.length > 0);
+  const openGroups = groups.filter((g) => !g.playlist.done);
+  const doneGroups = groups.filter((g) => g.playlist.done);
+  const shown = (gs: typeof groups) => gs.flatMap((g) => (collapsed.has(g.playlist.id) ? [] : g.videos));
+  const ordered = [...pending, ...shown(openGroups), ...done, ...shown(doneGroups)];
   const selected = items.find((i) => i.id === selectedId) ?? null;
-  const tags = tagCounts(items);
+  const tags = tagCounts([...items.filter((i) => !i.playlist), ...playlists]);
   const filtering = query.trim().length > 0;
+  const toggleGroup = (id: string) =>
+    setCollapsed((c) => {
+      const n = new Set(c);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
 
   // Keep a visible selection.
   useEffect(() => {
     if (!ordered.some((i) => i.id === selectedId)) select(ordered[0]?.id ?? null);
-  }, [query, items.length]);
+  }, [query, items.length, collapsed]);
 
   useEffect(() => {
     listRef.current?.querySelector<HTMLElement>(`[data-id="${CSS.escape(selectedId ?? "")}"]`)?.scrollIntoView({ block: "nearest" });
@@ -120,6 +138,50 @@ export function ListView() {
       </div>
     </li>
   );
+
+  const group = ({ playlist: p, videos }: { playlist: Playlist; videos: Item[] }) => {
+    const isOpen = !collapsed.has(p.id);
+    return (
+      <section key={`pl:${p.id}`} className="playlist" aria-label={`Playlist ${p.title}`}>
+        <h2 className="section-head playlist-head">
+          <button
+            type="button"
+            className="playlist-toggle"
+            aria-expanded={isOpen}
+            onClick={() => toggleGroup(p.id)}
+            title={`${p.id}/ · ${isOpen ? "collapse" : "expand"}`}
+          >
+            <ChevronRight className="playlist-chevron" aria-hidden="true" />
+            <span className="playlist-title">{p.title}</span>
+          </button>
+          <span className="count" title={`${p.doneCount} of ${p.count} videos done`}>
+            {p.doneCount}/{p.count}
+          </span>
+          {p.tags.length > 0 && <span className="row-tags hide-narrow">{p.tags.map((t) => `#${t}`).join(" ")}</span>}
+          <span className="spacer" />
+          <button
+            type="button"
+            className="btn btn-icon playlist-tool"
+            aria-label={`Open ${p.title} on YouTube`}
+            title="Open the playlist in the browser"
+            onClick={() => void backend.openExternal(p.source)}
+          >
+            <ExternalLink />
+          </button>
+          <button
+            type="button"
+            className="btn btn-icon playlist-tool"
+            aria-label={`Remove playlist ${p.title}`}
+            title="Remove the playlist"
+            onClick={() => setDialog({ kind: "delete", id: p.id })}
+          >
+            <Trash2 />
+          </button>
+        </h2>
+        {isOpen && <ol>{videos.map((i) => row(i))}</ol>}
+      </section>
+    );
+  };
 
   return (
     <div className="listview">
@@ -223,12 +285,13 @@ export function ListView() {
             </div>
           )}
 
-          {items.length === 0 ? (
+          {items.length === 0 && playlists.length === 0 ? (
             <div className="empty">
               <h2>Your reading list is empty</h2>
               <p>
-                Add a blog post, a paper, a talk or a PDF. It goes into <code>INDEX.md</code> as one line, and gets its
-                own folder with a <code>NOTES.md</code> for your notes and a <code>sandbox/</code> for code.
+                Add a blog post, a paper, a talk, a PDF or a whole YouTube playlist. It goes into <code>INDEX.md</code>{" "}
+                as one line, and gets its own folder with a <code>NOTES.md</code> for your notes and a{" "}
+                <code>sandbox/</code> for code. A playlist's folder gets a notes file per video.
               </p>
               <p>You can also drag a PDF onto this window, or edit INDEX.md by hand; Grimoire picks up the change.</p>
               <button type="button" className="btn btn-primary" onClick={() => setDialog({ kind: "add" })}>
@@ -256,6 +319,7 @@ export function ListView() {
                   <ol>{pending.map((i) => row(i))}</ol>
                 </>
               )}
+              {openGroups.map(group)}
               {done.length > 0 && (
                 <>
                   <h2 className="section-head">
@@ -264,6 +328,7 @@ export function ListView() {
                   <ol>{done.map((i) => row(i))}</ol>
                 </>
               )}
+              {doneGroups.map(group)}
               {filtering && (
                 <p className="list-foot">
                   Showing {visible.length} of {items.length}

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { backend } from "../ipc";
-import type { EffectiveConfig, Item, Toolchain, VaultSnapshot } from "../ipc/schemas";
+import type { EffectiveConfig, Item, Playlist, Toolchain, VaultSnapshot } from "../ipc/schemas";
 import { errorMessage } from "../ipc/schemas";
 
 export type Route = { view: "list" } | { view: "item"; id: string };
@@ -24,6 +24,7 @@ type AppState = {
   recent: string[];
   vault: { root: string; name: string } | null;
   items: Item[];
+  playlists: Playlist[];
   conflicted: boolean;
   config: EffectiveConfig | null;
   vaultState: VaultState;
@@ -69,6 +70,7 @@ export const useApp = create<AppState>((set, get) => {
       phase: "ready",
       vault: { root: snap.root, name: snap.name },
       items: snap.index.items,
+      playlists: snap.index.playlists,
       conflicted: snap.index.conflicted,
       config: snap.config,
       vaultState: snap.state as VaultState,
@@ -88,6 +90,7 @@ export const useApp = create<AppState>((set, get) => {
     recent: [],
     vault: null,
     items: [],
+    playlists: [],
     conflicted: false,
     config: null,
     vaultState: {},
@@ -102,7 +105,7 @@ export const useApp = create<AppState>((set, get) => {
     boot: async () => {
       if (booted) return;
       booted = true;
-      backend.on("index://changed", (s) => set({ items: s.items, conflicted: s.conflicted }));
+      backend.on("index://changed", (s) => set({ items: s.items, playlists: s.playlists, conflicted: s.conflicted }));
       backend.on("config://changed", (c) => {
         applyConfig(c);
         set({ config: c });
@@ -146,7 +149,7 @@ export const useApp = create<AppState>((set, get) => {
     closeVault: async () => {
       await backend.vaultClose();
       const recent = await backend.vaultRecent().catch(() => []);
-      set({ phase: "picker", vault: null, items: [], recent, route: { view: "list" } });
+      set({ phase: "picker", vault: null, items: [], playlists: [], recent, route: { view: "list" } });
     },
 
     openItem: async (id) => {

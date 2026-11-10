@@ -47,6 +47,22 @@ my-vault/
 
 You can edit it by hand; Grimoire keeps anything it doesn't recognise. Each item's folder is named after its title when you add it.
 
+### Playlists
+
+Paste a YouTube playlist link and the whole playlist is added. It gets one line in `INDEX.md` and its own folder, with an `INDEX.md` of its own and one numbered notes file per video:
+
+```
+my-vault/
+├── INDEX.md                      # - [ ] [MIT 6.824](https://www.youtube.com/playlist?list=…) · [playlist](distributed-systems/INDEX.md)
+└── distributed-systems/
+    ├── INDEX.md                  # - [ ] [Lecture 1: Introduction](https://www.youtube.com/watch?v=…) · [notes](01-lecture-1-introduction.md)
+    ├── 01-lecture-1-introduction.md
+    ├── 02-lecture-2-rpc-and-threads.md
+    └── sandbox/01-lecture-1-introduction/main.go
+```
+
+The playlist is marked done once every video in it is.
+
 ## Preferences
 
 Every vault's preferences live in `.grimoire/config.json`: theme, editor, lint rules, layout, sandbox limits. They're committed, so they follow the vault to every machine. Grimoire also writes a JSON Schema next to the file, so you get autocompletion and validation if you edit it by hand.

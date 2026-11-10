@@ -4,6 +4,7 @@ import { useApp } from "../app/store";
 import { KindIcon, kindLabel } from "../components/KindIcon";
 import { backend } from "../ipc";
 import type { Item, NotesSummary } from "../ipc/schemas";
+import { notesPath, sandboxPath } from "../lib/paths";
 import { relativeTime } from "../lib/search";
 
 export function Peek({ item }: { item: Item | null }) {
@@ -12,6 +13,7 @@ export function Peek({ item }: { item: Item | null }) {
   const toggleDone = useApp((s) => s.toggleDone);
   const setDialog = useApp((s) => s.setDialog);
   const root = useApp((s) => s.vault?.root ?? "");
+  const playlist = useApp((s) => (item?.playlist ? s.playlists.find((p) => p.id === item.playlist) : undefined));
 
   useEffect(() => {
     setSummary(null);
@@ -76,8 +78,8 @@ export function Peek({ item }: { item: Item | null }) {
             type="button"
             className="btn btn-icon"
             aria-label="Show folder"
-            title={`Show ${item.id}/ in Finder`}
-            onClick={() => void backend.revealPath(`${root}/${item.id}/NOTES.md`)}
+            title={`Show ${notesPath(item)} in Finder`}
+            onClick={() => void backend.revealPath(`${root}/${notesPath(item)}`)}
           >
             <FolderOpen />
           </button>
@@ -103,8 +105,16 @@ export function Peek({ item }: { item: Item | null }) {
       </div>
 
       <dl className="peek-spec" aria-label="On disk">
-        <dt>Folder</dt>
-        <dd className="mono">{item.id}/</dd>
+        {playlist && (
+          <>
+            <dt>Playlist</dt>
+            <dd>
+              {playlist.title} · {playlist.doneCount}/{playlist.count}
+            </dd>
+          </>
+        )}
+        <dt>{item.playlist ? "File" : "Folder"}</dt>
+        <dd className="mono">{item.playlist ? notesPath(item) : `${item.id}/`}</dd>
         <dt>Notes</dt>
         <dd>
           <span className={summary && summary.words > 0 ? "lamp" : "lamp off"} aria-hidden="true" />
@@ -121,7 +131,7 @@ export function Peek({ item }: { item: Item | null }) {
           ) : summary.snippets.length === 0 ? (
             "Nothing saved yet"
           ) : (
-            <span className="mono">{summary.snippets.map((f) => `sandbox/${f}`).join(", ")}</span>
+            <span className="mono">{summary.snippets.map((f) => `${item.playlist ? sandboxPath(item) : "sandbox/"}${f}`).join(", ")}</span>
           )}
         </dd>
       </dl>
@@ -134,7 +144,7 @@ export function Peek({ item }: { item: Item | null }) {
           <p className="peek-quiet">…</p>
         ) : summary.entries.length === 0 ? (
           <p className="peek-quiet">
-            No headings yet. Each <code>##</code> heading in NOTES.md is listed here.
+            No headings yet. Each <code>##</code> heading in {item.playlist ? "the notes" : "NOTES.md"} is listed here.
           </p>
         ) : (
           <ol className="entries">
