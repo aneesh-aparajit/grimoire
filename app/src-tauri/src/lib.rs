@@ -496,8 +496,14 @@ fn sandbox_load(cell: State<VaultCell>, id: String, file_name: String) -> Result
 /* ---------- content ---------- */
 
 #[tauri::command]
-fn content_show(app: AppHandle, source: String, bounds: Bounds) -> Result<()> {
-    content::webview_show(&app, &source, bounds)
+fn content_show(app: AppHandle, source: String, start: Option<u32>, bounds: Bounds) -> Result<()> {
+    content::webview_show(&app, &source, start, bounds)
+}
+
+/// The embedded video's position, for resuming it later.
+#[tauri::command]
+async fn content_video_time(app: AppHandle) -> Option<serde_json::Value> {
+    content::webview_video_time(&app).await
 }
 
 #[tauri::command]
@@ -634,6 +640,7 @@ pub fn run() {
             sandbox_list,
             sandbox_load,
             content_show,
+            content_video_time,
             content_bounds,
             content_hide,
             content_nav,

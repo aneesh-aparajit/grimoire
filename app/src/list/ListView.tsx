@@ -1,11 +1,13 @@
-import { ChevronRight, Command, ExternalLink, FolderOpen, Plus, Search, Settings, Trash2, TriangleAlert, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Command, FolderOpen, ListVideo, Plus, Search, Settings, TriangleAlert, X } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { useApp } from "../app/store";
 import { KindIcon } from "../components/KindIcon";
 import { backend } from "../ipc";
-import type { Item, Playlist } from "../ipc/schemas";
-import { matches, parseQuery, tagCounts, toggleTag } from "../lib/search";
+import type { Item } from "../ipc/schemas";
+import { clock, resumeAt, resumeVideo, videosOf } from "../lib/playlist";
+import { matches, matchesPlaylist, parseQuery, tagCounts, toggleTag } from "../lib/search";
 import { Peek } from "./Peek";
+import { PlaylistPeek } from "./PlaylistPeek";
 
 export function ListView() {
   const vault = useApp((s) => s.vault);
@@ -21,37 +23,40 @@ export function ListView() {
   const setDialog = useApp((s) => s.setDialog);
   const search = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
-  const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
 
+  const vaultState = useApp((s) => s.vaultState);
   const q = parseQuery(query);
+  const filtering = query.trim().length > 0;
   const playlistOf = new Map(playlists.map((p) => [p.id, p]));
   const visible = items.filter((i) => matches(i, q, i.playlist ? playlistOf.get(i.playlist) : undefined));
   const loose = visible.filter((i) => !i.playlist);
   const pending = loose.filter((i) => !i.done);
   const done = loose.filter((i) => i.done);
-  // Each playlist is its own group; finished ones sit with the done items.
-  const groups = playlists
-    .map((p) => ({ playlist: p, videos: visible.filter((i) => i.playlist === p.id) }))
-    .filter((g) => g.videos.length > 0);
-  const openGroups = groups.filter((g) => !g.playlist.done);
-  const doneGroups = groups.filter((g) => g.playlist.done);
-  const shown = (gs: typeof groups) => gs.flatMap((g) => (collapsed.has(g.playlist.id) ? [] : g.videos));
-  const ordered = [...pending, ...shown(openGroups), ...done, ...shown(doneGroups)];
+  // A playlist is one row however many videos it has. A search by words also
+  // lists the videos it found, under their playlist's row.
+  const rows = playlists
+    .map((p) => {
+      const videos = videosOf(p, items);
+      const hits = q.words.length > 0 ? visible.filter((i) => i.playlist === p.id) : [];
+      const shown = matchesPlaylist(p, q) || visible.some((i) => i.playlist === p.id);
+      const next = resumeVideo(videos, vaultState.playlistLast?.[p.id], vaultState.videoPositions);
+      return { playlist: p, videos, hits, shown, next };
+    })
+    .filter((r) => r.shown);
+  const openRows = rows.filter((r) => !r.playlist.done);
+  const doneRows = rows.filter((r) => r.playlist.done);
+  const withHits = (rs: typeof rows) => rs.flatMap((r) => [r.playlist.id, ...r.hits.map((h) => h.id)]);
+  const ordered = [...pending.map((i) => i.id), ...withHits(openRows), ...done.map((i) => i.id), ...withHits(doneRows)];
   const selected = items.find((i) => i.id === selectedId) ?? null;
+  const selectedRow = rows.find((r) => r.playlist.id === selectedId) ?? null;
   const tags = tagCounts([...items.filter((i) => !i.playlist), ...playlists]);
-  const filtering = query.trim().length > 0;
-  const toggleGroup = (id: string) =>
-    setCollapsed((c) => {
-      const n = new Set(c);
-      if (n.has(id)) n.delete(id);
-      else n.add(id);
-      return n;
-    });
+  const shownCount = loose.length + rows.length;
+  const totalCount = items.filter((i) => !i.playlist).length + playlists.length;
 
   // Keep a visible selection.
   useEffect(() => {
-    if (!ordered.some((i) => i.id === selectedId)) select(ordered[0]?.id ?? null);
-  }, [query, items.length, collapsed]);
+    if (!ordered.includes(selectedId ?? "")) select(ordered[0] ?? null);
+  }, [query, items.length, playlists.length]);
 
   useEffect(() => {
     listRef.current?.querySelector<HTMLElement>(`[data-id="${CSS.escape(selectedId ?? "")}"]`)?.scrollIntoView({ block: "nearest" });
@@ -73,7 +78,7 @@ export function ListView() {
         setDialog({ kind: "add" });
         return;
       }
-      const ids = ordered.map((i) => i.id);
+      const ids = ordered;
       const at = ids.indexOf(useApp.getState().selectedId ?? "");
       if (e.key === "ArrowDown" || (!inField && e.key === "j")) {
         e.preventDefault();
@@ -139,47 +144,48 @@ export function ListView() {
     </li>
   );
 
-  const group = ({ playlist: p, videos }: { playlist: Playlist; videos: Item[] }) => {
-    const isOpen = !collapsed.has(p.id);
+  const playlistRow = ({ playlist: p, hits, next }: (typeof rows)[number]) => {
+    const pos = next ? vaultState.videoPositions?.[next.id] : undefined;
+    const at = resumeAt(pos);
+    const started = !!vaultState.playlistLast?.[p.id] || p.doneCount > 0;
     return (
-      <section key={`pl:${p.id}`} className="playlist" aria-label={`Playlist ${p.title}`}>
-        <h2 className="section-head playlist-head">
-          <button
-            type="button"
-            className="playlist-toggle"
-            aria-expanded={isOpen}
-            onClick={() => toggleGroup(p.id)}
-            title={`${p.id}/ · ${isOpen ? "collapse" : "expand"}`}
-          >
-            <ChevronRight className="playlist-chevron" aria-hidden="true" />
-            <span className="playlist-title">{p.title}</span>
-          </button>
-          <span className="count" title={`${p.doneCount} of ${p.count} videos done`}>
-            {p.doneCount}/{p.count}
+      <li key={`pl:${p.id}`}>
+        <div
+          className="row row-playlist"
+          data-id={p.id}
+          aria-selected={p.id === selectedId}
+          role="option"
+          tabIndex={-1}
+          onClick={() => select(p.id)}
+          onDoubleClick={() => void openItem(p.id)}
+          onKeyDown={() => {}}
+        >
+          <Progress done={p.doneCount} total={p.count} />
+          <span className="row-kind">
+            <ListVideo />
           </span>
-          {p.tags.length > 0 && <span className="row-tags hide-narrow">{p.tags.map((t) => `#${t}`).join(" ")}</span>}
-          <span className="spacer" />
-          <button
-            type="button"
-            className="btn btn-icon playlist-tool"
-            aria-label={`Open ${p.title} on YouTube`}
-            title="Open the playlist in the browser"
-            onClick={() => void backend.openExternal(p.source)}
-          >
-            <ExternalLink />
-          </button>
-          <button
-            type="button"
-            className="btn btn-icon playlist-tool"
-            aria-label={`Remove playlist ${p.title}`}
-            title="Remove the playlist"
-            onClick={() => setDialog({ kind: "delete", id: p.id })}
-          >
-            <Trash2 />
-          </button>
-        </h2>
-        {isOpen && <ol>{videos.map((i) => row(i))}</ol>}
-      </section>
+          <span className="row-main">
+            <span className="row-title">{p.title}</span>
+            <span className="row-meta">
+              <span className="row-count">
+                {p.doneCount}/{p.count}
+              </span>
+              {p.done ? (
+                <span>All watched</span>
+              ) : (
+                next && (
+                  <span className="row-next" title={next.title}>
+                    {started ? "Continue" : "Start"}: {next.title}
+                    {at !== undefined && <span className="row-time"> · {clock(at)}</span>}
+                  </span>
+                )
+              )}
+              {p.tags.length > 0 && <span className="row-tags">{p.tags.map((t) => `#${t}`).join(" ")}</span>}
+            </span>
+          </span>
+        </div>
+        {hits.length > 0 && <ol className="row-hits">{hits.map((i) => row(i))}</ol>}
+      </li>
     );
   };
 
@@ -299,7 +305,7 @@ export function ListView() {
                 Add the first item
               </button>
             </div>
-          ) : visible.length === 0 ? (
+          ) : shownCount === 0 ? (
             <div className="empty">
               <h2>Nothing matches</h2>
               <p>
@@ -311,34 +317,61 @@ export function ListView() {
             </div>
           ) : (
             <div className="rows" ref={listRef} role="listbox" aria-label="Items" aria-activedescendant={selectedId ?? undefined}>
-              {pending.length > 0 && (
+              {pending.length + openRows.length > 0 && (
                 <>
                   <h2 className="section-head">
-                    <span className="label">To study</span> <span className="count">{pending.length}</span>
+                    <span className="label">To study</span>{" "}
+                    <span className="count">{pending.length + openRows.length}</span>
                   </h2>
-                  <ol>{pending.map((i) => row(i))}</ol>
+                  <ol>
+                    {pending.map((i) => row(i))}
+                    {openRows.map(playlistRow)}
+                  </ol>
                 </>
               )}
-              {openGroups.map(group)}
-              {done.length > 0 && (
+              {done.length + doneRows.length > 0 && (
                 <>
                   <h2 className="section-head">
-                    <span className="label">Done</span> <span className="count">{done.length}</span>
+                    <span className="label">Done</span> <span className="count">{done.length + doneRows.length}</span>
                   </h2>
-                  <ol>{done.map((i) => row(i))}</ol>
+                  <ol>
+                    {done.map((i) => row(i))}
+                    {doneRows.map(playlistRow)}
+                  </ol>
                 </>
               )}
-              {doneGroups.map(group)}
               {filtering && (
                 <p className="list-foot">
-                  Showing {visible.length} of {items.length}
+                  Showing {shownCount} of {totalCount}
                 </p>
               )}
             </div>
           )}
         </section>
-        <Peek item={selected} />
+        {selectedRow ? <PlaylistPeek row={selectedRow} /> : <Peek item={selected} />}
       </main>
     </div>
+  );
+}
+
+/** A playlist's share of videos done, as a ring in the done lamp's place. */
+function Progress({ done, total }: { done: number; total: number }) {
+  const r = 6.5;
+  const c = 2 * Math.PI * r;
+  const f = total > 0 ? done / total : 0;
+  return (
+    <span className="progress" title={`${done} of ${total} videos done`}>
+      <svg viewBox="0 0 16 16" aria-hidden="true">
+        <circle cx="8" cy="8" r={r} className="progress-track" />
+        <circle
+          cx="8"
+          cy="8"
+          r={r}
+          className={f >= 1 ? "progress-fill full" : "progress-fill"}
+          strokeDasharray={`${f * c} ${c}`}
+          transform="rotate(-90 8 8)"
+        />
+      </svg>
+    </span>
   );
 }

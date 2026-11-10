@@ -14,6 +14,8 @@ import type {
 } from "./schemas";
 
 export type Bounds = { x: number; y: number; width: number; height: number };
+/** The embedded video player's position: seconds in, duration, player state. */
+export type VideoTime = { t: number; d: number | null; s: number | null };
 
 export type AddInput = { url?: string; filePath?: string; title?: string; tags: string[] };
 export type PlaylistInput = { url: string; title?: string; tags: string[] };
@@ -63,7 +65,10 @@ export interface Backend {
   sandboxList(id: string): Promise<string[]>;
   sandboxLoad(id: string, fileName: string): Promise<string>;
 
-  contentShow(source: string, bounds: Bounds): Promise<void>;
+  /** `start` resumes a video that many seconds in. */
+  contentShow(source: string, bounds: Bounds, start?: number): Promise<void>;
+  /** Where the embedded video is, or null when none is showing. */
+  contentVideoTime(): Promise<VideoTime | null>;
   contentBounds(bounds: Bounds): Promise<void>;
   contentHide(): Promise<void>;
   contentNav(action: "back" | "forward" | "reload"): Promise<void>;

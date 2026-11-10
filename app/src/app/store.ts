@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { backend } from "../ipc";
 import type { EffectiveConfig, Item, Playlist, Toolchain, VaultSnapshot } from "../ipc/schemas";
 import { errorMessage } from "../ipc/schemas";
+import { resumeVideo, type VideoPosition, videosOf } from "../lib/playlist";
 
 export type Route = { view: "list" } | { view: "item"; id: string };
 export type Dialog =
@@ -15,6 +16,10 @@ export type Dialog =
 export type VaultState = {
   lastOpenItem?: string;
   pdfPositions?: Record<string, { page: number; zoom: number }>;
+  /** Per playlist, the video opened last. */
+  playlistLast?: Record<string, string>;
+  /** Per video, where playback was left. */
+  videoPositions?: Record<string, VideoPosition>;
 };
 
 export type Notice = { text: string; tone?: "info" | "error" };
@@ -40,7 +45,9 @@ type AppState = {
   openVault: (path: string) => Promise<void>;
   createVault: (path: string, lfs: boolean) => Promise<void>;
   closeVault: () => Promise<void>;
+  /** Opens an item; a playlist's id opens the video to pick it up from. */
   openItem: (id: string) => Promise<void>;
+  saveVideoPosition: (id: string, pos: VideoPosition) => void;
   back: () => void;
   setQuery: (q: string) => void;
   select: (id: string | null) => void;
@@ -65,7 +72,12 @@ export function applyConfig(c: EffectiveConfig | null) {
 export const useApp = create<AppState>((set, get) => {
   const loaded = (snap: VaultSnapshot) => {
     applyConfig(snap.config);
-    const last = typeof snap.state.lastOpenItem === "string" ? snap.state.lastOpenItem : null;
+    const lastOpen = typeof snap.state.lastOpenItem === "string" ? snap.state.lastOpenItem : null;
+    // The list shows a playlist as one row, so select that rather than a video.
+    const lastItem = snap.index.items.find((i) => i.id === lastOpen);
+    const last = lastItem?.playlist ?? lastOpen;
+    const listed = (id: string) =>
+      snap.index.playlists.some((p) => p.id === id) || snap.index.items.some((i) => i.id === id && !i.playlist);
     set({
       phase: "ready",
       vault: { root: snap.root, name: snap.name },
@@ -75,7 +87,7 @@ export const useApp = create<AppState>((set, get) => {
       config: snap.config,
       vaultState: snap.state as VaultState,
       route: { view: "list" },
-      selectedId: last && snap.index.items.some((i) => i.id === last) ? last : (snap.index.items[0]?.id ?? null),
+      selectedId: last && listed(last) ? last : (snap.index.items.find((i) => !i.playlist)?.id ?? snap.index.playlists[0]?.id ?? null),
       query: "",
       dialog: null,
     });
@@ -152,19 +164,46 @@ export const useApp = create<AppState>((set, get) => {
       set({ phase: "picker", vault: null, items: [], playlists: [], recent, route: { view: "list" } });
     },
 
-    openItem: async (id) => {
+    openItem: async (target) => {
+      const { items, playlists, vaultState } = get();
+      const playlist = playlists.find((p) => p.id === target);
+      const id = playlist ? resumeVideo(videosOf(playlist, items), vaultState.playlistLast?.[playlist.id], vaultState.videoPositions)?.id : target;
+      if (!id) {
+        get().notify("This playlist has no videos.", "error");
+        return;
+      }
       try {
         await backend.itemEnsure(id);
-        set({ route: { view: "item", id }, selectedId: id, dialog: null });
-        void backend.statePatch({ lastOpenItem: id });
+        const list = items.find((i) => i.id === id)?.playlist;
+        const patch: VaultState = { lastOpenItem: id };
+        if (list) patch.playlistLast = { [list]: id };
+        set({
+          route: { view: "item", id },
+          selectedId: id,
+          dialog: null,
+          vaultState: list
+            ? { ...get().vaultState, lastOpenItem: id, playlistLast: { ...get().vaultState.playlistLast, [list]: id } }
+            : { ...get().vaultState, lastOpenItem: id },
+        });
+        void backend.statePatch(patch);
       } catch (e) {
         get().notify(errorMessage(e), "error");
       }
     },
 
+    saveVideoPosition: (id, pos) => {
+      const prev = get().vaultState.videoPositions?.[id];
+      if (prev && Math.abs(prev.t - pos.t) < 1 && prev.d === pos.d) return;
+      set({ vaultState: { ...get().vaultState, videoPositions: { ...get().vaultState.videoPositions, [id]: pos } } });
+      void backend.statePatch({ videoPositions: { [id]: pos } });
+    },
+
     back: () => {
       void backend.contentHide();
-      set({ route: { view: "list" } });
+      // Back on the list, a playlist's video is shown by its playlist's row.
+      const { selectedId, items } = get();
+      const list = items.find((i) => i.id === selectedId)?.playlist;
+      set({ route: { view: "list" }, ...(list ? { selectedId: list } : {}) });
     },
 
     setQuery: (query) => set({ query }),

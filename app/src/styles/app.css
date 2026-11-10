@@ -969,63 +969,128 @@ li:has(.check:checked) .row-title {
 
 /* ---------- playlists ---------- */
 
-.playlist-head {
-  align-items: center;
-  padding-top: 0.75rem;
-  padding-bottom: 0.25rem;
+/* A playlist is one row; a ring stands where an item's done lamp is. */
+.progress {
+  display: grid;
+  place-items: center;
+  width: 1rem;
+  height: 1rem;
 }
-.playlist-toggle {
+.progress svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke-width: 2;
+}
+.progress-track {
+  stroke: var(--rule-strong);
+}
+.progress-fill {
+  stroke: var(--signal);
+  stroke-linecap: round;
+}
+.progress-fill.full {
+  stroke: var(--pass);
+}
+.row-count {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+}
+.row-next {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--ink-muted);
+}
+.row-time {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+}
+.playlist-nav {
   display: flex;
   align-items: center;
-  gap: 0.375rem;
-  min-width: 0;
+  gap: 0.125rem;
+  margin-right: 0.25rem;
+}
+.playlist-pos {
+  min-width: 2.75rem;
+  font-size: 0.6875rem;
+  color: var(--ink-faint);
+  text-align: center;
+}
+/* Videos a word search found, under their playlist's row. */
+.row-hits .row {
+  padding-left: 1.75rem;
+}
+
+.peek-next {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.meter {
+  flex: none;
+  width: 4rem;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--rule);
+  overflow: hidden;
+}
+.meter span {
+  display: block;
+  height: 100%;
+  background: var(--pass);
+}
+.videos {
+  list-style: none;
+  margin: 0;
   padding: 0;
+}
+.videos li {
+  display: grid;
+  grid-template-columns: 1rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
+  border-top: 1px solid var(--rule);
+}
+.videos li.is-next {
+  box-shadow: inset 2px 0 0 var(--signal);
+  background: var(--select-soft);
+}
+.video-open {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.4375rem 0.375rem 0.4375rem 0;
   border: 0;
   background: none;
   color: var(--ink);
   font: inherit;
-  font-size: 0.8125rem;
-  font-weight: 600;
+  text-align: left;
   cursor: pointer;
 }
-.playlist-title {
-  white-space: nowrap;
+.video-open:hover .video-title {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.videos li:has(.check:checked) .video-title {
+  color: var(--ink-muted);
+}
+.video-n {
+  flex: none;
+  min-width: 1.5rem;
+  font-size: 0.6875rem;
+  color: var(--ink-faint);
+  text-align: right;
+}
+.video-title {
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-.playlist-chevron {
-  flex: none;
-  width: 0.875rem;
-  height: 0.875rem;
-  color: var(--ink-faint);
-  transition: transform 160ms var(--ease-out);
-}
-.playlist-toggle[aria-expanded="true"] .playlist-chevron {
-  transform: rotate(90deg);
-}
-.playlist-head .row-tags {
-  font-size: 0.6875rem;
   white-space: nowrap;
 }
-.playlist-tool {
-  height: 1.5rem;
+.video-at {
+  flex: none;
+  font-size: 0.6875rem;
   color: var(--ink-faint);
-  opacity: 0;
-  transition: opacity 120ms var(--ease-out);
-}
-.playlist-tool svg {
-  width: 0.875rem;
-  height: 0.875rem;
-}
-.playlist-head:hover .playlist-tool,
-.playlist-tool:focus-visible {
-  opacity: 1;
-}
-@media (hover: none) {
-  .playlist-tool {
-    opacity: 1;
-  }
-}
-.playlist .row {
-  padding-left: 1.5rem;
 }

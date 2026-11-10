@@ -1,9 +1,13 @@
 import { ExternalLink, RotateCw, TriangleAlert } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useApp } from "../app/store";
 import { backend } from "../ipc";
 import type { Item } from "../ipc/schemas";
+import { resumeAt } from "../lib/playlist";
 
 const LOAD_TIMEOUT_MS = 15_000;
+/** How often a playing video's position is saved. */
+const TRACK_MS = 3_000;
 
 /** Positions the native child webview over this element. Framing headers
  * don't apply to it, so sites that refuse iframes still load. */
@@ -11,6 +15,14 @@ export function WebPane({ item, hidden }: { item: Item; hidden: boolean }) {
   const host = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<"loading" | "ready" | "failed">("loading");
   const [attempt, setAttempt] = useState(0);
+  const isVideo = item.kind === "youtube";
+  const start = () => (isVideo ? resumeAt(useApp.getState().vaultState.videoPositions?.[item.id]) : undefined);
+  // Remembers where the video is, so reopening it picks up there.
+  const capture = async () => {
+    if (!isVideo) return;
+    const v = await backend.contentVideoTime().catch(() => null);
+    if (v) useApp.getState().saveVideoPosition(item.id, { t: v.t, d: v.d, at: Date.now() });
+  };
 
   useEffect(() => {
     const el = host.current;
@@ -34,13 +46,16 @@ export function WebPane({ item, hidden }: { item: Item; hidden: boolean }) {
         setState("ready");
       }
     });
-    void backend.contentShow(item.source, rect()).catch(() => setState("failed"));
+    void backend.contentShow(item.source, rect(), start()).catch(() => setState("failed"));
+    const tracker = isVideo ? setInterval(() => void capture(), TRACK_MS) : undefined;
     const ro = new ResizeObserver(() => void backend.contentBounds(rect()));
     ro.observe(el);
     const onResize = () => void backend.contentBounds(rect());
     window.addEventListener("resize", onResize);
     return () => {
       clearTimeout(timer);
+      clearInterval(tracker);
+      void capture();
       off();
       ro.disconnect();
       window.removeEventListener("resize", onResize);
@@ -50,10 +65,12 @@ export function WebPane({ item, hidden }: { item: Item; hidden: boolean }) {
 
   // Dialogs and collapsed panes must not sit under the native webview.
   useEffect(() => {
-    if (hidden) void backend.contentHide();
-    else if (host.current && state !== "failed") {
+    if (hidden) {
+      void capture();
+      void backend.contentHide();
+    } else if (host.current && state !== "failed") {
       const r = host.current.getBoundingClientRect();
-      void backend.contentShow(item.source, { x: r.left, y: r.top, width: r.width, height: r.height });
+      void backend.contentShow(item.source, { x: r.left, y: r.top, width: r.width, height: r.height }, start());
     }
   }, [hidden]);
 
