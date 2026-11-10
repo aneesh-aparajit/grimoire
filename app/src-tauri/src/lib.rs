@@ -11,13 +11,13 @@ mod vault;
 use content::{Bounds, ContentKind};
 use error::{AppError, Result};
 use fsx::{check_file_name, check_id};
-use index::{origin_of, unique_slug, Item};
+use index::{origin_of, serialize_item, slug, unique_slug, Index, Item, LinkStyle};
 use serde::Deserialize;
 use serde_json::{json, Value};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tauri::{AppHandle, Emitter, LogicalPosition, LogicalSize, State, WebviewBuilder, WebviewUrl};
-use vault::{notes_header, IndexSnapshot, VaultCell, VaultSnapshot};
+use vault::{notes_header, IndexSnapshot, PlaylistInfo, VaultCell, VaultSnapshot};
 
 /* ---------- vault ---------- */
 
@@ -119,7 +119,7 @@ async fn item_add(app: AppHandle, cell: State<'_, VaultCell>, input: AddInput) -
 
     let title: String = title.chars().take(200).collect();
     let out = cell.with(|v| {
-        if v.index.conflicted {
+        if v.conflicted() {
             return Err(AppError::Conflict("INDEX.md has merge conflict markers. Resolve them first.".into()));
         }
         let mut taken = v.index.ids();
@@ -144,12 +144,97 @@ async fn item_add(app: AppHandle, cell: State<'_, VaultCell>, input: AddInput) -
             tags: tags.clone(),
             done: false,
             linked: true,
+            playlist: None,
+            style: LinkStyle::Folder,
         };
         cell.write(&dir.join("NOTES.md"), &notes_header(&item))?;
         v.index.append(item.clone());
         cell.save_index(v)?;
         let _ = &root;
         Ok(item)
+    });
+    if out.is_ok() {
+        emit_index(&app, &cell);
+    }
+    out
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct PlaylistInput {
+    url: String,
+    title: Option<String>,
+    tags: Vec<String>,
+}
+
+/// Adds a YouTube playlist: one folder for the playlist with its own
+/// INDEX.md, and a numbered notes file per video (`01-<title>.md`).
+#[tauri::command]
+async fn playlist_add(app: AppHandle, cell: State<'_, VaultCell>, input: PlaylistInput) -> Result<PlaylistInfo> {
+    let tags = clean_tags(input.tags)?;
+    let list = content::youtube_playlist_id(input.url.trim())
+        .ok_or_else(|| AppError::Parse("That link isn't a YouTube playlist".into()))?;
+    let data = content::fetch_playlist(&list).await?;
+    if data.videos.is_empty() {
+        return Err(AppError::Parse("Found no videos in that playlist. Is it public?".into()));
+    }
+    let given = input.title.map(|t| t.trim().to_string()).filter(|t| !t.is_empty());
+    let title: String = given.or(data.title).unwrap_or_else(|| "YouTube playlist".into()).chars().take(200).collect();
+    let source = format!("https://www.youtube.com/playlist?list={list}");
+
+    let out = cell.with(|v| {
+        if v.conflicted() {
+            return Err(AppError::Conflict("INDEX.md has merge conflict markers. Resolve them first.".into()));
+        }
+        let mut taken = v.index.ids();
+        taken.extend(std::fs::read_dir(&v.root)?.filter_map(|e| e.ok()?.file_name().into_string().ok()));
+        let id = unique_slug(&title, &taken);
+        let dir = v.root.join(&id);
+        std::fs::create_dir_all(&dir)?;
+
+        let width = data.videos.len().to_string().len().max(2);
+        let mut text = format!("# {title}\n\n<{source}>\n\n");
+        for (n, vid) in data.videos.iter().enumerate() {
+            let stem = format!("{:0width$}-{}", n + 1, slug(&vid.title));
+            let video_source = format!("https://www.youtube.com/watch?v={}", vid.id);
+            let item = Item {
+                kind: content::classify(&video_source),
+                origin: origin_of(&video_source),
+                id: stem.clone(),
+                title: vid.title.chars().take(200).collect(),
+                source: video_source,
+                tags: Vec::new(),
+                done: false,
+                linked: true,
+                playlist: None,
+                style: LinkStyle::File,
+            };
+            let notes = dir.join(format!("{stem}.md"));
+            if !notes.exists() {
+                cell.write(&notes, &notes_header(&item))?;
+            }
+            text.push_str(&serialize_item(&item, &[]));
+            text.push('\n');
+        }
+        v.playlists.insert(id.clone(), Index::parse_playlist(&text, &Default::default()));
+        v.index.append(Item {
+            kind: content::classify(&source),
+            origin: origin_of(&source),
+            id: id.clone(),
+            title: title.clone(),
+            source: source.clone(),
+            tags: tags.clone(),
+            done: false,
+            linked: true,
+            playlist: None,
+            style: LinkStyle::Playlist,
+        });
+        cell.save_index(v)?;
+        v.snapshot()
+            .playlists
+            .into_iter()
+            .find(|p| p.id == id)
+            .ok_or_else(|| AppError::NotFound(format!("No playlist {id}")))
     });
     if out.is_ok() {
         emit_index(&app, &cell);
@@ -170,25 +255,25 @@ struct Patch {
 fn item_update(app: AppHandle, cell: State<VaultCell>, id: String, patch: Patch) -> Result<Item> {
     let tags = patch.tags.map(clean_tags).transpose()?;
     let out = cell.with(|v| {
-        if v.index.conflicted {
+        if v.conflicted() {
             return Err(AppError::Conflict("INDEX.md has merge conflict markers. Resolve them first.".into()));
         }
-        let item = v.index.get_mut(&id).ok_or_else(|| AppError::NotFound(format!("No item {id}")))?;
-        if let Some(t) = patch.title.map(|t| t.trim().to_string()).filter(|t| !t.is_empty()) {
-            item.title = t.chars().take(200).collect();
-        }
-        if let Some(s) = patch.source.map(|s| s.trim().to_string()).filter(|s| !s.is_empty()) {
-            item.kind = content::classify(&s);
-            item.origin = origin_of(&s);
-            item.source = s;
-        }
-        if let Some(t) = tags {
-            item.tags = t;
-        }
-        if let Some(d) = patch.done {
-            item.done = d;
-        }
-        let out = item.clone();
+        let out = v.update(&id, |item| {
+            if let Some(t) = patch.title.map(|t| t.trim().to_string()).filter(|t| !t.is_empty()) {
+                item.title = t.chars().take(200).collect();
+            }
+            if let Some(s) = patch.source.map(|s| s.trim().to_string()).filter(|s| !s.is_empty()) {
+                item.kind = content::classify(&s);
+                item.origin = origin_of(&s);
+                item.source = s;
+            }
+            if let Some(t) = tags {
+                item.tags = t;
+            }
+            if let Some(d) = patch.done {
+                item.done = d;
+            }
+        })?;
         cell.save_index(v)?;
         Ok(out)
     });
@@ -202,17 +287,28 @@ fn item_update(app: AppHandle, cell: State<VaultCell>, id: String, patch: Patch)
 fn item_delete(app: AppHandle, cell: State<VaultCell>, id: String, delete_folder: bool) -> Result<()> {
     check_id(&id)?;
     let out = cell.with(|v| {
-        if v.index.conflicted {
+        if v.conflicted() {
             return Err(AppError::Conflict("INDEX.md has merge conflict markers. Resolve them first.".into()));
         }
-        if !v.index.remove(&id) {
+        let notes = v.notes_path(&id)?;
+        let sandbox = v.sandbox_dir(&id)?;
+        let folder = if id.contains('/') { None } else { Some(v.item_dir(&id)?) };
+        if !v.remove(&id) {
             return Err(AppError::NotFound(format!("No item {id}")));
         }
         cell.save_index(v)?;
         if delete_folder {
-            let dir = v.item_dir(&id)?;
-            if dir.is_dir() {
-                std::fs::remove_dir_all(dir)?;
+            match folder {
+                Some(dir) if dir.is_dir() => std::fs::remove_dir_all(dir)?,
+                Some(_) => {}
+                None => {
+                    if notes.is_file() {
+                        std::fs::remove_file(notes)?;
+                    }
+                    if sandbox.is_dir() {
+                        std::fs::remove_dir_all(sandbox)?;
+                    }
+                }
             }
         }
         Ok(())
@@ -228,17 +324,16 @@ fn item_delete(app: AppHandle, cell: State<VaultCell>, id: String, delete_folder
 #[tauri::command]
 fn item_ensure(app: AppHandle, cell: State<VaultCell>, id: String) -> Result<Item> {
     let out = cell.with(|v| {
-        let dir = v.item_dir(&id)?;
-        let item = v.index.get(&id).cloned().ok_or_else(|| AppError::NotFound(format!("No item {id}")))?;
-        std::fs::create_dir_all(&dir)?;
-        if !dir.join("NOTES.md").exists() {
-            cell.write(&dir.join("NOTES.md"), &notes_header(&item))?;
+        let notes = v.notes_path(&id)?;
+        let item = v.get(&id).ok_or_else(|| AppError::NotFound(format!("No item {id}")))?;
+        if !notes.exists() {
+            cell.write(&notes, &notes_header(&item))?;
         }
-        if !item.linked && !v.index.conflicted {
-            v.index.get_mut(&id).unwrap().linked = true;
+        if !item.linked && !v.conflicted() {
+            v.update(&id, |i| i.linked = true)?;
             cell.save_index(v)?;
         }
-        Ok(v.index.get(&id).cloned().unwrap())
+        v.get(&id).ok_or_else(|| AppError::NotFound(format!("No item {id}")))
     });
     if out.is_ok() {
         emit_index(&app, &cell);
@@ -250,22 +345,21 @@ fn item_ensure(app: AppHandle, cell: State<VaultCell>, id: String) -> Result<Ite
 
 #[tauri::command]
 fn notes_read(cell: State<VaultCell>, id: String) -> Result<String> {
-    let dir = cell.with(|v| v.item_dir(&id))?;
-    Ok(std::fs::read_to_string(dir.join("NOTES.md")).unwrap_or_default())
+    let path = cell.with(|v| v.notes_path(&id))?;
+    Ok(std::fs::read_to_string(path).unwrap_or_default())
 }
 
 #[tauri::command]
 fn notes_write(cell: State<VaultCell>, id: String, content: String) -> Result<()> {
-    let dir = cell.with(|v| v.item_dir(&id))?;
-    std::fs::create_dir_all(&dir)?;
-    cell.write(&dir.join("NOTES.md"), &content)
+    let path = cell.with(|v| v.notes_path(&id))?;
+    cell.write(&path, &content)
 }
 
 /// What the reading list's peek shows: entry headings, saved snippets, size.
 #[tauri::command]
 fn notes_summary(cell: State<VaultCell>, id: String) -> Result<Value> {
-    let dir = cell.with(|v| v.item_dir(&id))?;
-    let text = std::fs::read_to_string(dir.join("NOTES.md")).unwrap_or_default();
+    let (path, sandbox) = cell.with(|v| Ok((v.notes_path(&id)?, v.sandbox_dir(&id)?)))?;
+    let text = std::fs::read_to_string(&path).unwrap_or_default();
     let mut in_fence = false;
     let mut entries = Vec::new();
     let mut words = 0;
@@ -282,8 +376,8 @@ fn notes_summary(cell: State<VaultCell>, id: String) -> Result<Value> {
         }
         words += line.split_whitespace().count();
     }
-    let snippets = sandbox_list_dir(&dir);
-    let modified = std::fs::metadata(dir.join("NOTES.md"))
+    let snippets = sandbox_list_dir(&sandbox);
+    let modified = std::fs::metadata(&path)
         .and_then(|m| m.modified())
         .ok()
         .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
@@ -367,8 +461,8 @@ async fn sandbox_stop(runner: State<'_, Arc<sandbox::Runner>>, run_id: u64) -> R
     Ok(())
 }
 
-fn sandbox_list_dir(item_dir: &std::path::Path) -> Vec<String> {
-    let mut v: Vec<String> = std::fs::read_dir(item_dir.join("sandbox"))
+fn sandbox_list_dir(sandbox: &std::path::Path) -> Vec<String> {
+    let mut v: Vec<String> = std::fs::read_dir(sandbox)
         .map(|rd| rd.filter_map(|e| e.ok()).filter(|e| e.path().is_file()).filter_map(|e| e.file_name().into_string().ok()).collect())
         .unwrap_or_default();
     v.sort();
@@ -380,22 +474,23 @@ fn sandbox_save(cell: State<VaultCell>, id: String, language: String, code: Stri
     let spec = sandbox::spec(&language)?;
     let name = file_name.unwrap_or_else(|| spec.file_name.to_string());
     check_file_name(&name)?;
-    let dir = cell.with(|v| v.item_dir(&id))?;
-    cell.write(&dir.join("sandbox").join(&name), &code)?;
-    Ok(format!("{id}/sandbox/{name}"))
+    let (root, dir) = cell.with(|v| Ok((v.root.clone(), v.sandbox_dir(&id)?)))?;
+    let path = dir.join(&name);
+    cell.write(&path, &code)?;
+    Ok(path.strip_prefix(&root).unwrap_or(&path).display().to_string())
 }
 
 #[tauri::command]
 fn sandbox_list(cell: State<VaultCell>, id: String) -> Result<Vec<String>> {
-    let dir = cell.with(|v| v.item_dir(&id))?;
+    let dir = cell.with(|v| v.sandbox_dir(&id))?;
     Ok(sandbox_list_dir(&dir))
 }
 
 #[tauri::command]
 fn sandbox_load(cell: State<VaultCell>, id: String, file_name: String) -> Result<String> {
     check_file_name(&file_name)?;
-    let dir = cell.with(|v| v.item_dir(&id))?;
-    Ok(std::fs::read_to_string(dir.join("sandbox").join(file_name))?)
+    let dir = cell.with(|v| v.sandbox_dir(&id))?;
+    Ok(std::fs::read_to_string(dir.join(file_name))?)
 }
 
 /* ---------- content ---------- */
@@ -436,7 +531,7 @@ async fn title_fetch(url: String) -> String {
 #[tauri::command]
 async fn pdf_open(cell: State<'_, VaultCell>, id: String) -> Result<String> {
     let (root, item) = cell.with(|v| {
-        let item = v.index.get(&id).cloned().ok_or_else(|| AppError::NotFound(format!("No item {id}")))?;
+        let item = v.get(&id).ok_or_else(|| AppError::NotFound(format!("No item {id}")))?;
         Ok((v.root.clone(), item))
     })?;
     if item.kind != ContentKind::Pdf {
@@ -457,7 +552,7 @@ async fn pdf_open(cell: State<'_, VaultCell>, id: String) -> Result<String> {
 /// Moves a cached remote PDF into the item folder and points the item at it.
 #[tauri::command]
 async fn pdf_make_local(app: AppHandle, cell: State<'_, VaultCell>, id: String) -> Result<Item> {
-    let (root, item) = cell.with(|v| Ok((v.root.clone(), v.index.get(&id).cloned().ok_or_else(|| AppError::NotFound(id.clone()))?)))?;
+    let (root, item) = cell.with(|v| Ok((v.root.clone(), v.get(&id).ok_or_else(|| AppError::NotFound(id.clone()))?)))?;
     if !item.source.starts_with("http") {
         return Ok(item);
     }
@@ -469,10 +564,10 @@ async fn pdf_make_local(app: AppHandle, cell: State<'_, VaultCell>, id: String) 
         let dir = v.item_dir(&id)?;
         std::fs::create_dir_all(&dir)?;
         std::fs::copy(&cached, dir.join(&name))?;
-        let it = v.index.get_mut(&id).ok_or_else(|| AppError::NotFound(id.clone()))?;
-        it.source = format!("{id}/{name}");
-        it.origin = origin_of(&it.source);
-        let out = it.clone();
+        let out = v.update(&id, |it| {
+            it.source = format!("{id}/{name}");
+            it.origin = origin_of(&it.source);
+        })?;
         cell.save_index(v)?;
         Ok(out)
     });
@@ -520,6 +615,7 @@ pub fn run() {
             vault_close,
             index_get,
             item_add,
+            playlist_add,
             item_update,
             item_delete,
             item_ensure,

@@ -3,7 +3,7 @@
 import { FIXTURES } from "../mock/fixtures";
 import { planRun } from "../mock/runner";
 import type { Backend, Events } from "./backend";
-import type { EffectiveConfig, IndexSnapshot, Item, Language, Run, Toolchain } from "./schemas";
+import type { EffectiveConfig, IndexSnapshot, Item, Language, Playlist, Run, Toolchain } from "./schemas";
 import { LANGUAGES } from "./schemas";
 
 type Listener = (p: unknown) => void;
@@ -44,7 +44,37 @@ const items: Item[] = empty
       },
     ];
 
+type MockPlaylist = Omit<Playlist, "done" | "count" | "doneCount">;
+const playlists: MockPlaylist[] = [];
+
+function video(dir: string, n: number, width: number, title: string, done = false): Item {
+  return {
+    id: `${dir}/${String(n).padStart(width, "0")}-${slug(title)}`,
+    title,
+    source: `https://www.youtube.com/watch?v=demo${dir.length}${n}`,
+    kind: "youtube",
+    origin: "youtube.com",
+    tags: [],
+    done,
+    linked: true,
+    playlist: dir,
+  };
+}
+
+if (!empty) {
+  playlists.push({
+    id: "distributed-systems",
+    title: "MIT 6.824 Distributed Systems (Spring 2020)",
+    source: "https://www.youtube.com/playlist?list=PLrw6a1wE39_tb2fErI4-WkMbsvGQk9_UB",
+    tags: ["distributed-systems"],
+  });
+  ["Lecture 1: Introduction", "Lecture 2: RPC and Threads", "Lecture 3: GFS", "Lecture 4: Primary-Backup Replication", "Lecture 5: Go, Threads, and Raft"].forEach(
+    (t, i) => items.push(video("distributed-systems", i + 1, 2, t, i < 2)),
+  );
+}
+
 const notes = new Map<string, string>(FIXTURES.map((f) => [f.item.id, f.notes]));
+for (const i of items) if (i.playlist) notes.set(i.id, `# ${i.title}\n\n<${i.source}>\n`);
 notes.set("crafting-interpreters", "# Crafting Interpreters\n\n<https://craftinginterpreters.com/contents.html>\n");
 notes.set(
   "raft-paper",
@@ -76,7 +106,15 @@ const config: EffectiveConfig = {
   issues: [],
 };
 
-const snapshot = (): IndexSnapshot => ({ items: items.map((i) => ({ ...i })), conflicted });
+const snapshot = (): IndexSnapshot => ({
+  items: items.map((i) => ({ ...i })),
+  playlists: playlists.map((p) => {
+    const vids = items.filter((i) => i.playlist === p.id);
+    const doneCount = vids.filter((v) => v.done).length;
+    return { ...p, count: vids.length, doneCount, done: vids.length > 0 && doneCount === vids.length };
+  }),
+  conflicted,
+});
 const wait = <T>(v: T, ms = 60) => new Promise<T>((r) => setTimeout(() => r(v), ms));
 const fail = (kind: string, message: string) => Promise.reject({ kind, message });
 
@@ -135,8 +173,31 @@ export const mockBackend: Backend = {
     emit("index://changed", snapshot());
     return wait(item, input.title ? 80 : 700);
   },
+  playlistAdd: async (input) => {
+    if (conflicted) return fail("Conflict", "INDEX.md has merge conflict markers. Resolve them first.");
+    const list = new URL(input.url).searchParams.get("list");
+    if (!list) return fail("Parse", "That link isn't a YouTube playlist");
+    const title = input.title?.trim() || "Demo playlist";
+    let id = slug(title);
+    for (let n = 2; items.some((i) => i.id === id) || playlists.some((p) => p.id === id); n++) id = `${slug(title)}-${n}`;
+    playlists.push({ id, title, source: `https://www.youtube.com/playlist?list=${list}`, tags: input.tags });
+    for (let n = 1; n <= 8; n++) {
+      const v = video(id, n, 2, `Part ${n}`);
+      items.push(v);
+      notes.set(v.id, `# ${v.title}\n\n<${v.source}>\n`);
+    }
+    emit("index://changed", snapshot());
+    const made = snapshot().playlists.find((p) => p.id === id);
+    return made ? wait(made, 900) : fail("NotFound", id);
+  },
   itemUpdate: async (id, patch) => {
     if (conflicted) return fail("Conflict", "INDEX.md has merge conflict markers. Resolve them first.");
+    const pl = playlists.find((p) => p.id === id);
+    if (pl) {
+      Object.assign(pl, Object.fromEntries(Object.entries(patch).filter(([k, v]) => v !== undefined && k !== "done")));
+      emit("index://changed", snapshot());
+      return wait({ ...pl, done: false, kind: "youtube" as const, origin: "youtube.com", linked: true, playlist: null });
+    }
     const it = items.find((i) => i.id === id);
     if (!it) return fail("NotFound", `No item ${id}`);
     Object.assign(it, Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== undefined)));
@@ -144,6 +205,11 @@ export const mockBackend: Backend = {
     return wait({ ...it });
   },
   itemDelete: async (id) => {
+    const p = playlists.findIndex((x) => x.id === id);
+    if (p >= 0) {
+      playlists.splice(p, 1);
+      for (let k = items.length - 1; k >= 0; k--) if (items[k]?.playlist === id) items.splice(k, 1);
+    }
     const i = items.findIndex((x) => x.id === id);
     if (i >= 0) items.splice(i, 1);
     emit("index://changed", snapshot());

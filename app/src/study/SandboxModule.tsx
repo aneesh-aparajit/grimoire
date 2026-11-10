@@ -14,6 +14,7 @@ import { CodeMirror } from "./editor/CodeMirror";
 import { codeTheme, syntax } from "./editor/theme";
 import { RunLog } from "./RunLog";
 import { Splitter } from "./Splitter";
+import { sandboxPath } from "../lib/paths";
 import { useStudy } from "./store";
 
 const LANG_EXT: Record<Language, Extension> = {
@@ -28,7 +29,7 @@ const LANG_EXT: Record<Language, Extension> = {
 const CODE_EXTENSIONS = [lineNumbers(), syntax, codeTheme];
 
 export function SandboxModule({ style }: { style?: React.CSSProperties }) {
-  const id = useStudy((s) => s.item?.id ?? "");
+  const dir = useStudy((s) => (s.item ? sandboxPath(s.item) : ""));
   const open = useStudy((s) => s.sandboxOpen);
   const setOpen = useStudy((s) => s.setSandboxOpen);
   const language = useStudy((s) => s.language);
@@ -91,7 +92,7 @@ export function SandboxModule({ style }: { style?: React.CSSProperties }) {
               aria-label="Saved snippets"
               value={isSaved ? lang?.file : ""}
               onChange={(e) => e.target.value && void loadSnippet(e.target.value)}
-              title={`${id}/sandbox/`}
+              title={dir}
             >
               {!isSaved && <option value="">{lang?.file} · unsaved</option>}
               {saved.map((f) => (
@@ -140,7 +141,7 @@ export function SandboxModule({ style }: { style?: React.CSSProperties }) {
               type="button"
               className="btn"
               onClick={() => void saveSnippet()}
-              title={`Save to ${id}/sandbox/${lang?.file} (⌘S)`}
+              title={`Save to ${dir}${lang?.file} (⌘S)`}
               aria-label="Save snippet"
             >
               <Save />

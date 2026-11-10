@@ -12,6 +12,7 @@ import {
   ItemSchema,
   NotesSummarySchema,
   OutputEventSchema,
+  PlaylistSchema,
   RunSchema,
   ToolchainSchema,
   VaultSnapshotSchema,
@@ -54,6 +55,7 @@ export const tauriBackend: Backend = {
   },
 
   itemAdd: (input) => call("item_add", { input }, ItemSchema),
+  playlistAdd: (input) => call("playlist_add", { input }, PlaylistSchema),
   itemUpdate: (id, patch) => call("item_update", { id, patch }, ItemSchema),
   itemDelete: (id, deleteFolder) => call("item_delete", { id, deleteFolder }, Void),
   itemEnsure: (id) => call("item_ensure", { id }, ItemSchema),

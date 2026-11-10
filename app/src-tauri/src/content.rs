@@ -51,6 +51,189 @@ pub fn youtube_id(source: &str) -> Option<String> {
     }
 }
 
+/// The `list=` id of a YouTube playlist link.
+pub fn youtube_playlist_id(source: &str) -> Option<String> {
+    let u = url::Url::parse(source).ok()?;
+    let host = u.host_str()?.trim_start_matches("www.").trim_start_matches("m.");
+    if !matches!(host, "youtube.com" | "music.youtube.com" | "youtu.be") {
+        return None;
+    }
+    u.query_pairs()
+        .find(|(k, _)| k == "list")
+        .map(|(_, v)| v.into_owned())
+        .filter(|v| !v.is_empty() && v.chars().all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_'))
+}
+
+#[derive(Debug, Clone)]
+pub struct PlaylistVideo {
+    pub id: String,
+    pub title: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct PlaylistData {
+    pub title: Option<String>,
+    pub videos: Vec<PlaylistVideo>,
+}
+
+/// The first JSON value after `marker` in a page.
+fn json_after(html: &str, marker: &str) -> Option<serde_json::Value> {
+    let at = html.find(marker)? + marker.len();
+    let start = at + html[at..].find('{')?;
+    serde_json::Deserializer::from_str(&html[start..]).into_iter::<serde_json::Value>().next()?.ok()
+}
+
+fn text_of(v: &serde_json::Value) -> Option<String> {
+    if let Some(t) = v.get("simpleText").and_then(|t| t.as_str()) {
+        return Some(t.to_string());
+    }
+    let runs = v.get("runs")?.as_array()?;
+    Some(runs.iter().filter_map(|r| r.get("text")?.as_str()).collect::<String>())
+}
+
+fn find_key<'a>(v: &'a serde_json::Value, key: &str) -> Option<&'a serde_json::Value> {
+    match v {
+        serde_json::Value::Object(m) => m.get(key).or_else(|| m.values().find_map(|x| find_key(x, key))),
+        serde_json::Value::Array(a) => a.iter().find_map(|x| find_key(x, key)),
+        _ => None,
+    }
+}
+
+/// The first `continuationCommand.token` under `v`, however deeply nested.
+fn continuation_token(v: &serde_json::Value) -> Option<String> {
+    match v {
+        serde_json::Value::Object(m) => {
+            if let Some(t) = m.get("continuationCommand").and_then(|c| c.get("token")).and_then(|t| t.as_str()) {
+                return Some(t.to_string());
+            }
+            m.values().find_map(continuation_token)
+        }
+        serde_json::Value::Array(a) => a.iter().find_map(continuation_token),
+        _ => None,
+    }
+}
+
+/// One playlist entry, in either of the shapes YouTube has served.
+fn video_entry(m: &serde_json::Map<String, serde_json::Value>) -> Option<PlaylistVideo> {
+    let (id, title) = if let Some(r) = m.get("playlistVideoRenderer") {
+        (r.get("videoId")?.as_str()?.to_string(), text_of(r.get("title")?)?)
+    } else {
+        let r = m.get("lockupViewModel")?;
+        if r.get("contentType")?.as_str()? != "LOCKUP_CONTENT_TYPE_VIDEO" {
+            return None;
+        }
+        let title = r.pointer("/metadata/lockupMetadataViewModel/title/content")?.as_str()?;
+        (r.get("contentId")?.as_str()?.to_string(), title.to_string())
+    };
+    let title = title.trim().to_string();
+    let hidden = title.is_empty() || title == "[Private video]" || title == "[Deleted video]";
+    (!hidden).then_some(PlaylistVideo { id, title })
+}
+
+/// Walks YouTube's page data for playlist entries. The next page's token is
+/// the `continuationItemRenderer` that sits in the same list as the videos.
+fn collect_videos(v: &serde_json::Value, videos: &mut Vec<PlaylistVideo>, next: &mut Option<String>) {
+    match v {
+        serde_json::Value::Array(a) => {
+            let mut direct = false;
+            let mut cont = None;
+            for x in a {
+                if let Some(m) = x.as_object() {
+                    if m.contains_key("playlistVideoRenderer") || m.contains_key("lockupViewModel") {
+                        direct = true;
+                        videos.extend(video_entry(m));
+                        continue;
+                    }
+                    if let Some(r) = m.get("continuationItemRenderer").or_else(|| m.get("continuationItemViewModel")) {
+                        cont = continuation_token(r);
+                        continue;
+                    }
+                }
+                collect_videos(x, videos, next);
+            }
+            if direct && cont.is_some() {
+                *next = cont;
+            }
+        }
+        serde_json::Value::Object(m) => {
+            for x in m.values() {
+                collect_videos(x, videos, next);
+            }
+        }
+        _ => {}
+    }
+}
+
+fn str_after(html: &str, key: &str) -> Option<String> {
+    let re = regex::Regex::new(&format!(r#""{key}"\s*:\s*"([^"]+)""#)).ok()?;
+    Some(re.captures(html)?.get(1)?.as_str().to_string())
+}
+
+/// Reads a public YouTube playlist's title and videos from its web page,
+/// following continuations past the first hundred.
+pub async fn fetch_playlist(list: &str) -> Result<PlaylistData> {
+    let c = reqwest::Client::builder()
+        .user_agent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15")
+        .timeout(Duration::from_secs(20))
+        .build()?;
+    let page = format!("https://www.youtube.com/playlist?list={list}&hl=en");
+    let html = c
+        .get(&page)
+        .header(reqwest::header::ACCEPT_LANGUAGE, "en-US,en;q=0.9")
+        .header(reqwest::header::COOKIE, "CONSENT=YES+1; SOCS=CAI")
+        .send()
+        .await?
+        .error_for_status()?
+        .text()
+        .await?;
+    let data = json_after(&html, "ytInitialData")
+        .ok_or_else(|| AppError::Parse("YouTube didn't return the playlist. Is it public?".into()))?;
+    let title = data
+        .pointer("/metadata/playlistMetadataRenderer/title")
+        .and_then(|t| t.as_str())
+        .map(str::to_string)
+        .or_else(|| data.pointer("/header/playlistHeaderRenderer/title").and_then(text_of))
+        .or_else(|| find_key(&data, "pageHeaderRenderer").and_then(|h| h.get("pageTitle")?.as_str().map(str::to_string)));
+
+    let mut videos = Vec::new();
+    let mut next = None;
+    if let Some(contents) = data.get("contents") {
+        collect_videos(contents, &mut videos, &mut next);
+    }
+
+    let key = str_after(&html, "INNERTUBE_API_KEY");
+    let version = str_after(&html, "INNERTUBE_CLIENT_VERSION").unwrap_or_else(|| "2.20240101.00.00".into());
+    let mut pages = 0;
+    while let (Some(token), Some(key)) = (next.take(), key.as_deref()) {
+        pages += 1;
+        if pages > 50 {
+            break;
+        }
+        let body = serde_json::json!({
+            "context": { "client": { "clientName": "WEB", "clientVersion": version, "hl": "en" } },
+            "continuation": token,
+        });
+        let resp = c
+            .post(format!("https://www.youtube.com/youtubei/v1/browse?key={key}&prettyPrint=false"))
+            .header(reqwest::header::CONTENT_TYPE, "application/json")
+            .body(body.to_string())
+            .send()
+            .await?
+            .error_for_status()?
+            .text()
+            .await?;
+        let Ok(more) = serde_json::from_str::<serde_json::Value>(&resp) else { break };
+        let before = videos.len();
+        if let Some(actions) = more.get("onResponseReceivedActions") {
+            collect_videos(actions, &mut videos, &mut next);
+        }
+        if videos.len() == before {
+            break;
+        }
+    }
+    Ok(PlaylistData { title: title.map(|t| t.trim().to_string()).filter(|t| !t.is_empty()), videos })
+}
+
 fn vimeo_id(source: &str) -> Option<String> {
     let u = url::Url::parse(source).ok()?;
     if u.host_str()?.trim_start_matches("www.") != "vimeo.com" {
@@ -329,6 +512,34 @@ mod tests {
         assert_eq!(classify("book/book.pdf"), ContentKind::Pdf);
         assert_eq!(classify("https://go.dev/ref/mem"), ContentKind::Article);
         assert_eq!(render_url("https://youtu.be/abc?t=42"), "https://www.youtube-nocookie.com/embed/abc?start=42");
+    }
+
+    #[test]
+    fn playlist_ids() {
+        assert_eq!(youtube_playlist_id("https://www.youtube.com/playlist?list=PLabc_-1").as_deref(), Some("PLabc_-1"));
+        assert_eq!(youtube_playlist_id("https://www.youtube.com/watch?v=x&list=PLq").as_deref(), Some("PLq"));
+        assert_eq!(youtube_playlist_id("https://www.youtube.com/watch?v=x"), None);
+        assert_eq!(youtube_playlist_id("https://example.com/?list=PLq"), None);
+    }
+
+    #[test]
+    fn collects_playlist_entries() {
+        let html = r#"<script>var ytInitialData = {"metadata":{"playlistMetadataRenderer":{"title":"Distributed Systems"}},"contents":[{"section":[{"playlistVideoRenderer":{"videoId":"a1","title":{"runs":[{"text":"Lecture 1: "},{"text":"Introduction"}]}}},{"playlistVideoRenderer":{"videoId":"zz","title":{"simpleText":"[Private video]"}}},{"playlistVideoRenderer":{"videoId":"b2","title":{"simpleText":"Lecture 2"}}},{"lockupViewModel":{"contentId":"c3","contentType":"LOCKUP_CONTENT_TYPE_VIDEO","metadata":{"lockupMetadataViewModel":{"title":{"content":"Lecture 3"}}}}},{"continuationItemViewModel":{"continuationCommand":{"innertubeCommand":{"continuationCommand":{"token":"TOK"}}}}}]},{"continuationItemRenderer":{"continuationEndpoint":{"continuationCommand":{"token":"SHELF"}}}}],"panels":[{"continuationItemRenderer":{"continuationEndpoint":{"continuationCommand":{"token":"COMMENTS"}}}}]};</script>"#;
+        let data = json_after(html, "ytInitialData").unwrap();
+        let mut videos = Vec::new();
+        let mut next = None;
+        collect_videos(&data, &mut videos, &mut next);
+        assert_eq!(videos.iter().map(|v| v.title.as_str()).collect::<Vec<_>>(), ["Lecture 1: Introduction", "Lecture 2", "Lecture 3"]);
+        assert_eq!(next.as_deref(), Some("TOK"));
+    }
+
+    /// Hits the network: `cargo test -- --ignored fetches_a_real_playlist`.
+    #[tokio::test]
+    #[ignore]
+    async fn fetches_a_real_playlist() {
+        let data = fetch_playlist(&std::env::var("PL").unwrap_or("PLrw6a1wE39_tb2fErI4-WkMbsvGQk9_UB".into())).await.unwrap();
+        eprintln!("{:?} {}", data.title, data.videos.len());
+        assert!(data.videos.len() > 5);
     }
 
     #[test]

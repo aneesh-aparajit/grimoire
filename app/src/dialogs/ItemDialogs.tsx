@@ -4,6 +4,7 @@ import { useApp } from "../app/store";
 import { Modal } from "../components/Modal";
 import { backend } from "../ipc";
 import { errorMessage } from "../ipc/schemas";
+import { notesPath, playlistId, sandboxPath } from "../lib/paths";
 
 const TAG_RE = /^[a-z0-9][a-z0-9_/-]*$/;
 
@@ -43,8 +44,13 @@ export function AddItemDialog({ filePath: initialFile }: { filePath?: string }) 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [touched, setTouched] = useState(false);
+  const [wholeList, setWholeList] = useState(false);
 
   const { tags, bad } = parseTags(tagText);
+  // A /playlist link is always a playlist; a video link with &list= can be either.
+  const list = mode === "url" && isUrl(url) ? playlistId(url) : null;
+  const listOnly = list !== null && !/[?&]v=/.test(url) && !/youtu\.be\/[^/?]/.test(url);
+  const asPlaylist = list !== null && (listOnly || wholeList);
   const urlError = touched && mode === "url" && url && !isUrl(url) ? "Enter a full link starting with https://" : null;
   const ready = !busy && bad.length === 0 && (mode === "url" ? isUrl(url) : Boolean(filePath)) && title.length <= 200;
   const close = () => setDialog(null);
@@ -56,6 +62,14 @@ export function AddItemDialog({ filePath: initialFile }: { filePath?: string }) 
     setBusy(true);
     setError(null);
     try {
+      if (asPlaylist) {
+        const p = await backend.playlistAdd({ url: url.trim(), title: title || undefined, tags });
+        const first = useApp.getState().items.find((i) => i.playlist === p.id);
+        if (first) select(first.id);
+        notify(`Added ${p.title} · ${p.count} ${p.count === 1 ? "video" : "videos"} in ${p.id}/`);
+        close();
+        return;
+      }
       const item = await backend.itemAdd(
         mode === "url" ? { url: url.trim(), title: title || undefined, tags } : { filePath, title: title || undefined, tags },
       );
@@ -86,7 +100,15 @@ export function AddItemDialog({ filePath: initialFile }: { filePath?: string }) 
             Cancel
           </button>
           <button type="submit" form="add-form" className="btn btn-primary" disabled={!ready}>
-            {busy ? (mode === "url" && !title ? "Fetching title…" : "Adding…") : "Add"}
+            {busy
+              ? asPlaylist
+                ? "Fetching playlist…"
+                : mode === "url" && !title
+                  ? "Fetching title…"
+                  : "Adding…"
+              : asPlaylist
+                ? "Add playlist"
+                : "Add"}
           </button>
         </>
       }
@@ -116,10 +138,20 @@ export function AddItemDialog({ filePath: initialFile }: { filePath?: string }) 
               spellCheck={false}
             />
             <span className={urlError ? "hint hint-error" : "hint"}>
-              {urlError ?? "Articles, YouTube and Vimeo videos, and PDF links all work."}
+              {urlError ??
+                (asPlaylist
+                  ? "A YouTube playlist: it gets its own folder with an INDEX.md, and a numbered notes file per video."
+                  : "Articles, YouTube and Vimeo videos and playlists, and PDF links all work.")}
             </span>
           </label>
-        ) : (
+        ) : null}
+        {mode === "url" && list !== null && !listOnly ? (
+          <label className="check-row">
+            <input type="checkbox" checked={wholeList} onChange={(e) => setWholeList(e.target.checked)} />
+            <span>This video is part of a playlist. Add the whole playlist instead.</span>
+          </label>
+        ) : null}
+        {mode === "url" ? null : (
           <div className="field">
             <span className="label">PDF</span>
             <div className="file-pick">
@@ -146,7 +178,13 @@ export function AddItemDialog({ filePath: initialFile }: { filePath?: string }) 
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder={mode === "url" ? "Leave empty to use the page's title" : "Leave empty to use the PDF's title"}
+            placeholder={
+              asPlaylist
+                ? "Leave empty to use the playlist's title"
+                : mode === "url"
+                  ? "Leave empty to use the page's title"
+                  : "Leave empty to use the PDF's title"
+            }
             maxLength={200}
           />
         </label>
@@ -240,7 +278,15 @@ export function EditItemDialog({ id }: { id: string }) {
           {/* biome-ignore lint/a11y/noAutofocus: the dialog exists to take this input. */}
           <input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} />
           <span className="hint">
-            The folder stays <code>{item.id}/</code> even if the title changes.
+            {item.playlist ? (
+              <>
+                The notes file stays <code>{notesPath(item)}</code> even if the title changes.
+              </>
+            ) : (
+              <>
+                The folder stays <code>{item.id}/</code> even if the title changes.
+              </>
+            )}
           </span>
         </label>
         <label className="field">
@@ -260,18 +306,24 @@ export function EditItemDialog({ id }: { id: string }) {
 
 export function DeleteItemDialog({ id }: { id: string }) {
   const item = useApp((s) => s.items.find((i) => i.id === id));
+  const playlist = useApp((s) => s.playlists.find((p) => p.id === id));
   const setDialog = useApp((s) => s.setDialog);
   const notify = useApp((s) => s.notify);
   const back = useApp((s) => s.back);
   const route = useApp((s) => s.route);
   const [withFolder, setWithFolder] = useState(false);
   const [busy, setBusy] = useState(false);
-  if (!item) return null;
+  const target = playlist ?? item;
+  if (!target) return null;
   const close = () => setDialog(null);
+  const video = item?.playlist ? item : null;
+  const indexFile = video ? `${video.playlist}/INDEX.md` : "INDEX.md";
+  // What "also delete" removes, as the user sees it on disk.
+  const files = video ? notesPath(video) : `${id}/`;
 
   return (
     <Modal
-      title={`Remove “${item.title}”?`}
+      title={`Remove “${target.title}”?`}
       onClose={close}
       width="28rem"
       footer={
@@ -288,9 +340,12 @@ export function DeleteItemDialog({ id }: { id: string }) {
               setBusy(true);
               try {
                 await backend.itemDelete(id, withFolder);
-                useApp.setState((s) => ({ items: s.items.filter((i) => i.id !== id) }));
-                if (route.view === "item") back();
-                notify(withFolder ? `Removed ${item.title} and deleted ${id}/` : `Removed ${item.title} from INDEX.md`);
+                useApp.setState((s) => ({
+                  items: s.items.filter((i) => i.id !== id && i.playlist !== (playlist ? id : undefined)),
+                  playlists: playlist ? s.playlists.filter((p) => p.id !== id) : s.playlists,
+                }));
+                if (route.view === "item" && (route.id === id || route.id.startsWith(`${id}/`))) back();
+                notify(withFolder ? `Removed ${target.title} and deleted ${files}` : `Removed ${target.title} from ${indexFile}`);
                 close();
               } catch (e) {
                 notify(errorMessage(e), "error");
@@ -298,20 +353,47 @@ export function DeleteItemDialog({ id }: { id: string }) {
               }
             }}
           >
-            {withFolder ? "Remove and delete folder" : "Remove from list"}
+            {withFolder ? (video ? "Remove and delete notes" : "Remove and delete folder") : "Remove from list"}
           </button>
         </>
       }
     >
       <p className="prose">
-        This removes its line from <code>INDEX.md</code>. The folder <code>{id}/</code> with your notes and snippets stays
-        on disk unless you also delete it below.
+        {playlist ? (
+          <>
+            This removes the playlist's line from <code>INDEX.md</code>. The folder <code>{id}/</code>, with its{" "}
+            <code>INDEX.md</code> and the notes for all {playlist.count} videos, stays on disk unless you also delete it
+            below.
+          </>
+        ) : video ? (
+          <>
+            This removes its line from <code>{indexFile}</code>. Its notes in <code>{files}</code> and snippets in{" "}
+            <code>{sandboxPath(video)}</code> stay on disk unless you also delete them below.
+          </>
+        ) : (
+          <>
+            This removes its line from <code>INDEX.md</code>. The folder <code>{id}/</code> with your notes and snippets
+            stays on disk unless you also delete it below.
+          </>
+        )}
       </p>
       <label className="check-row">
         <input type="checkbox" checked={withFolder} onChange={(e) => setWithFolder(e.target.checked)} />
         <span>
-          Also delete <code>{id}/</code> (NOTES.md, sandbox/ and any PDF). If the vault is in git, you can still recover it
-          from history.
+          {playlist ? (
+            <>
+              Also delete <code>{id}/</code> (every video's notes and snippets).
+            </>
+          ) : video ? (
+            <>
+              Also delete <code>{files}</code> and <code>{sandboxPath(video)}</code>.
+            </>
+          ) : (
+            <>
+              Also delete <code>{id}/</code> (NOTES.md, sandbox/ and any PDF).
+            </>
+          )}{" "}
+          If the vault is in git, you can still recover it from history.
         </span>
       </label>
     </Modal>

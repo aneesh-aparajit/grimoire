@@ -45,12 +45,19 @@ pub fn safe_join(root: &Path, rel: &str) -> Result<PathBuf> {
     Ok(root.join(rel_path))
 }
 
-/// An item id is a single slug segment.
+fn is_segment(s: &str) -> bool {
+    !s.is_empty() && s.len() <= 80 && s.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-' || c == '_')
+}
+
+/// An item id is a slug segment, or `<playlist>/<video>` for a video inside
+/// a playlist folder.
 pub fn check_id(id: &str) -> Result<()> {
-    let ok = !id.is_empty()
-        && id.len() <= 80
-        && id.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-' || c == '_')
-        && !id.starts_with('.');
+    let mut parts = id.split('/');
+    let ok = match (parts.next(), parts.next(), parts.next()) {
+        (Some(a), None, _) => is_segment(a),
+        (Some(a), Some(b), None) => is_segment(a) && is_segment(b),
+        _ => false,
+    };
     if ok {
         Ok(())
     } else {
@@ -83,6 +90,16 @@ mod tests {
         assert!(safe_join(root, "/etc/passwd").is_err());
         assert!(safe_join(root, "a/../../b").is_err());
         assert_eq!(safe_join(root, "a/NOTES.md").unwrap(), PathBuf::from("/v/a/NOTES.md"));
+    }
+
+    #[test]
+    fn ids() {
+        assert!(check_id("a-b").is_ok());
+        assert!(check_id("distributed-systems/01-intro").is_ok());
+        assert!(check_id("a/b/c").is_err());
+        assert!(check_id("../x").is_err());
+        assert!(check_id("a/").is_err());
+        assert!(check_id("").is_err());
     }
 
     #[test]

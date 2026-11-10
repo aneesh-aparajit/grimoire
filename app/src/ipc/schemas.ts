@@ -15,11 +15,25 @@ export const ItemSchema = z.object({
   kind: KindSchema,
   origin: z.string(),
   linked: z.boolean(),
+  /** For a video inside a playlist: the playlist's folder. Its id is `<playlist>/<video>`. */
+  playlist: z.string().nullable().optional(),
 });
 export type Item = z.infer<typeof ItemSchema>;
 
+export const PlaylistSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  source: z.string(),
+  tags: z.array(z.string()),
+  done: z.boolean(),
+  count: z.number(),
+  doneCount: z.number(),
+});
+export type Playlist = z.infer<typeof PlaylistSchema>;
+
 export const IndexSnapshotSchema = z.object({
   items: z.array(ItemSchema),
+  playlists: z.array(PlaylistSchema).default([]),
   conflicted: z.boolean(),
 });
 export type IndexSnapshot = z.infer<typeof IndexSnapshotSchema>;

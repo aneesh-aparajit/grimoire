@@ -7,6 +7,7 @@ import type {
   Language,
   NotesSummary,
   OutputEventSchema,
+  Playlist,
   Run,
   Toolchain,
   VaultSnapshot,
@@ -15,6 +16,7 @@ import type {
 export type Bounds = { x: number; y: number; width: number; height: number };
 
 export type AddInput = { url?: string; filePath?: string; title?: string; tags: string[] };
+export type PlaylistInput = { url: string; title?: string; tags: string[] };
 export type Patch = { title?: string; source?: string; tags?: string[]; done?: boolean };
 
 export type Events = {
@@ -39,6 +41,8 @@ export interface Backend {
   pickPdf(): Promise<string | null>;
 
   itemAdd(input: AddInput): Promise<Item>;
+  /** One folder for the playlist, a numbered notes file per video. */
+  playlistAdd(input: PlaylistInput): Promise<Playlist>;
   itemUpdate(id: string, patch: Patch): Promise<Item>;
   itemDelete(id: string, deleteFolder: boolean): Promise<void>;
   itemEnsure(id: string): Promise<Item>;
