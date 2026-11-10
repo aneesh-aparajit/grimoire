@@ -1,17 +1,23 @@
 #!/usr/bin/env bash
-# Install Grimoire on macOS.
+# Install Grimoire on macOS or Linux.
 #
 # Usage:
-#   ./install.sh [options] [path/to/grimoire.dmg]
+#   ./install.sh [options] [path/to/grimoire.dmg | path/to/grimoire]
 #
-# Where the DMG comes from, in order:
+# On Linux, installs a built grimoire binary for the current user: the binary
+# into ~/.local/bin, plus a launcher entry and icon under ~/.local/share. No
+# root needed. The binary is the one given as an argument, or the newest local
+# build in app/src-tauri/target (`make build`).
+#
+# On macOS, where the DMG comes from, in order:
 #   1. the path given as an argument
 #   2. a .dmg next to this script, or the newest local build in app/src-tauri/target
 #   3. the latest GitHub release (via `gh` if installed and signed in, else the public API)
 #
 # Options:
 #   --dest DIR   install into DIR instead of /Applications (falls back to ~/Applications
-#                automatically when /Applications is not writable)
+#                automatically when /Applications is not writable); on Linux, instead
+#                of ~/.local/bin
 #   --open       launch Grimoire after installing
 #   -h, --help   show this help
 #
@@ -32,7 +38,7 @@ info() { printf '\033[36m==>\033[0m %s\n' "$*" >&2; }
 warn() { printf '\033[33mwarning:\033[0m %s\n' "$*" >&2; }
 die()  { printf '\033[31merror:\033[0m %s\n' "$*" >&2; exit 1; }
 
-usage() { sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'; exit 0; }
+usage() { sed -n '2,26p' "$0" | sed 's/^# \{0,1\}//'; exit 0; }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -44,7 +50,63 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-[[ "$(uname -s)" == "Darwin" ]] || die "Grimoire's installer only supports macOS."
+install_linux() {
+  local bin="$DMG"
+  if [[ -z "$bin" ]]; then
+    bin="$(ls -t "$SCRIPT_DIR"/../app/src-tauri/target/release/"$APP_NAME" \
+                 "$SCRIPT_DIR"/../app/src-tauri/target/*/release/"$APP_NAME" \
+                 2>/dev/null | head -1 || true)"
+    [[ -n "$bin" ]] && info "Using local build: $bin"
+  fi
+  [[ -n "$bin" ]] || die "no local build found. Run \`make build\` first, or pass the path to a grimoire binary."
+  [[ -f "$bin" && -x "$bin" ]] || die "not an executable: $bin"
+
+  local dest="${DEST:-$HOME/.local/bin}"
+  local data="${XDG_DATA_HOME:-$HOME/.local/share}"
+  local icon_src="$SCRIPT_DIR/../app/src-tauri/icons/128x128.png"
+  mkdir -p "$dest" "$data/applications" "$data/icons/hicolor/128x128/apps"
+
+  if pgrep -x "$APP_NAME" >/dev/null 2>&1; then
+    info "Quitting the running copy of Grimoire"
+    pkill -x "$APP_NAME" || true
+    sleep 1
+  fi
+
+  info "Installing to $dest/$APP_NAME"
+  install -m 755 "$bin" "$dest/$APP_NAME.tmp"
+  mv -f "$dest/$APP_NAME.tmp" "$dest/$APP_NAME"
+  [[ -f "$icon_src" ]] && install -m 644 "$icon_src" "$data/icons/hicolor/128x128/apps/$APP_NAME.png"
+
+  cat > "$data/applications/$APP_NAME.desktop" <<DESKTOP
+[Desktop Entry]
+Type=Application
+Name=grimoire
+Comment=Read, write and run side by side
+Exec=$dest/$APP_NAME
+Icon=$APP_NAME
+Terminal=false
+Categories=Education;Office;
+StartupWMClass=$APP_NAME
+DESKTOP
+  command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database "$data/applications" >/dev/null 2>&1 || true
+  command -v gtk-update-icon-cache >/dev/null 2>&1 && gtk-update-icon-cache -q -t "$data/icons/hicolor" >/dev/null 2>&1 || true
+
+  case ":$PATH:" in
+    *":$dest:"*) ;;
+    *) warn "$dest is not on your PATH; open grimoire from your app launcher, or add it to PATH." ;;
+  esac
+  info "Grimoire is installed: $dest/$APP_NAME"
+
+  if [[ "$OPEN_AFTER" -eq 1 ]]; then
+    nohup "$dest/$APP_NAME" >/dev/null 2>&1 &
+  fi
+}
+
+case "$(uname -s)" in
+  Darwin) ;;
+  Linux) install_linux; exit 0 ;;
+  *) die "Grimoire's installer supports macOS and Linux. On Windows, use scripts/install.ps1." ;;
+esac
 
 WORK_DIR="$(mktemp -d -t grimoire-install)"
 MOUNT_POINT=""

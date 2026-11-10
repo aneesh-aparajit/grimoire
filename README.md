@@ -6,7 +6,7 @@ Collect blogs, videos and PDFs into a reading list. Open one, and you get the co
 
 Website: [grimoire.aneesh-aparajit.in](https://grimoire.aneesh-aparajit.in), with an interactive preview of the study view and the reading list.
 
-> **Status:** early design. Runs on **macOS 13+** (Apple silicon and Intel) and **Windows 10/11** (x64); Linux comes later. See the [PRD](docs/PRD.md) and [architecture](docs/ARCHITECTURE.md).
+> **Status:** early design. Runs on **macOS 13+** (Apple silicon and Intel), **Windows 10/11** (x64) and **Linux** (x64, with WebKitGTK 4.1: Ubuntu 22.04+, Debian 12+, Fedora 38+, Arch). See the [PRD](docs/PRD.md) and [architecture](docs/ARCHITECTURE.md).
 
 ## Features (v1)
 
@@ -180,6 +180,40 @@ Set-ExecutionPolicy -Scope Process Bypass -Force; .\scripts\install.ps1 -Build -
 
 The installer (`grimoire_<version>_x64-setup.exe`) ends up in `app\src-tauri\target\release\bundle\nsis`. Local builds are unsigned, so SmartScreen may warn the first time you run one: choose **More info → Run anyway**.
 
+### Linux
+
+Prerequisites: a C toolchain, WebKitGTK 4.1 and its build dependencies, the GStreamer plugins that play video, Rust (stable), Node.js 22+ and pnpm. Pick your distribution:
+
+```bash
+sudo apt install build-essential curl wget file libwebkit2gtk-4.1-dev libxdo-dev libssl-dev librsvg2-dev gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-libav
+```
+
+```bash
+sudo dnf install webkit2gtk4.1-devel openssl-devel curl wget file librsvg2-devel libxdo-devel gstreamer1-plugins-good gstreamer1-plugins-bad-free && sudo dnf group install c-development
+```
+
+```bash
+sudo pacman -S --needed base-devel curl wget file openssl webkit2gtk-4.1 librsvg xdotool gst-plugins-good gst-plugins-bad gst-libav
+```
+
+Then Rust and pnpm (Node.js 22+ from your package manager or [nodejs.org](https://nodejs.org)):
+
+```bash
+curl https://sh.rustup.rs -sSf | sh
+```
+
+```bash
+curl -fsSL https://get.pnpm.io/install.sh | sh -
+```
+
+The Makefile works on Linux too. `make dev` runs the app; `make install-app` builds it and installs it for the current user, no root needed: the binary in `~/.local/bin`, plus a launcher entry and icon in `~/.local/share`.
+
+```bash
+make install-app
+```
+
+`make bundle` builds a `.deb` and an AppImage, like CI. If the window stays blank on an NVIDIA or Wayland setup, that's WebKitGTK's DMA-BUF renderer; grimoire turns it off by default, and you can set `WEBKIT_DISABLE_DMABUF_RENDERER=0` to turn it back on.
+
 After changing Rust command signatures or the config schema, regenerate the TypeScript bindings and `config.schema.json`:
 
 ```bash
@@ -224,6 +258,6 @@ grimoire/
 | M3 | Sandbox: six languages, streamed output, save to item |
 | M4 | Polish, menu bar, signed + notarised macOS `.dmg` (v1.0) |
 | M5 | Windows 10/11 installer |
-| Later | Linux |
+| M6 | Linux: `.deb`, `.rpm` and AppImage |
 
 Details are in the [PRD](docs/PRD.md#11-milestones).

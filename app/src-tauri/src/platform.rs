@@ -1,9 +1,10 @@
 //! Finding the user's toolchains and starting processes the same way on
 //! macOS and Windows.
 //!
-//! GUI apps on macOS don't inherit the shell's PATH, so on Unix the user's
-//! login-shell PATH is resolved once and used for toolchain detection and
-//! runs. On Windows, apps started from Explorer get the user's PATH already.
+//! GUI apps on macOS, and on Linux when started from a desktop launcher, don't
+//! inherit the shell's PATH, so on Unix the user's login-shell PATH is
+//! resolved once and used for toolchain detection and runs. On Windows, apps
+//! started from Explorer get the user's PATH already.
 
 use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
@@ -21,7 +22,8 @@ pub fn user_path() -> &'static str {
         let current = std::env::var("PATH").unwrap_or_default();
         #[cfg(unix)]
         {
-            let shell = std::env::var("SHELL").unwrap_or_else(|_| "/bin/zsh".into());
+            let fallback = if cfg!(target_os = "macos") { "/bin/zsh" } else { "/bin/sh" };
+            let shell = std::env::var("SHELL").unwrap_or_else(|_| fallback.into());
             let out = std::process::Command::new(&shell)
                 .args(["-ilc", "printf '__GRIMOIRE_PATH__%s' \"$PATH\""])
                 .stdin(std::process::Stdio::null())
@@ -32,9 +34,8 @@ pub fn user_path() -> &'static str {
                 if let Some(p) = text.rsplit("__GRIMOIRE_PATH__").next() {
                     let p = p.trim();
                     if !p.is_empty() {
-                        let extra = ["/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin"];
-                        let mut parts: Vec<&str> = p.split(':').collect();
-                        for e in extra {
+                        let mut parts: Vec<String> = p.split(':').map(str::to_string).collect();
+                        for e in extra_dirs() {
                             if !parts.contains(&e) {
                                 parts.push(e);
                             }
@@ -46,6 +47,21 @@ pub fn user_path() -> &'static str {
         }
         current
     })
+}
+
+/// Where toolchains commonly live, in case the login shell's PATH misses them.
+#[cfg(unix)]
+fn extra_dirs() -> Vec<String> {
+    let mut dirs: Vec<String> = if cfg!(target_os = "macos") {
+        vec!["/opt/homebrew/bin".into(), "/usr/local/bin".into()]
+    } else {
+        vec!["/usr/local/bin".into(), "/usr/local/go/bin".into(), "/snap/bin".into()]
+    };
+    dirs.extend(["/usr/bin".into(), "/bin".into()]);
+    if let Ok(home) = std::env::var("HOME") {
+        dirs.extend([format!("{home}/.cargo/bin"), format!("{home}/.local/bin")]);
+    }
+    dirs
 }
 
 /// Whether `bin` names a file by path rather than a command to look up.

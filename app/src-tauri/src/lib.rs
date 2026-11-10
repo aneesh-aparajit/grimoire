@@ -591,6 +591,13 @@ fn pdf_size(path: String) -> Result<u64> {
 /* ---------- app ---------- */
 
 pub fn run() {
+    // WebKitGTK's DMA-BUF renderer leaves the window blank on many NVIDIA and
+    // some Wayland setups. Turn it off unless the user has chosen otherwise.
+    #[cfg(target_os = "linux")]
+    if std::env::var_os("WEBKIT_DISABLE_DMABUF_RENDERER").is_none() {
+        // Set before any other thread starts.
+        std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
+    }
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())

@@ -798,8 +798,9 @@ footer .push {
   max-width: 46ch;
 }
 /* Which system's guide is showing. Parts marked for the other one are hidden. */
-.os[data-os="macos"] [data-for="windows"],
-.os[data-os="windows"] [data-for="macos"] {
+.os:not([data-os="macos"]) [data-for="macos"],
+.os:not([data-os="windows"]) [data-for="windows"],
+.os:not([data-os="linux"]) [data-for="linux"] {
   display: none;
 }
 .osswitch {

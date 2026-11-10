@@ -6,7 +6,7 @@
 | **Last updated** | 2026-11-08 |
 | **Related** | [PRD](./PRD.md) |
 
-**Targets:** macOS 13 Ventura+ (universal binary) and Windows 10/11 (x64). Linux is later; §11 covers what differs per platform.
+**Targets:** macOS 13 Ventura+ (universal binary), Windows 10/11 (x64) and Linux (x64, WebKitGTK 4.1). §11 covers what differs per platform.
 
 This document describes how Grimoire is built: the runtime, the code layout under `app/`, the on-disk data model, and how each major feature (vault I/O, content rendering, editor, sandbox) works.
 
@@ -589,13 +589,20 @@ Bindings for all of these are generated into `src/ipc/bindings.ts` by tauri-spec
 **Windows (10/11, x64).** Built from the same code; the differences live in `src-tauri/src/platform.rs`:
 
 - **Webview:** WebView2 (preinstalled on Windows 10 and 11; the installer downloads it if missing).
-- **Bundle:** an NSIS `-setup.exe` (per-user install, no admin rights) and an `.msi`, built on `windows-latest` by the same release workflow. Unsigned for now, so SmartScreen warns on first run. `scripts/install.ps1` builds from a clone or installs a downloaded installer silently.
+- **Bundle:** an NSIS `-setup.exe` (per-user install, no admin rights) and an `.msi`, built on `windows-latest` by `release-win.yaml`. Unsigned for now, so SmartScreen warns on first run. `scripts/install.ps1` builds from a clone or installs a downloaded installer silently.
 - **Sandbox:** no process groups, so stop and timeout end the run with `taskkill /T /F`; every child gets `CREATE_NO_WINDOW` so no console flashes up; compiled programs are `main.exe`; Python is looked up as `python`, then `py`, then `python3` (often the Store stub); runs keep the handful of variables Windows programs need to start (`SystemRoot`, `USERPROFILE`, `APPDATA`, …).
 - **Paths:** the vault root is canonicalised without the `\\?\` prefix, and paths the watcher and sandbox report back are joined with `/` so they match item ids.
 - **Video:** WebView2 can't load an HTML string under an https base URL, so YouTube plays on its watch page (with `&t=` to resume) and the position is read from the page's `<video>` element instead of the embed's iframe API.
 - **UI:** shortcut labels read `Ctrl+…` instead of `⌘…`, and "Show in Finder" becomes "Show in Explorer". Handlers already accept Ctrl or ⌘.
 
-Linux isn't built yet; nothing in the code or the vault format should stand in its way.
+**Linux (x64).** Shares the Unix code paths with macOS (login-shell `PATH`, process groups for the sandbox):
+
+- **Webview:** WebKitGTK 4.1. Its DMA-BUF renderer leaves the window blank on many NVIDIA and some Wayland setups, so the app sets `WEBKIT_DISABLE_DMABUF_RENDERER=1` at startup unless the user set it. Video needs the GStreamer good, bad and libav plugins: the `.deb`/`.rpm` depend on them and the AppImage bundles them.
+- **Video:** like Windows, YouTube plays on its watch page and the position is read from its `<video>` element.
+- **`PATH`:** apps started from a desktop launcher get a minimal `PATH`, so the login shell is asked (falling back to `/bin/sh`), with `~/.cargo/bin`, `~/.local/bin`, `/usr/local/go/bin` and `/snap/bin` added.
+- **Bundle:** `.deb`, `.rpm` and AppImage from `release-linux.yaml` on `ubuntu-22.04` (the oldest WebKitGTK 4.1 base, so the binary runs on newer distributions too). From source, `make install-app` installs the binary into `~/.local/bin` with a `.desktop` entry and icon, which avoids root, distribution-specific packages and the FUSE an AppImage needs.
+
+**Releases.** `release-mac.yaml`, `release-win.yaml` and `release-linux.yaml` run on each `v*` tag and upload to one draft release. Each finds the draft for the tag, or creates it, after a short per-platform stagger so they don't create one each.
 
 ## 12. Future work
 

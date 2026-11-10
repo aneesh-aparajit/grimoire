@@ -72,7 +72,7 @@ export default function Home() {
             </div>
             <dl className="spec">
               <dt>Runs on</dt>
-              <dd>macOS 13+, Windows 10/11</dd>
+              <dd>macOS 13+, Windows 10/11, Linux</dd>
               <dt>Storage</dt>
               <dd>Markdown and source files</dd>
               <dt>Sync</dt>
@@ -202,7 +202,7 @@ export default function Home() {
           <div>
             <h2 id="h-close">Start with one thing you meant to read.</h2>
             <p>
-              grimoire is in early design. It runs on macOS 13+ and Windows 10/11, with Linux after. Read{" "}
+              grimoire is in early design. It runs on macOS 13+, Windows 10/11 and Linux. Read{" "}
               <a href={`${REPO}/blob/master/docs/PRD.md`}>the plan</a>, follow along, or lend a hand.
             </p>
           </div>

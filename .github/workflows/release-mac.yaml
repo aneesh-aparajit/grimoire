@@ -1,0 +1,92 @@
+name: Release (macOS)
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-mac-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build macOS DMG (universal)
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Find or create the draft release
+        id: release
+        shell: bash
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # The mac, Windows and Linux workflows all upload to one draft release.
+          # Staggered starts keep them from each creating their own.
+          sleep 0
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            tag="${{ github.ref_name }}"
+          else
+            tag="v$(jq -r .version app/src-tauri/tauri.conf.json)"
+          fi
+          find_release() {
+            gh api "repos/${{ github.repository }}/releases" --paginate \
+              --jq ".[] | select(.tag_name == \"$tag\") | .id" | head -1
+          }
+          id="$(find_release)"
+          if [ -z "$id" ]; then
+            gh release create "$tag" --repo "${{ github.repository }}" --draft --target "${{ github.sha }}" \
+              --title "Grimoire $tag" \
+              --notes "Download the DMG for macOS, the -setup.exe (or .msi) for Windows, or the .deb, .rpm or .AppImage for Linux, from the assets below."
+            id="$(find_release)"
+          fi
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: app/pnpm-lock.yaml
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - name: Cache Rust build
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: app/src-tauri -> target
+
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build and upload
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Ad-hoc signature: no Apple Developer account needed. Users right-click → Open on first launch.
+          # For Developer ID signing + notarization, replace with APPLE_CERTIFICATE,
+          # APPLE_CERTIFICATE_PASSWORD, APPLE_SIGNING_IDENTITY, APPLE_ID, APPLE_PASSWORD, APPLE_TEAM_ID secrets.
+          APPLE_SIGNING_IDENTITY: "-"
+        with:
+          projectPath: app
+          tauriScript: pnpm tauri
+          args: --target universal-apple-darwin --bundles dmg
+          releaseId: ${{ steps.release.outputs.id }}

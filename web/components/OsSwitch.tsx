@@ -3,35 +3,41 @@
 import Link from "next/link";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
-export type Os = "macos" | "windows";
+export type Os = "macos" | "windows" | "linux";
 
-const LABEL: Record<Os, string> = { macos: "macOS", windows: "Windows" };
+const OSES: Os[] = ["macos", "windows", "linux"];
+const isOs = (v: unknown): v is Os => OSES.includes(v as Os);
 
-/** The visitor's system, guessed from the user agent. Anything that isn't Windows gets the macOS guide. */
+const LABEL: Record<Os, string> = { macos: "macOS", windows: "Windows", linux: "Linux" };
+
+/** The visitor's system, guessed from the user agent. Anything else (phones included) gets the macOS guide. */
 function detect(): Os {
-  return /Windows/i.test(navigator.userAgent) ? "windows" : "macos";
+  const ua = navigator.userAgent;
+  if (/Windows/i.test(ua)) return "windows";
+  if (/Linux|X11|CrOS/i.test(ua) && !/Android/i.test(ua)) return "linux";
+  return "macos";
 }
 
 /**
- * Which guide a `#hash` asks for: `#windows` or `#macos` directly, or the
+ * Which guide a `#hash` asks for: `#macos`, `#windows` or `#linux` directly, or the
  * guide that holds the element with that id.
  */
 function fromHash(): Os | null {
   const id = decodeURIComponent(location.hash.slice(1));
-  if (id === "windows" || id === "macos") return id;
+  if (isOs(id)) return id;
   const owner = id ? document.getElementById(id)?.closest<HTMLElement>("[data-for]")?.dataset.for : undefined;
-  return owner === "windows" || owner === "macos" ? owner : null;
+  return isOs(owner) ? owner : null;
 }
 
 // Runs as soon as the guide is parsed, before hydration, so a Windows visitor
 // never sees the macOS guide flash past.
-const PICK_EARLY = `(function(){try{var s=document.currentScript.parentElement,h=decodeURIComponent(location.hash.slice(1)),e=h&&document.getElementById(h),o=h==="windows"||h==="macos"?h:e&&e.closest("[data-for]")?e.closest("[data-for]").dataset.for:null;s.dataset.os=o||(/Windows/i.test(navigator.userAgent)?"windows":"macos")}catch(_){}})()`;
+const PICK_EARLY = `(function(){try{var s=document.currentScript.parentElement,h=decodeURIComponent(location.hash.slice(1)),e=h&&document.getElementById(h),k=["macos","windows","linux"],u=navigator.userAgent,o=k.indexOf(h)>=0?h:e&&e.closest("[data-for]")?e.closest("[data-for]").dataset.for:null;s.dataset.os=k.indexOf(o)>=0?o:/Windows/i.test(u)?"windows":/Linux|X11|CrOS/i.test(u)&&!/Android/i.test(u)?"linux":"macos"}catch(_){}})()`;
 
 const OsContext = createContext<{ os: Os; pick: (os: Os) => void }>({ os: "macos", pick: () => {} });
 
 /**
  * Shows the parts of the install guide for one system. Children marked
- * `data-for="macos"` or `data-for="windows"` show only for that system;
+ * `data-for="macos"`, `"windows"` or `"linux"` show only for that system;
  * everything else shows for both.
  */
 export function OsScope({ children }: { children: ReactNode }) {
@@ -65,13 +71,13 @@ export function OsScope({ children }: { children: ReactNode }) {
   );
 }
 
-/** Two keys that pick which system's guide to show. */
+/** Keys that pick which system's guide to show. */
 export function OsSwitch() {
   const { os, pick } = useContext(OsContext);
   return (
     <div className="osswitch" role="group" aria-label="Show the guide for">
       <span className="osswitch-label">Show the guide for</span>
-      {(Object.keys(LABEL) as Os[]).map((o) => (
+      {OSES.map((o) => (
         <button
           key={o}
           type="button"
