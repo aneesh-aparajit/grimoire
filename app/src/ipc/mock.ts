@@ -115,6 +115,20 @@ const snapshot = (): IndexSnapshot => ({
   }),
   conflicted,
 });
+// Per-machine state; the demo has stopped partway into lecture 3.
+const state: Record<string, unknown> = empty
+  ? {}
+  : {
+      playlistLast: { "distributed-systems": "distributed-systems/03-lecture-3-gfs" },
+      videoPositions: { "distributed-systems/03-lecture-3-gfs": { t: 754, d: 4380, at: Date.now() - 86_400_000 } },
+    };
+function mergeState(base: Record<string, unknown>, patch: Record<string, unknown>) {
+  for (const [k, v] of Object.entries(patch)) {
+    const b = base[k];
+    if (v && typeof v === "object" && !Array.isArray(v) && b && typeof b === "object") mergeState(b as Record<string, unknown>, v as Record<string, unknown>);
+    else base[k] = v;
+  }
+}
 const wait = <T>(v: T, ms = 60) => new Promise<T>((r) => setTimeout(() => r(v), ms));
 const fail = (kind: string, message: string) => Promise.reject({ kind, message });
 
@@ -136,7 +150,7 @@ export const mockBackend: Backend = {
   mock: true,
   vaultRecent: () => wait(params.get("picker") === "1" ? [] : ["~/notes/vault"]),
   vaultOpen: (path) =>
-    wait({ root: path, name: path.split("/").pop() || "vault", index: snapshot(), config, state: {} }),
+    wait({ root: path, name: path.split("/").pop() || "vault", index: snapshot(), config, state: structuredClone(state) }),
   vaultCreate: (path) => mockBackend.vaultOpen(path),
   vaultClose: () => wait(undefined),
   pickFolder: () => wait("~/notes/vault"),
@@ -248,7 +262,10 @@ export const mockBackend: Backend = {
     cur[keys.at(-1) as string] = value;
     return wait(structuredClone(config));
   },
-  statePatch: () => wait(undefined),
+  statePatch: (patch) => {
+    mergeState(state, structuredClone(patch));
+    return wait(undefined);
+  },
   runsGet: (id) => wait(structuredClone(runs.get(id) ?? [])),
   runsAppend: async (id, run) => {
     runs.set(id, [...(runs.get(id) ?? []), run].slice(-30));
@@ -307,6 +324,7 @@ export const mockBackend: Backend = {
   sandboxLoad: (id, file) => wait(saved.get(id)?.get(file) ?? ""),
 
   contentShow: () => wait(undefined),
+  contentVideoTime: () => wait(null),
   contentBounds: () => wait(undefined),
   contentHide: () => wait(undefined),
   contentNav: () => wait(undefined),

@@ -76,7 +76,10 @@ export const tauriBackend: Backend = {
   sandboxList: (id) => call("sandbox_list", { id }, z.array(z.string())),
   sandboxLoad: (id, fileName) => call("sandbox_load", { id, fileName }, z.string()),
 
-  contentShow: (source, bounds) => call("content_show", { source, bounds }, Void),
+  contentShow: (source, bounds, start) =>
+    call("content_show", { source, bounds, start: start ? Math.floor(start) : null }, Void),
+  contentVideoTime: () =>
+    call("content_video_time", {}, z.object({ t: z.number(), d: z.number().nullable(), s: z.number().nullable() }).nullable()),
   contentBounds: (bounds) => call("content_bounds", { bounds }, Void),
   contentHide: () => call("content_hide", {}, Void),
   contentNav: (action) => call("content_nav", { action }, Void),

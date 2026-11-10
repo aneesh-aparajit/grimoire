@@ -26,6 +26,15 @@ export function matches(item: Item, q: Query, playlist?: Playlist): boolean {
   return q.words.every((w) => hay.includes(w));
 }
 
+/** A playlist row on its own terms: its done state, tags and title. */
+export function matchesPlaylist(p: Playlist, q: Query): boolean {
+  if (q.state === "done" && !p.done) return false;
+  if (q.state === "pending" && p.done) return false;
+  if (!q.tags.every((t) => p.tags.includes(t))) return false;
+  const hay = `${p.title} ${p.source} ${p.id} ${p.tags.join(" ")}`.toLowerCase();
+  return q.words.every((w) => hay.includes(w));
+}
+
 export function toggleTag(query: string, tag: string): string {
   const parts = query.trim().split(/\s+/).filter(Boolean);
   const token = `#${tag}`;

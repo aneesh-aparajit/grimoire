@@ -376,18 +376,37 @@ pub struct Bounds {
 /// told to identify themselves with an https URL built from the app id.
 #[cfg(target_os = "macos")]
 const EMBED_BASE_URL: &str = "https://app.grimoire.desktop/";
+/// [`EMBED_BASE_URL`] without the trailing slash, as the player's `origin`.
+#[cfg_attr(not(target_os = "macos"), allow(dead_code))]
+const EMBED_ORIGIN: &str = "https://app.grimoire.desktop";
 
 /// A page that fills the webview with the player, so the player is loaded as
 /// an iframe and receives the wrapper's origin as its Referer.
 #[cfg_attr(not(target_os = "macos"), allow(dead_code))]
 fn embed_page(player_url: &str) -> String {
-    let src = player_url
+    let src = with_js_api(player_url);
+    let src = src
         .replace('&', "&amp;")
         .replace('"', "&quot;")
         .replace('<', "&lt;");
     format!(
-        r#"<!doctype html><html><head><meta charset="utf-8"><meta name="referrer" content="strict-origin-when-cross-origin"><style>html,body{{margin:0;height:100%;background:#000;overflow:hidden}}iframe{{display:block;width:100%;height:100%;border:0}}</style></head><body><iframe src="{src}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></body></html>"#
+        r#"<!doctype html><html><head><meta charset="utf-8"><meta name="referrer" content="strict-origin-when-cross-origin"><style>html,body{{margin:0;height:100%;background:#000;overflow:hidden}}iframe{{display:block;width:100%;height:100%;border:0}}</style></head><body><iframe id="p" src="{src}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><script>{TRACKER}</script></body></html>"#
     )
+}
+
+/// Asks the player for its state over the iframe API's postMessage channel
+/// and keeps the latest in `window.__grimoireVideo`, which the app reads back
+/// with `webview_video_time`.
+#[cfg_attr(not(target_os = "macos"), allow(dead_code))]
+const TRACKER: &str = r#"(function(){var f=document.getElementById("p"),v={t:null,d:null,s:null};window.__grimoireVideo=v;function hi(){try{f.contentWindow.postMessage(JSON.stringify({event:"listening",id:1,channel:"widget"}),"*")}catch(e){}}f.addEventListener("load",function(){hi();var n=0,i=setInterval(function(){if(v.t!==null||++n>20)clearInterval(i);else hi()},500)});addEventListener("message",function(e){if(!/youtube(-nocookie)?\.com$/.test(new URL(e.origin).hostname))return;var m;try{m=typeof e.data==="string"?JSON.parse(e.data):e.data}catch(x){return}var info=m&&m.info;if(!info)return;if(typeof info.currentTime==="number")v.t=info.currentTime;if(typeof info.duration==="number"&&info.duration>0)v.d=info.duration;if(typeof info.playerState==="number")v.s=info.playerState})})();"#;
+
+/// Adds the iframe API parameters so the player reports its time to the
+/// wrapper page.
+#[cfg_attr(not(target_os = "macos"), allow(dead_code))]
+fn with_js_api(player_url: &str) -> String {
+    let sep = if player_url.contains('?') { '&' } else { '?' };
+    let origin = EMBED_ORIGIN;
+    format!("{player_url}{sep}enablejsapi=1&origin={origin}")
 }
 
 #[cfg(target_os = "macos")]
@@ -415,21 +434,35 @@ enum Target {
     Embed(String),
 }
 
-fn target(source: &str) -> Target {
+fn target(source: &str, start: Option<u32>) -> Target {
     match youtube_id(source) {
         #[cfg(target_os = "macos")]
-        Some(_) => Target::Embed(render_url(source)),
+        Some(_) => Target::Embed(with_start(&render_url(source), start)),
         // Without a way to set the Referer, the watch page is the one that plays.
         #[cfg(not(target_os = "macos"))]
-        Some(id) => Target::Url(format!("https://www.youtube.com/watch?v={id}")),
+        Some(id) => Target::Url(match start {
+            Some(t) => format!("https://www.youtube.com/watch?v={id}&t={t}s"),
+            None => format!("https://www.youtube.com/watch?v={id}"),
+        }),
         None => Target::Url(render_url(source)),
     }
 }
 
+/// The embed URL starting `start` seconds in, replacing any `start=` it had.
+#[cfg_attr(not(target_os = "macos"), allow(dead_code))]
+fn with_start(embed: &str, start: Option<u32>) -> String {
+    let Some(t) = start.filter(|t| *t > 0) else { return embed.to_string() };
+    let Ok(mut u) = url::Url::parse(embed) else { return embed.to_string() };
+    let rest: Vec<(String, String)> =
+        u.query_pairs().filter(|(k, _)| k != "start").map(|(k, v)| (k.into_owned(), v.into_owned())).collect();
+    u.query_pairs_mut().clear().extend_pairs(rest).append_pair("start", &t.to_string());
+    u.to_string()
+}
+
 /// Shows `source` in the content webview, creating it on first use. One
 /// webview is reused across items so its cookie store persists.
-pub fn webview_show(app: &AppHandle, source: &str, b: Bounds) -> Result<()> {
-    let target = target(source);
+pub fn webview_show(app: &AppHandle, source: &str, start: Option<u32>, b: Bounds) -> Result<()> {
+    let target = target(source, start);
     let url: url::Url = match &target {
         Target::Url(u) => u.as_str(),
         Target::Embed(_) => "about:blank",
@@ -491,6 +524,29 @@ pub fn webview_hide(app: &AppHandle) -> Result<()> {
     Ok(())
 }
 
+/// Where the embedded video player is, as `{ t, d, s }` (seconds, duration,
+/// player state), or `None` when no video is showing or it hasn't reported.
+pub async fn webview_video_time(app: &AppHandle) -> Option<serde_json::Value> {
+    let wv = app.get_webview(CONTENT_LABEL)?;
+    let (tx, rx) = tokio::sync::oneshot::channel::<String>();
+    let tx = std::sync::Mutex::new(Some(tx));
+    wv.eval_with_callback("JSON.stringify(window.__grimoireVideo || null)", move |out| {
+        if let Some(tx) = tx.lock().ok().and_then(|mut t| t.take()) {
+            let _ = tx.send(out);
+        }
+    })
+    .ok()?;
+    let out = tokio::time::timeout(Duration::from_millis(1500), rx).await.ok()?.ok()?;
+    // The result is JSON-encoded once by the webview and once by our stringify.
+    let inner: serde_json::Value = serde_json::from_str(&out).ok()?;
+    let v: serde_json::Value = match inner {
+        serde_json::Value::String(s) => serde_json::from_str(&s).ok()?,
+        other => other,
+    };
+    v.get("t")?.as_f64()?;
+    Some(v)
+}
+
 pub fn webview_eval(app: &AppHandle, js: &str) -> Result<()> {
     if let Some(wv) = app.get_webview(CONTENT_LABEL) {
         wv.eval(js)?;
@@ -546,7 +602,17 @@ mod tests {
     fn embed_page_escapes_the_player_url() {
         let page = embed_page("https://www.youtube-nocookie.com/embed/abc?start=1&x=\"<");
         assert!(page.contains(
-            r#"src="https://www.youtube-nocookie.com/embed/abc?start=1&amp;x=&quot;&lt;""#
+            r#"src="https://www.youtube-nocookie.com/embed/abc?start=1&amp;x=&quot;&lt;&amp;enablejsapi=1&amp;origin=https://app.grimoire.desktop""#
         ));
+    }
+
+    #[test]
+    fn with_start_replaces_the_start_offset() {
+        assert_eq!(
+            with_start("https://www.youtube-nocookie.com/embed/abc?start=42", Some(90)),
+            "https://www.youtube-nocookie.com/embed/abc?start=90"
+        );
+        assert_eq!(with_start("https://www.youtube-nocookie.com/embed/abc", Some(5)), "https://www.youtube-nocookie.com/embed/abc?start=5");
+        assert_eq!(with_start("https://www.youtube-nocookie.com/embed/abc", Some(0)), "https://www.youtube-nocookie.com/embed/abc");
     }
 }

@@ -1,4 +1,4 @@
-import { ArrowLeft, Pencil, PanelLeft, PanelRight, TriangleAlert } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Pencil, PanelLeft, PanelRight, TriangleAlert } from "lucide-react";
 import { useEffect } from "react";
 import { useApp } from "../app/store";
 import { KindIcon } from "../components/KindIcon";
@@ -17,6 +17,12 @@ export function StudyView({ id }: { id: string }) {
   const toggleDone = useApp((s) => s.toggleDone);
   const setDialog = useApp((s) => s.setDialog);
   const vaultRoot = useApp((s) => s.vault?.root ?? "");
+  const openItem = useApp((s) => s.openItem);
+  const playlist = useApp((s) => (item?.playlist ? s.playlists.find((p) => p.id === item.playlist) : undefined));
+  const siblings = useApp((s) => s.items).filter((i) => item?.playlist && i.playlist === item.playlist);
+  const at = siblings.findIndex((i) => i.id === id);
+  const prev = at > 0 ? siblings[at - 1] : undefined;
+  const next = at >= 0 ? siblings[at + 1] : undefined;
   const open = useStudy((s) => s.open);
   const close = useStudy((s) => s.close);
   const flush = useStudy((s) => s.flush);
@@ -45,6 +51,10 @@ export function StudyView({ id }: { id: string }) {
   const goBack = async () => {
     await flush();
     back();
+  };
+  const goTo = async (to: string) => {
+    await flush();
+    await openItem(to);
   };
 
   useEffect(() => {
@@ -113,6 +123,33 @@ export function StudyView({ id }: { id: string }) {
           </span>
         </div>
         <div className="band-tools">
+          {playlist && at >= 0 && (
+            <div className="playlist-nav" role="group" aria-label={`Playlist ${playlist.title}`}>
+              <button
+                type="button"
+                className="btn btn-icon"
+                aria-label="Previous video"
+                title={prev ? `Previous: ${prev.title}` : undefined}
+                disabled={!prev}
+                onClick={() => prev && void goTo(prev.id)}
+              >
+                <ChevronLeft />
+              </button>
+              <span className="playlist-pos mono" title={playlist.title}>
+                {at + 1}/{siblings.length}
+              </span>
+              <button
+                type="button"
+                className="btn btn-icon"
+                aria-label="Next video"
+                title={next ? `Next: ${next.title}` : undefined}
+                disabled={!next}
+                onClick={() => next && void goTo(next.id)}
+              >
+                <ChevronRight />
+              </button>
+            </div>
+          )}
           <button
             type="button"
             className="btn done-toggle"
