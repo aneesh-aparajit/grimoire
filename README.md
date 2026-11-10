@@ -4,14 +4,17 @@ A minimal, local-first desktop app for studying what you find on the internet.
 
 Collect blogs, videos and PDFs into a reading list. Open one, and you get the content on the left and a Markdown notebook with a runnable code sandbox on the right. There's no database and no account: everything is plain files in a folder you can push to git and pick up on any machine.
 
+Website: [grimoire.aneesh-aparajit.in](https://grimoire.aneesh-aparajit.in), with an interactive preview of the study view and the reading list.
+
 > **Status:** early design. v1 targets **macOS 13+** (Apple silicon and Intel); Linux and Windows come later. See the [PRD](docs/PRD.md) and [architecture](docs/ARCHITECTURE.md).
 
 ## Features (v1)
 
 - **Reading list** stored in `INDEX.md` as a Markdown task list, with `#tags`, search and tag filters.
 - **Study view**: the article, video or PDF on the left, notes on the right, with a resizable split.
+- **YouTube playlists** added from one link: a single row in the reading list with a progress ring that resumes at the lecture and the second you stopped, plus previous/next buttons in the study view.
 - **PDFs** from a URL or from disk (local files are copied into the item's folder). Built-in viewer with outline, search, text selection, "copy as quote" into notes, and resume-where-you-left-off.
-- **Markdown notes** with light syntax highlighting, inline lint hints and autosave.
+- **Markdown notes** with light syntax highlighting, inline lint hints, autosave and an optional rendered preview.
 - **Code sandbox** for Python, Rust, Java, Go, C and JavaScript, using the toolchains already on your machine. Run snippets, see streamed output, and save them into the item's folder.
 - **Files only.** The vault is a normal folder: readable on GitHub, editable in any editor, synced with git. Even preferences live in the vault, in `.grimoire/`.
 
@@ -61,7 +64,7 @@ my-vault/
     └── sandbox/01-lecture-1-introduction/main.go
 ```
 
-The playlist is marked done once every video in it is.
+In the reading list the playlist is one row, with a progress ring and the lecture to pick up from ("Continue: Lecture 3 · 12:34"). Opening it resumes the lecture you last opened, or the next one not done; the side panel lists every video. Video positions are kept per machine in `.grimoire/local/state.json`. The playlist is marked done once every video in it is.
 
 ## Preferences
 
@@ -145,6 +148,20 @@ After changing Rust command signatures or the config schema, regenerate the Type
 pnpm gen
 ```
 
+### Website
+
+The landing page and install guide live in [`web/`](web/): Next.js 16 and React 19, with plain CSS and no other dependencies. The demos on it are built from markup with synthetic content, not screenshots.
+
+```bash
+pnpm --dir web install
+```
+
+```bash
+pnpm --dir web dev
+```
+
+It follows the system light or dark theme until you pick one with the toggle in the header, and respects reduced motion.
+
 ## Repository layout
 
 ```
@@ -153,9 +170,10 @@ grimoire/
 ├── docs/
 │   ├── PRD.md             # what we're building and why
 │   └── ARCHITECTURE.md    # how it's built
-└── app/                   # the Tauri desktop app
-    ├── src/               # frontend (React 19 + TypeScript)
-    └── src-tauri/         # backend (Rust)
+├── app/                   # the Tauri desktop app
+│   ├── src/               # frontend (React 19 + TypeScript)
+│   └── src-tauri/         # backend (Rust)
+└── web/                   # the website (Next.js)
 ```
 
 ## Roadmap
