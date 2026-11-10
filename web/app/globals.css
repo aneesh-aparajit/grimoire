@@ -65,6 +65,25 @@
   }
 }
 
+:root[data-theme="dark"] {
+  --body: #1d1e20;
+  --panel: #26272a;
+  --raise: #323337;
+  --well: #2e2f33;
+  --rule: #38393d;
+  --rule-strong: #4c4d52;
+  --ink: #e7e7e4;
+  --ink-muted: #b6b7b4;
+  --ink-faint: #9a9ca1;
+  --pass: #5cbf6c;
+  --fail: #ef6a5c;
+  --caution: #e0a634;
+  --focus: #6f9ff0;
+  --key-shadow: 0 1px 0 rgb(0 0 0 / 0.3);
+  --device-shadow: 0 34px 70px -30px rgb(0 0 0 / 0.7);
+  color-scheme: dark;
+}
+
 *,
 *::before,
 *::after {
@@ -260,6 +279,43 @@ h3 {
 }
 .top .push {
   margin-left: auto;
+}
+.theme {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid var(--rule-strong);
+  border-radius: 8px;
+  background: var(--raise);
+  color: var(--ink-muted);
+  box-shadow: var(--key-shadow);
+  cursor: pointer;
+  transition: color 140ms var(--ease-out), background-color 140ms var(--ease-out);
+}
+.theme:hover {
+  color: var(--ink);
+}
+.theme svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  animation: theme-spin 420ms var(--ease-out);
+}
+@keyframes theme-spin {
+  from {
+    rotate: -60deg;
+    opacity: 0;
+  }
+}
+/* Fade colours when the theme is switched by hand, not on every hover. */
+html.theme-switching,
+html.theme-switching * {
+  transition: background-color 300ms var(--ease-out), color 300ms var(--ease-out), border-color 300ms var(--ease-out) !important;
 }
 
 /* ---------- hero ---------- */
