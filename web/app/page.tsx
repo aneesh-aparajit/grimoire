@@ -35,6 +35,14 @@ export default function Home() {
       <main id="top">
         <header className="hero">
           <div>
+            <p className="quill" aria-label="#grimoire">
+              <span className="ink" aria-hidden="true">
+                <span className="hash">#</span>grimoire
+              </span>
+              <svg className="pen" viewBox="270 150 540 680" aria-hidden="true">
+                <use href="#feather" />
+              </svg>
+            </p>
             <h1>A quiet place to study.</h1>
             <p className="lede">
               The source on one side. Your notes and a code sandbox on the other. Everything saved as plain files in a

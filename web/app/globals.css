@@ -1097,13 +1097,13 @@ footer .push {
   }
 }
 
-.hero > div > *,
+.hero > div > :not(.quill),
 .hero > .device {
   animation: rise 700ms var(--ease-out) backwards;
 }
-.hero > div > :nth-child(2) { animation-delay: 70ms; }
-.hero > div > :nth-child(3) { animation-delay: 140ms; }
-.hero > div > :nth-child(4) { animation-delay: 210ms; }
+.hero > div > :nth-child(3) { animation-delay: 70ms; }
+.hero > div > :nth-child(4) { animation-delay: 140ms; }
+.hero > div > :nth-child(5) { animation-delay: 210ms; }
 .hero > .device {
   animation-duration: 900ms;
   animation-delay: 160ms;
@@ -1118,6 +1118,69 @@ footer .push {
 }
 .lamp.amber {
   animation: lamp-pulse 900ms ease-in-out infinite;
+}
+
+/* "#grimoire" written out by the feather: the ink is uncovered left to right while the nib rides its edge. */
+.quill {
+  position: relative;
+  display: inline-block;
+  margin: 0 0 1.25rem;
+  padding: 0.25rem 1.5rem 0 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  font-style: italic;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  color: var(--ink-muted);
+}
+.quill .ink {
+  display: inline-block;
+  padding-right: 0.15em;
+  clip-path: inset(-0.2em 100% -0.2em 0);
+  animation: ink 1.9s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0.35s forwards;
+}
+.quill .hash {
+  margin-right: 0.04em;
+  color: var(--signal);
+}
+.quill .pen {
+  position: absolute;
+  left: 0;
+  /* The nib sits ~6% across and ~92% down the feather's box; put it on the baseline. */
+  top: -0.55rem;
+  width: 2.1rem;
+  height: 2.65rem;
+  margin-left: -0.13rem;
+  color: var(--ink);
+  transform-origin: 6% 92%;
+  pointer-events: none;
+  animation:
+    pen-move 1.9s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0.35s forwards,
+    pen-scratch 0.24s ease-in-out 0.35s 8,
+    pen-lift 0.6s var(--ease-out) 2.3s forwards;
+}
+@keyframes ink {
+  to {
+    clip-path: inset(-0.2em 0 -0.2em 0);
+  }
+}
+@keyframes pen-move {
+  to {
+    left: calc(100% - 1.5rem);
+  }
+}
+@keyframes pen-scratch {
+  50% {
+    rotate: -7deg;
+    translate: 0 -2px;
+  }
+}
+@keyframes pen-lift {
+  to {
+    translate: 0.6rem -0.9rem;
+    rotate: 8deg;
+    opacity: 0;
+  }
 }
 
 /* Scroll reveal. Hidden only once the script has run, so no-JS readers see everything. */
