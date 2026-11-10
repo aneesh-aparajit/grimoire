@@ -2,26 +2,49 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Doc, Path } from "@/components/Entry";
 import { CopyButton } from "@/components/CopyButton";
+import { OsScope, OsSwitch } from "@/components/OsSwitch";
 import { Shell } from "@/components/Shell";
 import { REPO, SiteFooter, SiteHeader } from "@/components/SiteHeader";
 
 export const metadata: Metadata = {
   title: "Install grimoire",
   description:
-    "Install grimoire on macOS 13+ by building it from source: prerequisites, make install-app, updating or uninstalling, and the toolchains the sandbox uses.",
+    "Install grimoire on macOS 13+ or Windows 10/11 by building it from source: prerequisites, the install command, updating or uninstalling, and the toolchains the sandbox uses.",
   alternates: { canonical: "/install" },
 };
 
 const APP = "/Applications/grimoire.app";
+// Lets this PowerShell window run the (unsigned) install script; the policy resets when the window closes.
+const ALLOW_SCRIPT = "Set-ExecutionPolicy -Scope Process Bypass -Force";
+const INSTALL_PS1 = ".\\scripts\\install.ps1 -Build";
 
-const TOOLCHAINS = [
+type Toolchain = readonly [lang: string, bin: string, what: string, cmd: string];
+
+const MAC_TOOLCHAINS: readonly Toolchain[] = [
   ["Python", "python3", "Comes with the Command Line Tools", "xcode-select --install"],
   ["C", "cc", "clang, from the Command Line Tools", "xcode-select --install"],
   ["JavaScript", "node", "Node.js", "brew install node"],
   ["Go", "go", "Go toolchain", "brew install go"],
   ["Java", "java", "JDK 11 or newer", "brew install openjdk"],
   ["Rust", "rustc", "Through rustup", "curl https://sh.rustup.rs -sSf | sh"],
-] as const;
+];
+
+const WIN_TOOLCHAINS: readonly Toolchain[] = [
+  ["Python", "python", "From python.org; py works too", "winget install --id Python.Python.3.13"],
+  ["C", "clang", "LLVM; add its bin folder to PATH. gcc works too", "winget install --id LLVM.LLVM"],
+  ["JavaScript", "node", "Node.js, already a prerequisite", "winget install --id OpenJS.NodeJS.LTS"],
+  ["Go", "go", "Go toolchain", "winget install --id GoLang.Go"],
+  ["Java", "java", "JDK 11 or newer", "winget install --id Microsoft.OpenJDK.21"],
+  ["Rust", "rustc", "Through rustup, already a prerequisite", "winget install --id Rustlang.Rustup"],
+];
+
+const WIN_PREREQS = [
+  'winget install --id Microsoft.VisualStudio.2022.BuildTools --override "--wait --passive --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"',
+  "winget install --id Rustlang.Rustup",
+  "winget install --id OpenJS.NodeJS.LTS",
+  "winget install --id Git.Git",
+  "npm install --global pnpm",
+];
 
 /** An instrument panel holding a shell or table, with a label and an optional note on the right. */
 function Module({ file, children, right }: { file: string; children: React.ReactNode; right?: string }) {
@@ -50,148 +73,272 @@ function Sub({ id, title, children }: { id: string; title: string; children: Rea
   );
 }
 
+/** What the sandbox looks for on one system, and how to install each toolchain there. */
+function ToolchainTable({ rows }: { rows: readonly Toolchain[] }) {
+  return (
+    <div className="panel">
+      <table className="table tc">
+        <thead>
+          <tr>
+            <th scope="col">Language</th>
+            <th scope="col">Looks for</th>
+            <th scope="col">Install</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(([lang, bin, what, cmd]) => (
+            <tr key={lang}>
+              <th scope="row">
+                {lang}
+                <span className="what">{what}</span>
+                <span className="what bin-sm mono">looks for {bin}</span>
+              </th>
+              <td className="mono bin">{bin}</td>
+              <td className="mono">
+                <span className="cmdcell">
+                  <code>{cmd}</code>
+                  <CopyButton text={cmd} label={`install ${lang}`} className="copy-sm mono" />
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export default function Install() {
   return (
     <div className="wrap">
       <SiteHeader current="install" />
 
       <main id="top">
-        <header className="doc-hero">
-          <h1>Install grimoire</h1>
-          <p className="lede">
-            grimoire runs on macOS 13 Ventura or later, on Apple silicon and Intel. You install it by building it from
-            source.
-          </p>
-          <ul className="checks">
-            <li>
-              <span className="state">
-                <i className="lamp off" aria-hidden="true" />
-                Need
-              </span>
-              <span>
-                A Mac on macOS 13+, and permission to write to <Path>/Applications</Path> (or it falls back to{" "}
-                <Path>~/Applications</Path>).
-              </span>
-            </li>
-            <li>
-              <span className="state">
-                <i className="lamp amber" aria-hidden="true" />
-                Early
-              </span>
-              <span>grimoire is in early design. There are no prebuilt downloads.</span>
-            </li>
-          </ul>
-        </header>
-
-        <Doc id="install" title="Build and install">
-          <p>
-            You build grimoire on your own Mac, and <code>make</code> copies the finished app into{" "}
-            <Path>/Applications</Path>. The first build compiles the Rust backend and takes a few minutes; later ones
-            are quicker.
-          </p>
-
-          <Sub id="prerequisites" title="Prerequisites">
-            <p>
-              The Xcode Command Line Tools, Rust (stable, via rustup), Node.js 22+ and pnpm. Skip any you already have.
-              With <a href="https://brew.sh">Homebrew</a>:
+        <OsScope>
+          <header className="doc-hero">
+            <h1>Install grimoire</h1>
+            <p className="lede">
+              grimoire runs on macOS 13 Ventura or later, on Apple silicon and Intel, and on Windows 10 or 11 (x64). You
+              install it by building it from source.
             </p>
-            <Module file="Terminal" right="one command at a time">
-              <Shell
-                label="Install build prerequisites"
-                commands={["xcode-select --install", "curl https://sh.rustup.rs -sSf | sh", "brew install node pnpm"]}
-              />
-            </Module>
-          </Sub>
+            <OsSwitch />
+            <ul className="checks">
+              <li data-for="macos">
+                <span className="state">
+                  <i className="lamp off" aria-hidden="true" />
+                  Need
+                </span>
+                <span>
+                  A Mac on macOS 13+, and permission to write to <Path>/Applications</Path> (or it falls back to{" "}
+                  <Path>~/Applications</Path>).
+                </span>
+              </li>
+              <li data-for="windows">
+                <span className="state">
+                  <i className="lamp off" aria-hidden="true" />
+                  Need
+                </span>
+                <span>
+                  A PC on Windows 10 or 11 (x64) with about 8 GB free for the build tools. grimoire installs for your
+                  account only, so it needs no admin rights; the Build Tools installer asks for them once.
+                </span>
+              </li>
+              <li>
+                <span className="state">
+                  <i className="lamp amber" aria-hidden="true" />
+                  Early
+                </span>
+                <span>grimoire is in early design. There are no prebuilt downloads.</span>
+              </li>
+            </ul>
+          </header>
 
-          <Sub id="build" title="Clone, build, install">
-            <Module file="Terminal" right="installs grimoire.app">
-              <Shell label="Clone, build and install" commands={[`git clone ${REPO}.git`, "cd grimoire", "make install-app"]} />
-            </Module>
-            <p>
-              <code>make install-app</code> installs the frontend dependencies, builds the app for this Mac&apos;s
-              architecture, and copies it into <Path>/Applications</Path>, quitting a running copy first. Then open
-              grimoire from Launchpad or Spotlight.
-            </p>
-            <dl className="opts">
-              <dt>
-                <code>make dev</code>
-              </dt>
-              <dd>Run the app in development mode, with hot reload.</dd>
-              <dt>
-                <code>make build</code>
-              </dt>
-              <dd>Build the app without installing it.</dd>
-              <dt>
-                <code>make build-universal</code>
-              </dt>
-              <dd>Build one app for both Apple silicon and Intel.</dd>
-              <dt>
-                <code>make help</code>
-              </dt>
-              <dd>List every target.</dd>
-            </dl>
-          </Sub>
+          <div data-for="macos">
+            <Doc id="install-macos" title="Build and install on macOS">
+              <p>
+                You build grimoire on your own Mac, and <code>make</code> copies the finished app into{" "}
+                <Path>/Applications</Path>. The first build compiles the Rust backend and takes a few minutes; later
+                ones are quicker.
+              </p>
 
-          <Sub id="update" title="Update or uninstall">
-            <p>
-              <b>To update</b>, pull and install again from your clone:
-            </p>
-            <Module file="Terminal">
-              <Shell label="Update grimoire" commands={["git pull", "make install-app"]} />
-            </Module>
-            <p>
-              <b>To uninstall</b>, drag <Path>grimoire.app</Path> to the Bin. Your vaults are plain folders and stay
-              where they are. The only file grimoire keeps elsewhere is the list of recent vaults:
-            </p>
-            <Module file="Terminal" right="optional">
-              <Shell
-                label="Remove grimoire and its recent-vaults list"
-                commands={[`rm -rf ${APP}`, 'rm -rf "$HOME/Library/Application Support/app.grimoire.desktop"']}
-              />
-            </Module>
-          </Sub>
-        </Doc>
+              <Sub id="prerequisites" title="Prerequisites">
+                <p>
+                  The Xcode Command Line Tools, Rust (stable, via rustup), Node.js 22+ and pnpm. Skip any you already
+                  have. With <a href="https://brew.sh">Homebrew</a>:
+                </p>
+                <Module file="Terminal" right="one command at a time">
+                  <Shell
+                    label="Install build prerequisites"
+                    commands={["xcode-select --install", "curl https://sh.rustup.rs -sSf | sh", "brew install node pnpm"]}
+                  />
+                </Module>
+              </Sub>
 
-        <Doc id="toolchains" title="Toolchains for the sandbox">
-          <p>
-            The sandbox runs code with the compilers and interpreters already on your Mac. Install only the languages
-            you want to use; missing ones are reported in the app and the rest keep working. With{" "}
-            <a href="https://brew.sh">Homebrew</a>:
-          </p>
-          <div className="panel">
-            <table className="table tc">
-              <thead>
-                <tr>
-                  <th scope="col">Language</th>
-                  <th scope="col">Looks for</th>
-                  <th scope="col">Install</th>
-                </tr>
-              </thead>
-              <tbody>
-                {TOOLCHAINS.map(([lang, bin, what, cmd]) => (
-                  <tr key={lang}>
-                    <th scope="row">
-                      {lang}
-                      <span className="what">{what}</span>
-                      <span className="what bin-sm mono">looks for {bin}</span>
-                    </th>
-                    <td className="mono bin">{bin}</td>
-                    <td className="mono">
-                      <span className="cmdcell">
-                        <code>{cmd}</code>
-                        <CopyButton text={cmd} label={`install ${lang}`} className="copy-sm mono" />
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+              <Sub id="build" title="Clone, build, install">
+                <Module file="Terminal" right="installs grimoire.app">
+                  <Shell
+                    label="Clone, build and install"
+                    commands={[`git clone ${REPO}.git`, "cd grimoire", "make install-app"]}
+                  />
+                </Module>
+                <p>
+                  <code>make install-app</code> installs the frontend dependencies, builds the app for this Mac&apos;s
+                  architecture, and copies it into <Path>/Applications</Path>, quitting a running copy first. Then open
+                  grimoire from Launchpad or Spotlight.
+                </p>
+                <dl className="opts">
+                  <dt>
+                    <code>make dev</code>
+                  </dt>
+                  <dd>Run the app in development mode, with hot reload.</dd>
+                  <dt>
+                    <code>make build</code>
+                  </dt>
+                  <dd>Build the app without installing it.</dd>
+                  <dt>
+                    <code>make build-universal</code>
+                  </dt>
+                  <dd>Build one app for both Apple silicon and Intel.</dd>
+                  <dt>
+                    <code>make help</code>
+                  </dt>
+                  <dd>List every target.</dd>
+                </dl>
+              </Sub>
+
+              <Sub id="update" title="Update or uninstall">
+                <p>
+                  <b>To update</b>, pull and install again from your clone:
+                </p>
+                <Module file="Terminal">
+                  <Shell label="Update grimoire" commands={["git pull", "make install-app"]} />
+                </Module>
+                <p>
+                  <b>To uninstall</b>, drag <Path>grimoire.app</Path> to the Bin. Your vaults are plain folders and
+                  stay where they are. The only file grimoire keeps elsewhere is the list of recent vaults:
+                </p>
+                <Module file="Terminal" right="optional">
+                  <Shell
+                    label="Remove grimoire and its recent-vaults list"
+                    commands={[`rm -rf ${APP}`, 'rm -rf "$HOME/Library/Application Support/app.grimoire.desktop"']}
+                  />
+                </Module>
+              </Sub>
+            </Doc>
           </div>
-          <p>
-            If a toolchain lives somewhere unusual, point grimoire at it per machine in{" "}
-            <Path>.grimoire/local/settings.json</Path> inside your vault.
-          </p>
-        </Doc>
+
+          <div data-for="windows">
+            <Doc id="install-windows" title="Build and install on Windows">
+              <p>
+                You build grimoire on your own PC, and the install script runs the finished installer for your
+                account. The first build compiles the Rust backend and takes several minutes; later ones are quicker.
+              </p>
+
+              <Sub id="win-prerequisites" title="Prerequisites">
+                <p>
+                  The Visual Studio C++ Build Tools, Rust (stable, via rustup), Node.js 22+, pnpm and Git. Skip any you
+                  already have. With winget, in PowerShell:
+                </p>
+                <Module file="PowerShell" right="one command at a time">
+                  <Shell label="Install build prerequisites" prompt="PS>" commands={WIN_PREREQS} />
+                </Module>
+                <p>
+                  Then open a new PowerShell window, so the updated <code>PATH</code> applies. grimoire draws its window
+                  with WebView2, which comes with Windows 10 and 11.
+                </p>
+              </Sub>
+
+              <Sub id="win-build" title="Clone, build, install">
+                <Module file="PowerShell" right="installs grimoire">
+                  <Shell
+                    label="Clone, build and install"
+                    prompt="PS>"
+                    commands={[`git clone ${REPO}.git`, "cd grimoire", ALLOW_SCRIPT, INSTALL_PS1]}
+                  />
+                </Module>
+                <p>
+                  <code>Set-ExecutionPolicy</code> lets this window run the script, until you close it.{" "}
+                  <code>install.ps1 -Build</code> installs the frontend dependencies, builds the installer, quits a
+                  running copy, and installs grimoire for your account under <Path>%LOCALAPPDATA%</Path>. Then open
+                  grimoire from the Start menu.
+                </p>
+                <p>
+                  Local builds aren&apos;t signed, so SmartScreen may stop grimoire the first time it runs. Choose{" "}
+                  <b>More info</b>, then <b>Run anyway</b>.
+                </p>
+                <dl className="opts">
+                  <dt>
+                    <code>-Open</code>
+                  </dt>
+                  <dd>Launch grimoire once it&apos;s installed.</dd>
+                  <dt>
+                    <code>-Installer &lt;path&gt;</code>
+                  </dt>
+                  <dd>Install a grimoire_*-setup.exe you already have, without building.</dd>
+                  <dt>
+                    <code>cd app; pnpm tauri dev</code>
+                  </dt>
+                  <dd>Run the app in development mode, with hot reload.</dd>
+                  <dt>
+                    <code>Get-Help .\scripts\install.ps1</code>
+                  </dt>
+                  <dd>Show every option.</dd>
+                </dl>
+              </Sub>
+
+              <Sub id="win-update" title="Update or uninstall">
+                <p>
+                  <b>To update</b>, pull and install again from your clone:
+                </p>
+                <Module file="PowerShell">
+                  <Shell label="Update grimoire" prompt="PS>" commands={["git pull", ALLOW_SCRIPT, INSTALL_PS1]} />
+                </Module>
+                <p>
+                  <b>To uninstall</b>, open <b>Settings → Apps → Installed apps</b>, find grimoire, and choose{" "}
+                  <b>Uninstall</b>. Your vaults are plain folders and stay where they are. grimoire also keeps the list
+                  of recent vaults and its web view&apos;s data in your profile:
+                </p>
+                <Module file="PowerShell" right="optional">
+                  <Shell
+                    label="Remove the recent-vaults list and web view data"
+                    prompt="PS>"
+                    commands={[
+                      'Remove-Item -Recurse -Force "$env:APPDATA\\app.grimoire.desktop"',
+                      'Remove-Item -Recurse -Force "$env:LOCALAPPDATA\\app.grimoire.desktop"',
+                    ]}
+                  />
+                </Module>
+              </Sub>
+            </Doc>
+          </div>
+
+          <Doc id="toolchains" title="Toolchains for the sandbox">
+            <p data-for="macos">
+              The sandbox runs code with the compilers and interpreters already on your Mac. Install only the languages
+              you want to use; missing ones are reported in the app and the rest keep working. With{" "}
+              <a href="https://brew.sh">Homebrew</a>:
+            </p>
+            <p data-for="windows">
+              The sandbox runs code with the compilers and interpreters already on your PC. Install only the languages
+              you want to use; missing ones are reported in the app and the rest keep working. With winget:
+            </p>
+            <div data-for="macos">
+              <ToolchainTable rows={MAC_TOOLCHAINS} />
+            </div>
+            <div data-for="windows">
+              <ToolchainTable rows={WIN_TOOLCHAINS} />
+            </div>
+            <p data-for="windows">
+              If <code>python</code> opens the Microsoft Store instead, turn off its alias in{" "}
+              <b>Settings → Apps → Advanced app settings → App execution aliases</b>. Restart grimoire after installing a
+              toolchain so it sees the new <code>PATH</code>.
+            </p>
+            <p>
+              If a toolchain lives somewhere unusual, point grimoire at it per machine in{" "}
+              <Path>.grimoire/local/settings.json</Path> inside your vault.
+            </p>
+          </Doc>
+        </OsScope>
 
         <section className="close" aria-labelledby="h-close">
           <div>

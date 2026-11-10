@@ -4,8 +4,9 @@ import { useApp } from "../app/store";
 import { KindIcon, kindLabel } from "../components/KindIcon";
 import { backend } from "../ipc";
 import type { Item, NotesSummary } from "../ipc/schemas";
-import { notesPath, sandboxPath } from "../lib/paths";
+import { notesPath, sandboxPath, vaultFile } from "../lib/paths";
 import { relativeTime } from "../lib/search";
+import { FILE_MANAGER } from "../lib/keys";
 
 export function Peek({ item }: { item: Item | null }) {
   const [summary, setSummary] = useState<NotesSummary | null>(null);
@@ -78,8 +79,8 @@ export function Peek({ item }: { item: Item | null }) {
             type="button"
             className="btn btn-icon"
             aria-label="Show folder"
-            title={`Show ${notesPath(item)} in Finder`}
-            onClick={() => void backend.revealPath(`${root}/${notesPath(item)}`)}
+            title={`Show ${notesPath(item)} in ${FILE_MANAGER}`}
+            onClick={() => void backend.revealPath(vaultFile(root, notesPath(item)))}
           >
             <FolderOpen />
           </button>

@@ -8,6 +8,7 @@ import { useApp } from "../app/store";
 import { backend } from "../ipc";
 import { errorMessage, type Item } from "../ipc/schemas";
 import { useStudy } from "./store";
+import { kbd } from "../lib/keys";
 
 pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
 
@@ -218,7 +219,7 @@ export function PdfViewer({ item }: { item: Item }) {
         >
           <Search />
         </button>
-        <button type="button" className="btn" title="Quote the selection into NOTES.md (⇧⌘C)" onClick={copyQuote}>
+        <button type="button" className="btn" title={`Quote the selection into NOTES.md (${kbd("C", { shift: true })})`} onClick={copyQuote}>
           <Quote />
           <span className="btn-label">Quote</span>
         </button>

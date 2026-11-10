@@ -3,6 +3,7 @@ import { useApp } from "../app/store";
 import { KindIcon } from "../components/KindIcon";
 import { Modal } from "../components/Modal";
 import { tagCounts } from "../lib/search";
+import { kbd } from "../lib/keys";
 
 type Entry = { key: string; label: string; hint?: string; icon?: React.ReactNode; run: () => void };
 
@@ -27,8 +28,8 @@ export function CommandPalette() {
   const close = () => setDialog(null);
 
   const commands: Entry[] = [
-    { key: "add", label: "Add to the reading list", hint: "⌘N", run: () => setDialog({ kind: "add" }) },
-    { key: "settings", label: "Settings", hint: "⌘,", run: () => setDialog({ kind: "settings" }) },
+    { key: "add", label: "Add to the reading list", hint: kbd("N"), run: () => setDialog({ kind: "add" }) },
+    { key: "settings", label: "Settings", hint: kbd(","), run: () => setDialog({ kind: "settings" }) },
     { key: "list", label: "Go to the reading list", hint: "Esc", run: () => (back(), close()) },
     { key: "vault", label: "Switch vault…", run: () => (close(), void closeVault()) },
   ];

@@ -3,7 +3,7 @@
 //! boundary: code runs as the user.
 
 use crate::error::{AppError, Result};
-use crate::platform::{user_path, which};
+use crate::platform::{kill_tree, no_window, passthrough_env, user_path, which, EXE_NAME};
 use serde::Serialize;
 use serde_json::{Map, Value};
 use std::collections::HashMap;
@@ -21,7 +21,9 @@ pub struct LangSpec {
     pub file_name: &'static str,
     pub binaries: &'static [&'static str],
     pub version_arg: &'static str,
-    /// `{bin}` is the resolved binary, `{out}` the compiled program.
+    /// `{bin}` is the resolved binary, `{exe}` the compiled program
+    /// (`main`, or `main.exe` on Windows). A step starting with `./` runs a
+    /// file from the run directory.
     pub steps: &'static [&'static [&'static str]],
     pub template: &'static str,
 }
@@ -31,7 +33,9 @@ pub const LANGS: &[LangSpec] = &[
         id: "python",
         label: "Python",
         file_name: "main.py",
-        binaries: &["python3", "python"],
+        // On Windows `python3` is often the Microsoft Store stub, and the
+        // python.org installer provides `python` and the `py` launcher.
+        binaries: if cfg!(windows) { &["python", "py", "python3"] } else { &["python3", "python"] },
         version_arg: "--version",
         steps: &[&["{bin}", "main.py"]],
         template: "print(\"hello from python\")\n",
@@ -60,7 +64,7 @@ pub const LANGS: &[LangSpec] = &[
         file_name: "main.rs",
         binaries: &["rustc"],
         version_arg: "--version",
-        steps: &[&["{bin}", "-O", "main.rs", "-o", "main"], &["./main"]],
+        steps: &[&["{bin}", "-O", "main.rs", "-o", "{exe}"], &["./{exe}"]],
         template: "fn main() {\n    println!(\"hello from rust\");\n}\n",
     },
     LangSpec {
@@ -69,7 +73,7 @@ pub const LANGS: &[LangSpec] = &[
         file_name: "main.c",
         binaries: &["cc", "clang", "gcc"],
         version_arg: "--version",
-        steps: &[&["{bin}", "-O2", "main.c", "-o", "main"], &["./main"]],
+        steps: &[&["{bin}", "-O2", "main.c", "-o", "{exe}"], &["./{exe}"]],
         template: "#include <stdio.h>\n\nint main(void) {\n    printf(\"hello from c\\n\");\n    return 0;\n}\n",
     },
     LangSpec {
@@ -112,7 +116,8 @@ pub async fn detect(overrides: &Map<String, Value>) -> Vec<Toolchain> {
         let path = resolve(s, overrides);
         let mut version = None;
         if let Some(p) = &path {
-            let fut = tokio::process::Command::new(p)
+            let mut cmd = tokio::process::Command::new(p);
+            let fut = no_window(&mut cmd)
                 .arg(s.version_arg)
                 .env("PATH", user_path())
                 .stdin(Stdio::null())
@@ -140,7 +145,7 @@ pub async fn detect(overrides: &Map<String, Value>) -> Vec<Toolchain> {
 #[derive(Default)]
 pub struct Runner {
     next: AtomicU64,
-    /// run id → process group id of the current step
+    /// run id → pid of the current step (its process group on Unix)
     active: Mutex<HashMap<u64, Option<i32>>>,
 }
 
@@ -163,27 +168,11 @@ struct ExitEvent {
     truncated: bool,
 }
 
-#[cfg(unix)]
-fn kill_group(pgid: i32) {
-    unsafe {
-        libc::killpg(pgid, libc::SIGTERM);
-    }
-    std::thread::spawn(move || {
-        std::thread::sleep(Duration::from_millis(300));
-        unsafe {
-            libc::killpg(pgid, libc::SIGKILL);
-        }
-    });
-}
-
-#[cfg(not(unix))]
-fn kill_group(_pgid: i32) {}
-
 impl Runner {
     pub async fn stop(&self, run_id: u64) {
         let mut active = self.active.lock().await;
         if let Some(Some(pg)) = active.get(&run_id) {
-            kill_group(*pg);
+            kill_tree(*pg);
         }
         active.remove(&run_id);
     }
@@ -231,7 +220,8 @@ impl Runner {
                     result.reason = "stopped";
                     break;
                 }
-                let args: Vec<String> = step.iter().map(|a| a.replace("{bin}", &bin)).collect();
+                let args: Vec<String> =
+                    step.iter().map(|a| a.replace("{bin}", &bin).replace("{exe}", EXE_NAME)).collect();
                 let program = if args[0].starts_with("./") {
                     dir.path().join(&args[0][2..]).display().to_string()
                 } else {
@@ -241,10 +231,13 @@ impl Runner {
                 cmd.args(&args[1..])
                     .current_dir(dir.path())
                     .env_clear()
+                    .envs(passthrough_env())
                     .env("PATH", user_path())
-                    .env("HOME", std::env::var("HOME").unwrap_or_default())
                     .env("LANG", "en_US.UTF-8")
                     .env("TMPDIR", dir.path())
+                    .env("TEMP", dir.path())
+                    .env("TMP", dir.path())
+                    .env("PYTHONIOENCODING", "utf-8")
                     .env("GOCACHE", dir.path().join(".gocache"))
                     .env("PYTHONUNBUFFERED", "1")
                     .stdin(if stdin.is_some() && i + 1 == s.steps.len() { Stdio::piped() } else { Stdio::null() })
@@ -253,6 +246,7 @@ impl Runner {
                     .kill_on_drop(true);
                 #[cfg(unix)]
                 cmd.process_group(0);
+                no_window(&mut cmd);
                 let mut child = match cmd.spawn() {
                     Ok(c) => c,
                     Err(e) => {
@@ -326,7 +320,7 @@ impl Runner {
                                 if written > max_output {
                                     truncated = true;
                                     buf.push(("stderr", format!("[output truncated at {} KiB]", max_output / 1024)));
-                                    if let Some(pg) = pgid { kill_group(pg); }
+                                    if let Some(pg) = pgid { kill_tree(pg); }
                                 } else {
                                     buf.push((stream, line));
                                 }
@@ -336,12 +330,12 @@ impl Runner {
                         _ = tick.tick() => {
                             if !buf.is_empty() { flush(&mut buf); }
                             if !me.active.lock().await.contains_key(&run_id) {
-                                if let Some(pg) = pgid { kill_group(pg); }
+                                if let Some(pg) = pgid { kill_tree(pg); }
                                 let _ = child.wait().await;
                                 break None;
                             }
                             if Instant::now() >= deadline {
-                                if let Some(pg) = pgid { kill_group(pg); }
+                                if let Some(pg) = pgid { kill_tree(pg); }
                                 let _ = child.wait().await;
                                 result.reason = "timeout";
                                 break None;
@@ -392,6 +386,10 @@ mod tests {
     use std::sync::Mutex as StdMutex;
     use tauri::Listener;
 
+    fn has(lang: &str) -> bool {
+        resolve(spec(lang).unwrap(), &Map::new()).is_some()
+    }
+
     async fn run_and_collect(code: &str, lang: &str, timeout_ms: u64, stop_after: Option<u64>) -> (String, serde_json::Value) {
         let app = tauri::test::mock_app();
         let handle = app.handle().clone();
@@ -429,7 +427,7 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread")]
     async fn runs_python_and_reports_exit() {
-        if which("python3").is_none() {
+        if !has("python") {
             return;
         }
         let (out, exit) = run_and_collect("print('hi')\nimport sys; print('oops', file=sys.stderr); sys.exit(3)\n", "python", 10_000, None).await;
@@ -441,7 +439,7 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread")]
     async fn times_out_and_kills() {
-        if which("python3").is_none() {
+        if !has("python") {
             return;
         }
         let (_, exit) = run_and_collect("import time\nwhile True: time.sleep(0.1)\n", "python", 1_000, None).await;
@@ -451,7 +449,7 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread")]
     async fn stop_ends_the_run() {
-        if which("python3").is_none() {
+        if !has("python") {
             return;
         }
         let (_, exit) = run_and_collect("import time\nwhile True: time.sleep(0.1)\n", "python", 30_000, Some(400)).await;
@@ -460,7 +458,7 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread")]
     async fn compiles_and_runs_c() {
-        if which("cc").is_none() {
+        if !has("c") {
             return;
         }
         let (out, exit) = run_and_collect("#include <stdio.h>\nint main(void){printf(\"c ok\\n\");return 0;}\n", "c", 20_000, None).await;

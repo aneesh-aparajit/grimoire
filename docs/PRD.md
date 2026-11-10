@@ -5,7 +5,7 @@
 | **Status** | Draft v0.1 |
 | **Owner** | Aneesh Aparajit |
 | **Last updated** | 2026-11-08 |
-| **Platform** | macOS first (13 Ventura+, Apple silicon and Intel) via Tauri. Linux and Windows later. |
+| **Platform** | macOS (13 Ventura+, Apple silicon and Intel) and Windows 10/11 (x64) via Tauri. Linux later. |
 
 ---
 
@@ -286,7 +286,8 @@ All of a vault's preferences live inside the vault, in `.grimoire/`:
 | **M3 — Sandbox** | Six languages, toolchain detection, streamed output, timeout/stop, save to `sandbox/`, insert into notes. |
 | **M4 — Polish (v1.0)** | Keyboard shortcuts, menu bar, preview, themes, error states, signed + notarised universal `.dmg` for macOS, auto-update. |
 | **v1.1** | Full-text notes search, Vimeo/PDF improvements, per-item reading progress, quick-add from clipboard / Share extension. |
-| **Later** | Linux and Windows builds. |
+| **M5 — Windows** | Windows 10/11 build: NSIS installer, sandbox process handling, Ctrl shortcuts. |
+| **Later** | Linux builds. |
 
 ## 12. Success criteria
 

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useApp } from "../app/store";
 import { LANGUAGES, type Run } from "../ipc/schemas";
 import { getTimeoutMs, useStudy } from "./store";
+import { kbd } from "../lib/keys";
 
 function seconds(ms: number) {
   return ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(2)} s`;
@@ -111,7 +112,7 @@ export function RunLog({ style }: { style?: React.CSSProperties }) {
           {missing ? (
             <>{missing.label} can't run until <code className="mono">{missing.bin}</code> is installed; switch language to run something else.</>
           ) : (
-            <>Press <span className="kbd">⌘↵</span> to run the snippet. Its output shows here.</>
+            <>Press <span className="kbd">{kbd("↵")}</span> to run the snippet. Its output shows here.</>
           )}
         </p>
       )}
