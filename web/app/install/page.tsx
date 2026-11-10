@@ -9,7 +9,7 @@ import { REPO, SiteFooter, SiteHeader } from "@/components/SiteHeader";
 export const metadata: Metadata = {
   title: "Install grimoire",
   description:
-    "Install grimoire on macOS 13+ or Windows 10/11 by building it from source: prerequisites, the install command, updating or uninstalling, and the toolchains the sandbox uses.",
+    "Install grimoire on macOS 13+, Windows 10/11 or Linux by building it from source: prerequisites, the install command, updating or uninstalling, and the toolchains the sandbox uses.",
   alternates: { canonical: "/install" },
 };
 
@@ -36,6 +36,39 @@ const WIN_TOOLCHAINS: readonly Toolchain[] = [
   ["Go", "go", "Go toolchain", "winget install --id GoLang.Go"],
   ["Java", "java", "JDK 11 or newer", "winget install --id Microsoft.OpenJDK.21"],
   ["Rust", "rustc", "Through rustup, already a prerequisite", "winget install --id Rustlang.Rustup"],
+];
+
+const LINUX_TOOLCHAINS: readonly Toolchain[] = [
+  ["Python", "python3", "Usually already installed", "sudo apt install python3"],
+  ["C", "cc", "gcc, already a prerequisite", "sudo apt install build-essential"],
+  ["JavaScript", "node", "Node.js, already a prerequisite", "sudo apt install nodejs"],
+  ["Go", "go", "Go toolchain", "sudo apt install golang-go"],
+  ["Java", "java", "JDK 11 or newer", "sudo apt install openjdk-21-jdk"],
+  ["Rust", "rustc", "Through rustup, already a prerequisite", "curl https://sh.rustup.rs -sSf | sh"],
+];
+
+// System libraries for building against WebKitGTK 4.1, plus the GStreamer plugins that play video.
+const LINUX_DEPS: readonly (readonly [distro: string, commands: string[]])[] = [
+  [
+    "Debian / Ubuntu",
+    [
+      "sudo apt update",
+      "sudo apt install build-essential curl wget file libwebkit2gtk-4.1-dev libxdo-dev libssl-dev librsvg2-dev gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-libav",
+    ],
+  ],
+  [
+    "Fedora",
+    [
+      "sudo dnf group install c-development",
+      "sudo dnf install curl wget file webkit2gtk4.1-devel openssl-devel librsvg2-devel libxdo-devel gstreamer1-plugins-good gstreamer1-plugins-bad-free",
+    ],
+  ],
+  [
+    "Arch",
+    [
+      "sudo pacman -S --needed base-devel curl wget file openssl webkit2gtk-4.1 librsvg xdotool gst-plugins-good gst-plugins-bad gst-libav",
+    ],
+  ],
 ];
 
 const WIN_PREREQS = [
@@ -118,8 +151,8 @@ export default function Install() {
           <header className="doc-hero">
             <h1>Install grimoire</h1>
             <p className="lede">
-              grimoire runs on macOS 13 Ventura or later, on Apple silicon and Intel, and on Windows 10 or 11 (x64). You
-              install it by building it from source.
+              grimoire runs on macOS 13 Ventura or later (Apple silicon and Intel), on Windows 10 or 11 (x64), and on
+              Linux (x64). You install it by building it from source.
             </p>
             <OsSwitch />
             <ul className="checks">
@@ -141,6 +174,16 @@ export default function Install() {
                 <span>
                   A PC on Windows 10 or 11 (x64) with about 8 GB free for the build tools. grimoire installs for your
                   account only, so it needs no admin rights; the Build Tools installer asks for them once.
+                </span>
+              </li>
+              <li data-for="linux">
+                <span className="state">
+                  <i className="lamp off" aria-hidden="true" />
+                  Need
+                </span>
+                <span>
+                  A 64-bit desktop with WebKitGTK 4.1: Ubuntu 22.04+, Debian 12+, Fedora 38+, Arch, or similar. grimoire
+                  installs into your home folder, so only the system libraries need <code>sudo</code>.
                 </span>
               </li>
               <li>
@@ -312,6 +355,98 @@ export default function Install() {
             </Doc>
           </div>
 
+          <div data-for="linux">
+            <Doc id="install-linux" title="Build and install on Linux">
+              <p>
+                You build grimoire on your own machine, and <code>make</code> installs the finished app into your home
+                folder. The first build compiles the Rust backend and takes a few minutes; later ones are quicker.
+              </p>
+
+              <Sub id="linux-prerequisites" title="Prerequisites">
+                <p>
+                  A C toolchain, WebKitGTK 4.1 and the libraries it builds against, and the GStreamer plugins that play
+                  video. For your distribution:
+                </p>
+                {LINUX_DEPS.map(([distro, commands]) => (
+                  <Module key={distro} file={distro}>
+                    <Shell label={`Install system libraries on ${distro}`} commands={commands} />
+                  </Module>
+                ))}
+                <p>
+                  Then Rust (stable, via rustup) and pnpm. You also need Node.js 22 or newer, from your package manager
+                  or <a href="https://nodejs.org">nodejs.org</a>.
+                </p>
+                <Module file="Terminal" right="one command at a time">
+                  <Shell
+                    label="Install Rust and pnpm"
+                    commands={["curl https://sh.rustup.rs -sSf | sh", "curl -fsSL https://get.pnpm.io/install.sh | sh -"]}
+                  />
+                </Module>
+              </Sub>
+
+              <Sub id="linux-build" title="Clone, build, install">
+                <Module file="Terminal" right="installs into ~/.local">
+                  <Shell
+                    label="Clone, build and install"
+                    commands={[`git clone ${REPO}.git`, "cd grimoire", "make install-app"]}
+                  />
+                </Module>
+                <p>
+                  <code>make install-app</code> installs the frontend dependencies, builds grimoire, quits a running
+                  copy, and installs it for your account: the app in <Path>~/.local/bin</Path>, with a launcher entry and
+                  icon in <Path>~/.local/share</Path>. Then open grimoire from your app launcher.
+                </p>
+                <p>
+                  If the window stays blank, check that WebKitGTK 4.1 is installed. grimoire turns off WebKitGTK&apos;s
+                  DMA-BUF renderer, which blanks windows on many NVIDIA and Wayland setups; set{" "}
+                  <code>WEBKIT_DISABLE_DMABUF_RENDERER=0</code> to turn it back on.
+                </p>
+                <dl className="opts">
+                  <dt>
+                    <code>make dev</code>
+                  </dt>
+                  <dd>Run the app in development mode, with hot reload.</dd>
+                  <dt>
+                    <code>make build</code>
+                  </dt>
+                  <dd>Build the app without installing it.</dd>
+                  <dt>
+                    <code>make bundle</code>
+                  </dt>
+                  <dd>Build a .deb and an AppImage, like the release builds.</dd>
+                  <dt>
+                    <code>make help</code>
+                  </dt>
+                  <dd>List every target.</dd>
+                </dl>
+              </Sub>
+
+              <Sub id="linux-update" title="Update or uninstall">
+                <p>
+                  <b>To update</b>, pull and install again from your clone:
+                </p>
+                <Module file="Terminal">
+                  <Shell label="Update grimoire" commands={["git pull", "make install-app"]} />
+                </Module>
+                <p>
+                  <b>To uninstall</b>, remove the app, its launcher entry and its icon. Your vaults are plain folders and
+                  stay where they are. The last two lines also remove the list of recent vaults and the web view&apos;s
+                  data:
+                </p>
+                <Module file="Terminal" right="last two optional">
+                  <Shell
+                    label="Remove grimoire, then its recent-vaults list and web view data"
+                    commands={[
+                      "rm ~/.local/bin/grimoire ~/.local/share/applications/grimoire.desktop ~/.local/share/icons/hicolor/128x128/apps/grimoire.png",
+                      "rm -rf ~/.config/app.grimoire.desktop",
+                      "rm -rf ~/.local/share/app.grimoire.desktop",
+                    ]}
+                  />
+                </Module>
+              </Sub>
+            </Doc>
+          </div>
+
           <Doc id="toolchains" title="Toolchains for the sandbox">
             <p data-for="macos">
               The sandbox runs code with the compilers and interpreters already on your Mac. Install only the languages
@@ -322,8 +457,16 @@ export default function Install() {
               The sandbox runs code with the compilers and interpreters already on your PC. Install only the languages
               you want to use; missing ones are reported in the app and the rest keep working. With winget:
             </p>
+            <p data-for="linux">
+              The sandbox runs code with the compilers and interpreters already on your machine. Install only the
+              languages you want to use; missing ones are reported in the app and the rest keep working. With apt (the
+              package names are similar for dnf and pacman):
+            </p>
             <div data-for="macos">
               <ToolchainTable rows={MAC_TOOLCHAINS} />
+            </div>
+            <div data-for="linux">
+              <ToolchainTable rows={LINUX_TOOLCHAINS} />
             </div>
             <div data-for="windows">
               <ToolchainTable rows={WIN_TOOLCHAINS} />

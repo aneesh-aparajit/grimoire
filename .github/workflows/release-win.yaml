@@ -1,0 +1,101 @@
+name: Release (Windows)
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-win-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build Windows installer (x64)
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Find or create the draft release
+        id: release
+        shell: bash
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # The mac, Windows and Linux workflows all upload to one draft release.
+          # Staggered starts keep them from each creating their own.
+          sleep 20
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            tag="${{ github.ref_name }}"
+          else
+            tag="v$(jq -r .version app/src-tauri/tauri.conf.json)"
+          fi
+          find_release() {
+            gh api "repos/${{ github.repository }}/releases" --paginate \
+              --jq ".[] | select(.tag_name == \"$tag\") | .id" | head -1
+          }
+          id="$(find_release)"
+          if [ -z "$id" ]; then
+            gh release create "$tag" --repo "${{ github.repository }}" --draft --target "${{ github.sha }}" \
+              --title "Grimoire $tag" \
+              --notes "Download the DMG for macOS, the -setup.exe (or .msi) for Windows, or the .deb, .rpm or .AppImage for Linux, from the assets below."
+            id="$(find_release)"
+          fi
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+
+      - name: Check the Windows install script parses
+        shell: pwsh
+        working-directory: .
+        run: |
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile("$PWD\scripts\install.ps1", [ref]$null, [ref]$errors) | Out-Null
+          if ($errors) { $errors | ForEach-Object { Write-Error $_ }; exit 1 }
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: app/pnpm-lock.yaml
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Cache Rust build
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: app/src-tauri -> target
+
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run backend tests
+        working-directory: app/src-tauri
+        run: cargo test
+
+      - name: Build and upload
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Unsigned, so SmartScreen warns on first run ("More info" → "Run anyway").
+        with:
+          projectPath: app
+          tauriScript: pnpm tauri
+          args: --target x86_64-pc-windows-msvc --bundles nsis,msi
+          releaseId: ${{ steps.release.outputs.id }}
