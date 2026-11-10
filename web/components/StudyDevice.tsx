@@ -177,11 +177,11 @@ export function StudyDevice() {
         </span>
       </div>
       <div className="panes">
-        <div aria-hidden="true" className="srcwrap">
+        <div aria-hidden="true" className="srcwrap" key={kind}>
           {s.source}
         </div>
         <div className="pane notes">
-          {preview ? <div className="md">{s.preview}</div> : <pre className="raw">{s.markdown}</pre>}
+          {preview ? <div className="md" key={`${kind}-md`}>{s.preview}</div> : <pre className="raw" key={`${kind}-raw`}>{s.markdown}</pre>}
           <div className="run">
             <span className="code">{s.code}</span>
             {s.output.slice(0, shown).map((line, i) => (

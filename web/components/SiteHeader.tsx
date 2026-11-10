@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { GitHubIcon } from "@/components/Sprite";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const REPO = "https://github.com/aneesh-aparajit/grimoire";
 
@@ -23,6 +24,7 @@ export function SiteHeader({ current }: { current?: "install" }) {
         <GitHubIcon size={15} />
         GitHub
       </a>
+      <ThemeToggle />
     </nav>
   );
 }

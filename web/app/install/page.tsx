@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Doc, Path } from "@/components/Entry";
+import { CopyButton } from "@/components/CopyButton";
 import { Shell } from "@/components/Shell";
 import { REPO, SiteFooter, SiteHeader } from "@/components/SiteHeader";
 
@@ -158,7 +159,7 @@ export default function Install() {
             <a href="https://brew.sh">Homebrew</a>:
           </p>
           <div className="panel">
-            <table className="table">
+            <table className="table tc">
               <thead>
                 <tr>
                   <th scope="col">Language</th>
@@ -172,9 +173,15 @@ export default function Install() {
                     <th scope="row">
                       {lang}
                       <span className="what">{what}</span>
+                      <span className="what bin-sm mono">looks for {bin}</span>
                     </th>
-                    <td className="mono">{bin}</td>
-                    <td className="mono">{cmd}</td>
+                    <td className="mono bin">{bin}</td>
+                    <td className="mono">
+                      <span className="cmdcell">
+                        <code>{cmd}</code>
+                        <CopyButton text={cmd} label={`install ${lang}`} className="copy-sm mono" />
+                      </span>
+                    </td>
                   </tr>
                 ))}
               </tbody>
