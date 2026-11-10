@@ -16,7 +16,7 @@ const TOOLCHAINS = [
   ["Go", "go", false],
 ] as const;
 
-// The rest of v1, in a line each. Only what the app does today.
+// The smaller features, in a line each. Only what the app does today.
 const FEATURES = [
   ["Playlists", "Paste a YouTube playlist and it becomes one row, a folder, and a notes file per video. It resumes at the lecture and second you left."],
   ["PDFs", "From a URL or from disk. Outline, search, copy as quote into your notes, and it reopens on the page you were reading."],
@@ -145,7 +145,7 @@ export default function Home() {
         </section>
 
         <section className="feats" aria-labelledby="h-feats" data-reveal>
-          <h2 id="h-feats">The rest of v1.</h2>
+          <h2 id="h-feats">Everything else on the desk.</h2>
           <ul>
             {FEATURES.map(([name, text]) => (
               <li key={name}>
