@@ -16,6 +16,13 @@ const TOOLCHAINS = [
   ["Go", "go", false],
 ] as const;
 
+// Sparks shed by the feather: where along the word (0–1), how far they rise, and their size.
+const SPARKS = [
+  [0.04, -0.9, 0.7], [0.12, -1.3, 0.5], [0.2, -0.7, 0.9], [0.29, -1.2, 0.6], [0.37, -0.8, 0.8],
+  [0.46, -1.4, 0.5], [0.54, -0.9, 0.75], [0.63, -1.25, 0.6], [0.71, -0.75, 0.9], [0.8, -1.35, 0.55],
+  [0.88, -0.95, 0.8], [0.96, -1.2, 0.65],
+] as const;
+
 // The smaller features, in a line each. Only what the app does today.
 const FEATURES = [
   ["Playlists", "Paste a YouTube playlist and it becomes one row, a folder, and a notes file per video. It resumes at the lecture and second you left."],
@@ -38,6 +45,13 @@ export default function Home() {
             <p className="quill" aria-label="#grimoire">
               <span className="ink" aria-hidden="true">
                 <span className="hash">#</span>grimoire
+              </span>
+              <span className="sparks" aria-hidden="true">
+                {SPARKS.map(([x, y, s], i) => (
+                  <i key={i} style={{ "--x": x, "--y": `${y * 1.8}rem`, "--s": s } as React.CSSProperties}>
+                    ✦
+                  </i>
+                ))}
               </span>
               <svg className="pen" viewBox="270 150 540 680" aria-hidden="true">
                 <use href="#feather" />
