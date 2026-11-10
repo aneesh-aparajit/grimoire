@@ -797,6 +797,24 @@ footer .push {
 .doc-hero .lede {
   max-width: 46ch;
 }
+/* Which system's guide is showing. Parts marked for the other one are hidden. */
+.os[data-os="macos"] [data-for="windows"],
+.os[data-os="windows"] [data-for="macos"] {
+  display: none;
+}
+.osswitch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 0 0 1.75rem;
+}
+.osswitch-label {
+  margin-right: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+}
+
 .checks {
   display: grid;
   gap: 0.625rem;
@@ -859,7 +877,8 @@ footer .push {
   color: var(--ink-muted);
 }
 .sub .panel,
-.doc .body > .panel {
+.doc .body > .panel,
+.doc .body > [data-for] > .panel {
   margin: 0 0 1rem;
 }
 .path {

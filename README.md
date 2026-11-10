@@ -6,7 +6,7 @@ Collect blogs, videos and PDFs into a reading list. Open one, and you get the co
 
 Website: [grimoire.aneesh-aparajit.in](https://grimoire.aneesh-aparajit.in), with an interactive preview of the study view and the reading list.
 
-> **Status:** early design. v1 targets **macOS 13+** (Apple silicon and Intel); Linux and Windows come later. See the [PRD](docs/PRD.md) and [architecture](docs/ARCHITECTURE.md).
+> **Status:** early design. Runs on **macOS 13+** (Apple silicon and Intel) and **Windows 10/11** (x64); Linux comes later. See the [PRD](docs/PRD.md) and [architecture](docs/ARCHITECTURE.md).
 
 ## Features (v1)
 
@@ -90,11 +90,11 @@ The sandbox runs code with the compilers and interpreters installed on your mach
 
 | Language | Needs |
 |---|---|
-| Python | `python3` |
+| Python | `python3` (on Windows: `python` or the `py` launcher) |
 | JavaScript | `node` |
 | Go | `go` |
-| Rust | `rustc` |
-| C | `cc` (clang or gcc) |
+| Rust | `rustc` (on Windows, with the MSVC Build Tools) |
+| C | `cc`, `clang` or `gcc` |
 | Java | JDK 11+ (`java`) |
 
 Missing toolchains are reported in the app; the other languages keep working. Paths can be overridden per machine in `.grimoire/local/settings.json`.
@@ -142,6 +142,44 @@ pnpm tauri build --target universal-apple-darwin
 
 Release builds are signed and notarised in CI; local builds are unsigned, so you may need to right-click → Open the first time.
 
+### Windows
+
+Prerequisites (Windows 10/11): the Visual Studio C++ Build Tools, Rust (stable, MSVC), Node.js 22+, pnpm and Git. WebView2 ships with Windows 10 and 11. With winget, in PowerShell:
+
+```powershell
+winget install --id Microsoft.VisualStudio.2022.BuildTools --override "--wait --passive --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
+```
+
+```powershell
+winget install --id Rustlang.Rustup
+```
+
+```powershell
+winget install --id OpenJS.NodeJS.LTS
+```
+
+```powershell
+winget install --id Git.Git
+```
+
+```powershell
+npm install --global pnpm
+```
+
+Open a new terminal so the new `PATH` applies, then from the clone:
+
+```powershell
+cd app; pnpm install; pnpm tauri dev
+```
+
+To build the installer and install it for the current user (no admin rights needed):
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass -Force; .\scripts\install.ps1 -Build -Open
+```
+
+The installer (`grimoire_<version>_x64-setup.exe`) ends up in `app\src-tauri\target\release\bundle\nsis`. Local builds are unsigned, so SmartScreen may warn the first time you run one: choose **More info → Run anyway**.
+
 After changing Rust command signatures or the config schema, regenerate the TypeScript bindings and `config.schema.json`:
 
 ```bash
@@ -185,6 +223,7 @@ grimoire/
 | M2 | Study view: web pane, PDF viewer, Markdown editor |
 | M3 | Sandbox: six languages, streamed output, save to item |
 | M4 | Polish, menu bar, signed + notarised macOS `.dmg` (v1.0) |
-| Later | Linux and Windows |
+| M5 | Windows 10/11 installer |
+| Later | Linux |
 
 Details are in the [PRD](docs/PRD.md#11-milestones).

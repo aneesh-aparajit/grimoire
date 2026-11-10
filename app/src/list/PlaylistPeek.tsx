@@ -5,6 +5,8 @@ import { backend } from "../ipc";
 import type { Item, Playlist } from "../ipc/schemas";
 import { clock, resumeAt } from "../lib/playlist";
 import { relativeTime } from "../lib/search";
+import { FILE_MANAGER } from "../lib/keys";
+import { vaultFile } from "../lib/paths";
 
 type Row = { playlist: Playlist; videos: Item[]; next: Item | undefined };
 
@@ -70,8 +72,8 @@ export function PlaylistPeek({ row: { playlist: p, videos, next } }: { row: Row 
             type="button"
             className="btn btn-icon"
             aria-label="Show folder"
-            title={`Show ${p.id}/ in Finder`}
-            onClick={() => void backend.revealPath(`${root}/${p.id}/INDEX.md`)}
+            title={`Show ${p.id}/ in ${FILE_MANAGER}`}
+            onClick={() => void backend.revealPath(vaultFile(root, `${p.id}/INDEX.md`))}
           >
             <FolderOpen />
           </button>

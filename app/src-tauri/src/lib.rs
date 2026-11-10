@@ -477,7 +477,7 @@ fn sandbox_save(cell: State<VaultCell>, id: String, language: String, code: Stri
     let (root, dir) = cell.with(|v| Ok((v.root.clone(), v.sandbox_dir(&id)?)))?;
     let path = dir.join(&name);
     cell.write(&path, &code)?;
-    Ok(path.strip_prefix(&root).unwrap_or(&path).display().to_string())
+    Ok(platform::slash_path(path.strip_prefix(&root).unwrap_or(&path)))
 }
 
 #[tauri::command]

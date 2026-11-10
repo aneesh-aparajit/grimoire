@@ -10,6 +10,7 @@ import { notesTheme, syntax } from "./editor/theme";
 import { useApp } from "../app/store";
 import { notesPath } from "../lib/paths";
 import { useStudy } from "./store";
+import { kbd } from "../lib/keys";
 
 const BASE = [markdown({ base: markdownLanguage, codeLanguages: languages }), entries, syntax, notesTheme];
 const WRAP_LINT = [...BASE, EditorView.lineWrapping, notesLint];
@@ -54,7 +55,7 @@ export function NotesModule({ style }: { style?: React.CSSProperties }) {
           <button type="button" aria-pressed={!preview} onClick={() => preview && togglePreview()}>
             Source
           </button>
-          <button type="button" aria-pressed={preview} onClick={() => !preview && togglePreview()} title="⌘P">
+          <button type="button" aria-pressed={preview} onClick={() => !preview && togglePreview()} title={kbd("P")}>
             Preview
           </button>
         </div>

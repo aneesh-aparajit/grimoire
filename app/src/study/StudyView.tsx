@@ -8,6 +8,7 @@ import { NotesModule } from "./NotesModule";
 import { SandboxModule } from "./SandboxModule";
 import { Splitter } from "./Splitter";
 import { useStudy } from "./store";
+import { vaultFile } from "../lib/paths";
 
 export function StudyView({ id }: { id: string }) {
   const item = useApp((s) => s.items.find((i) => i.id === id));
@@ -201,7 +202,7 @@ export function StudyView({ id }: { id: string }) {
           <button
             type="button"
             className="btn btn-outline"
-            onClick={() => void backend.revealPath(`${vaultRoot}/INDEX.md`)}
+            onClick={() => void backend.revealPath(vaultFile(vaultRoot, "INDEX.md"))}
           >
             Show INDEX.md
           </button>

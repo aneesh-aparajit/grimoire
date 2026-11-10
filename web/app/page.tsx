@@ -5,6 +5,7 @@ import { ReadingList } from "@/components/ReadingList";
 import { Reveal } from "@/components/Reveal";
 import { REPO, SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { GitHubIcon } from "@/components/Sprite";
+import { InstallKey } from "@/components/OsSwitch";
 
 // What the sandbox looks for on PATH. The lamps show one example machine, not yours.
 const TOOLCHAINS = [
@@ -63,9 +64,7 @@ export default function Home() {
               folder you own.
             </p>
             <div className="acts">
-              <Link className="key go" href="/install">
-                Install for macOS
-              </Link>
+              <InstallKey />
               <a className="key" href={REPO}>
                 <GitHubIcon />
                 GitHub
@@ -73,7 +72,7 @@ export default function Home() {
             </div>
             <dl className="spec">
               <dt>Runs on</dt>
-              <dd>macOS 13 or later</dd>
+              <dd>macOS 13+, Windows 10/11</dd>
               <dt>Storage</dt>
               <dd>Markdown and source files</dd>
               <dt>Sync</dt>
@@ -203,7 +202,7 @@ export default function Home() {
           <div>
             <h2 id="h-close">Start with one thing you meant to read.</h2>
             <p>
-              grimoire is in early design. v1 targets macOS 13+, with Linux and Windows after. Read{" "}
+              grimoire is in early design. It runs on macOS 13+ and Windows 10/11, with Linux after. Read{" "}
               <a href={`${REPO}/blob/master/docs/PRD.md`}>the plan</a>, follow along, or lend a hand.
             </p>
           </div>

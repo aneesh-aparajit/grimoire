@@ -8,6 +8,8 @@ import { clock, resumeAt, resumeVideo, videosOf } from "../lib/playlist";
 import { matches, matchesPlaylist, parseQuery, tagCounts, toggleTag } from "../lib/search";
 import { Peek } from "./Peek";
 import { PlaylistPeek } from "./PlaylistPeek";
+import { kbd } from "../lib/keys";
+import { vaultFile } from "../lib/paths";
 
 export function ListView() {
   const vault = useApp((s) => s.vault);
@@ -219,7 +221,7 @@ export function ListView() {
               <X />
             </button>
           )}
-          <span className="kbd hide-narrow">⌘F</span>
+          <span className="kbd hide-narrow">{kbd("F")}</span>
         </label>
         <div className="band-tools">
           <span
@@ -233,7 +235,7 @@ export function ListView() {
             type="button"
             className="btn btn-icon hide-narrow"
             aria-label="Command palette"
-            title="Command palette (⌘K)"
+            title={`Command palette (${kbd("K")})`}
             onClick={() => setDialog({ kind: "palette" })}
           >
             <Command />
@@ -242,12 +244,12 @@ export function ListView() {
             type="button"
             className="btn btn-icon"
             aria-label="Settings"
-            title="Settings (⌘,)"
+            title={`Settings (${kbd(",")})`}
             onClick={() => setDialog({ kind: "settings" })}
           >
             <Settings />
           </button>
-          <button type="button" className="btn btn-add" onClick={() => setDialog({ kind: "add" })} title="Add (⌘N)">
+          <button type="button" className="btn btn-add" onClick={() => setDialog({ kind: "add" })} title={`Add (${kbd("N")})`}>
             <Plus />
             Add
           </button>
@@ -264,7 +266,7 @@ export function ListView() {
           <button
             type="button"
             className="btn btn-outline"
-            onClick={() => void backend.revealPath(`${vault?.root}/INDEX.md`)}
+            onClick={() => void backend.revealPath(vaultFile(vault?.root ?? "", "INDEX.md"))}
           >
             Show INDEX.md
           </button>

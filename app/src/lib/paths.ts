@@ -24,3 +24,13 @@ export function playlistId(url: string): string | null {
     return null;
   }
 }
+
+/**
+ * An absolute path to `rel` (a vault-relative path with `/` separators)
+ * inside the vault at `root`, using the separator `root` uses, so Windows
+ * paths come out as `C:\vault\item\NOTES.md`.
+ */
+export function vaultFile(root: string, rel: string): string {
+  const sep = root.includes("\\") && !root.includes("/") ? "\\" : "/";
+  return `${root.replace(/[\\/]+$/, "")}${sep}${rel.split("/").join(sep)}`;
+}

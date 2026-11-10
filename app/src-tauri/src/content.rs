@@ -524,13 +524,18 @@ pub fn webview_hide(app: &AppHandle) -> Result<()> {
     Ok(())
 }
 
+/// Reads the player state: from the wrapper page's tracker on macOS, or
+/// straight from the `<video>` element on the YouTube watch page elsewhere.
+/// `s` uses the iframe API's numbers: 0 ended, 1 playing, 2 paused.
+const VIDEO_TIME_JS: &str = r#"JSON.stringify(window.__grimoireVideo || (function(){var v=document.querySelector("video");if(!v||!isFinite(v.currentTime))return null;return {t:v.currentTime,d:isFinite(v.duration)&&v.duration>0?v.duration:null,s:v.ended?0:v.paused?2:1}})())"#;
+
 /// Where the embedded video player is, as `{ t, d, s }` (seconds, duration,
 /// player state), or `None` when no video is showing or it hasn't reported.
 pub async fn webview_video_time(app: &AppHandle) -> Option<serde_json::Value> {
     let wv = app.get_webview(CONTENT_LABEL)?;
     let (tx, rx) = tokio::sync::oneshot::channel::<String>();
     let tx = std::sync::Mutex::new(Some(tx));
-    wv.eval_with_callback("JSON.stringify(window.__grimoireVideo || null)", move |out| {
+    wv.eval_with_callback(VIDEO_TIME_JS, move |out| {
         if let Some(tx) = tx.lock().ok().and_then(|mut t| t.take()) {
             let _ = tx.send(out);
         }

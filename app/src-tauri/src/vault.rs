@@ -276,7 +276,7 @@ impl VaultCell {
     }
 
     pub fn open(&self, app: &AppHandle, root: PathBuf, create: bool, lfs: bool) -> Result<VaultSnapshot> {
-        let root = root.canonicalize().map_err(|_| AppError::NotFound(format!("{} doesn't exist", root.display())))?;
+        let root = crate::platform::canonicalize(&root).map_err(|_| AppError::NotFound(format!("{} doesn't exist", root.display())))?;
         if !root.is_dir() {
             return Err(AppError::InvalidPath(format!("{} is not a folder", root.display())));
         }
@@ -338,7 +338,8 @@ fn start_watcher(
         let mut notes: HashSet<String> = HashSet::new();
         for ev in events {
             let Ok(rel) = ev.path.strip_prefix(&r) else { continue };
-            let rel_s = rel.to_string_lossy();
+            // Vault-relative, with `/` separators on every platform.
+            let rel_s = crate::platform::slash_path(rel);
             if rel_s.starts_with(".git/") || rel_s.starts_with(".grimoire/local") || rel_s.ends_with(".grimoire-tmp") {
                 continue;
             }

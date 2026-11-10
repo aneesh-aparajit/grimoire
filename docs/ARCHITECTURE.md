@@ -6,7 +6,7 @@
 | **Last updated** | 2026-11-08 |
 | **Related** | [PRD](./PRD.md) |
 
-**Target: macOS only for v1** (13 Ventura+, universal binary). Linux and Windows are later; §11 lists what we do now to keep that door open.
+**Targets:** macOS 13 Ventura+ (universal binary) and Windows 10/11 (x64). Linux is later; §11 covers what differs per platform.
 
 This document describes how Grimoire is built: the runtime, the code layout under `app/`, the on-disk data model, and how each major feature (vault I/O, content rendering, editor, sandbox) works.
 
@@ -586,7 +586,16 @@ Bindings for all of these are generated into `src/ipc/bindings.ts` by tauri-spec
   - Dropping a PDF or a URL onto the Dock icon or window adds an item.
   - `PATH` is resolved from the login shell at startup (see §6.5), since apps launched from Finder get a minimal `PATH`.
 
-**Keeping other platforms open.** We don't build or test for Linux/Windows in v1, but we avoid cheap lock-in: no Objective-C/Swift in the core (macOS-only bits sit behind `#[cfg(target_os = "macos")]` in `src-tauri/src/platform/`), PDFs don't depend on WKWebView's viewer, slugs are Windows-safe, and the vault format has nothing macOS-specific.
+**Windows (10/11, x64).** Built from the same code; the differences live in `src-tauri/src/platform.rs`:
+
+- **Webview:** WebView2 (preinstalled on Windows 10 and 11; the installer downloads it if missing).
+- **Bundle:** an NSIS `-setup.exe` (per-user install, no admin rights) and an `.msi`, built on `windows-latest` by the same release workflow. Unsigned for now, so SmartScreen warns on first run. `scripts/install.ps1` builds from a clone or installs a downloaded installer silently.
+- **Sandbox:** no process groups, so stop and timeout end the run with `taskkill /T /F`; every child gets `CREATE_NO_WINDOW` so no console flashes up; compiled programs are `main.exe`; Python is looked up as `python`, then `py`, then `python3` (often the Store stub); runs keep the handful of variables Windows programs need to start (`SystemRoot`, `USERPROFILE`, `APPDATA`, …).
+- **Paths:** the vault root is canonicalised without the `\\?\` prefix, and paths the watcher and sandbox report back are joined with `/` so they match item ids.
+- **Video:** WebView2 can't load an HTML string under an https base URL, so YouTube plays on its watch page (with `&t=` to resume) and the position is read from the page's `<video>` element instead of the embed's iframe API.
+- **UI:** shortcut labels read `Ctrl+…` instead of `⌘…`, and "Show in Finder" becomes "Show in Explorer". Handlers already accept Ctrl or ⌘.
+
+Linux isn't built yet; nothing in the code or the vault format should stand in its way.
 
 ## 12. Future work
 

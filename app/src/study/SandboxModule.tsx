@@ -16,6 +16,7 @@ import { RunLog } from "./RunLog";
 import { Splitter } from "./Splitter";
 import { sandboxPath } from "../lib/paths";
 import { useStudy } from "./store";
+import { kbd } from "../lib/keys";
 
 const LANG_EXT: Record<Language, Extension> = {
   python: python(),
@@ -141,7 +142,7 @@ export function SandboxModule({ style }: { style?: React.CSSProperties }) {
               type="button"
               className="btn"
               onClick={() => void saveSnippet()}
-              title={`Save to ${dir}${lang?.file} (⌘S)`}
+              title={`Save to ${dir}${lang?.file} (${kbd("S")})`}
               aria-label="Save snippet"
             >
               <Save />
@@ -150,7 +151,7 @@ export function SandboxModule({ style }: { style?: React.CSSProperties }) {
           </>
         )}
         {running ? (
-          <button type="button" className="btn btn-danger" onClick={stop} title="Stop (⌘.)">
+          <button type="button" className="btn btn-danger" onClick={stop} title={`Stop (${kbd(".")})`}>
             <Square />
             Stop
           </button>
@@ -160,10 +161,10 @@ export function SandboxModule({ style }: { style?: React.CSSProperties }) {
             className="btn btn-primary"
             onClick={() => void run()}
             disabled={!available}
-            title={available ? "Run (⌘↵)" : `${lang?.bin} not found`}
+            title={available ? `Run (${kbd("↵")})` : `${lang?.bin} not found`}
           >
             <Play />
-            Run <span className="kbd">⌘↵</span>
+            Run <span className="kbd">{kbd("↵")}</span>
           </button>
         )}
         <button
